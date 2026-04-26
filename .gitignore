@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+{data,templates,static}/
+data/reviews_local.pkl
+data/*.pkl
