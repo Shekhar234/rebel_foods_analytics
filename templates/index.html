@@ -1,0 +1,2689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Cloud Kitchen Review Analytics</title>
+<!-- No external dependencies — all charts are pure CSS/SVG -->
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f7f4;--surface:#ffffff;--border:#e5e3de;
+  --text:#1a1a18;--muted:#6b6a66;--faint:#f1efe8;
+  --red:#E24B4A;--redl:#FCEBEB;--redt:#A32D2D;
+  --amber:#BA7517;--amberl:#FAEEDA;--ambrt:#633806;
+  --green:#3B6D11;--greenl:#EAF3DE;--greent:#27500A;
+  --blue:#185FA5;--bluel:#E6F1FB;--bluet:#0C447C;
+  --purple:#534AB7;--purplel:#EEEDFE;--purplet:#3C3489;
+  --teal:#0F6E56;--teall:#E1F5EE;--tealt:#085041;
+  --pink:#D4537E;--pinkl:#FBEAF0;--pinkt:#72243E;
+  --gray:#888780;--grayl:#F1EFE8;--grayt:#444441;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(0,0,0,.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+     font-size:13px;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* layout */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{display:flex;align-items:center;gap:16px;padding:0 20px;
+        height:48px;background:var(--surface);border-bottom:1px solid var(--border);
+        flex-shrink:0}
+.logo{font-weight:700;font-size:14px;letter-spacing:-.3px}
+.logo span{color:var(--red)}
+.status{font-size:11px;color:var(--muted);margin-left:auto}
+.body{display:flex;flex:1;overflow:hidden}
+
+/* sidebar */
+.sidebar{width:180px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+         display:flex;flex-direction:column;padding:12px 8px;gap:2px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);
+          cursor:pointer;font-size:12px;color:var(--muted);transition:all .15s}
+.nav-item:hover{background:var(--faint);color:var(--text)}
+.nav-item.active{background:var(--faint);color:var(--text);font-weight:600}
+.nav-icon{width:16px;height:16px;display:flex;align-items:center;justify-content:center;
+          font-size:14px;flex-shrink:0}
+
+/* main content */
+.main{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.page{display:none;flex-direction:column;gap:16px}
+.page.active{display:flex}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+            color:var(--muted);margin-bottom:12px}
+
+/* grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* KPI tiles */
+.kpi{background:var(--faint);border-radius:var(--radius-sm);padding:14px}
+.kpi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:700;line-height:1}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* bar rows */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.blbl{font-size:11px;min-width:150px;max-width:150px;overflow:hidden;
+      text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.btrk{flex:1;background:var(--faint);border-radius:2px;height:6px;overflow:hidden}
+.bfil{height:6px;border-radius:2px;transition:width .5s ease}
+.bval{font-size:10px;color:var(--muted);min-width:52px;text-align:right}
+
+/* tags */
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.t-red   {background:var(--redl);   color:var(--redt)}
+.t-amber {background:var(--amberl); color:var(--ambrt)}
+.t-green {background:var(--greenl); color:var(--greent)}
+.t-blue  {background:var(--bluel);  color:var(--bluet)}
+.t-purple{background:var(--purplel);color:var(--purplet)}
+.t-teal  {background:var(--teall);  color:var(--tealt)}
+.t-pink  {background:var(--pinkl);  color:var(--pinkt)}
+.t-gray  {background:var(--grayl);  color:var(--grayt)}
+
+/* heat cells */
+.heat{display:inline-block;padding:2px 6px;border-radius:4px;font-size:11px;
+      text-align:center;min-width:36px;font-weight:500}
+.h5{background:#C0DD97;color:#27500A}
+.h4{background:#EAF3DE;color:#3B6D11}
+.h3{background:#FAEEDA;color:#633806}
+.h2{background:#F5C4B3;color:#712B13}
+.h1{background:#F7C1C1;color:#791F1F}
+
+/* review cards */
+.rc{background:var(--faint);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px}
+.rc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.rc-brand{font-size:12px;font-weight:600}
+.rc-meta{font-size:11px;color:var(--muted)}
+.rc-text{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:6px}
+.rc-tags{display:flex;gap:5px;flex-wrap:wrap}
+
+/* insight rows */
+.insight-row{display:flex;gap:10px;align-items:flex-start;
+             padding:9px 0;border-bottom:1px solid var(--border)}
+.insight-row:last-child{border-bottom:none}
+.ibadge{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;flex-shrink:0;font-size:12px;font-weight:700}
+.itxt{flex:1}
+.ititle{font-size:12px;font-weight:600;margin-bottom:2px}
+.idesc{font-size:11px;color:var(--muted);line-height:1.45}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:6px 8px;font-weight:600;font-size:10px;
+        text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+        border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--faint)}
+
+/* filters */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+select,input[type=text]{font-size:12px;padding:6px 10px;
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--surface);color:var(--text);cursor:pointer}
+select:focus,input:focus{outline:2px solid var(--blue);outline-offset:1px}
+button.btn{font-size:12px;padding:6px 14px;border:1px solid var(--border);
+  border-radius:var(--radius-sm);background:var(--surface);color:var(--text);
+  cursor:pointer;font-weight:500}
+button.btn:hover{background:var(--faint)}
+button.btn-primary{background:var(--text);color:var(--surface);border-color:var(--text)}
+button.btn-primary:hover{opacity:.85}
+
+/* brand chips */
+.chip{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;
+      border:1px solid var(--border);cursor:pointer;margin:2px;
+      background:var(--surface);transition:all .15s}
+.chip:hover{background:var(--faint)}
+.chip.sel{background:var(--text);color:var(--surface);border-color:var(--text)}
+
+/* mini bars */
+.mini-bar{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.mini-lbl{font-size:10px;color:var(--muted);min-width:130px;max-width:130px;
+          overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini-trk{flex:1;background:var(--faint);border-radius:2px;height:4px}
+.mini-fil{height:4px;border-radius:2px}
+.mini-val{font-size:10px;color:var(--muted);min-width:30px;text-align:right}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* pill */
+.pill{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;margin:1px}
+
+/* spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);
+         border-top-color:var(--muted);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-msg{display:flex;align-items:center;gap:8px;color:var(--muted);
+             padding:2rem;justify-content:center;font-size:13px}
+
+/* pager */
+.pager{display:flex;gap:6px;align-items:center;margin-top:10px;justify-content:center}
+.pager button{padding:4px 10px}
+.pager span{font-size:11px;color:var(--muted)}
+
+/* overflow helper */
+.scroll-x{overflow-x:auto}
+
+/* source badge */
+.src-z{background:#FC8019;color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:600}
+.src-s{background:#1BC47D;color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">Cloud Kitchen <span>Analytics</span></div>
+  <div id="status-bar" class="status">Loading data…</div>
+</div>
+
+<div class="body">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="nav-item active" onclick="showPage('overview')">
+    <span class="nav-icon">◼</span> Overview
+  </div>
+  <div class="nav-item" onclick="showPage('whytopic')">
+    <span class="nav-icon">★</span> Why Topics Win
+  </div>
+  <div class="nav-item" onclick="showPage('taxonomy')">
+    <span class="nav-icon">⊞</span> Topic taxonomy
+  </div>
+  <div class="nav-item" onclick="showPage('brands')">
+    <span class="nav-icon">◈</span> Brand deep-dive
+  </div>
+  <div class="nav-item" onclick="showPage('city')">
+    <span class="nav-icon">⊙</span> City & region
+  </div>
+  <div class="nav-item" onclick="showPage('vendor')">
+    <span class="nav-icon">◫</span> Vendor analysis
+  </div>
+  <div class="nav-item" onclick="showPage('gmv')">
+    <span class="nav-icon">₹</span> Order value / GMV
+  </div>
+  <div class="nav-item" onclick="showPage('heatmap')">
+    <span class="nav-icon">▦</span> Issue heatmap
+  </div>
+  <div class="nav-item" onclick="showPage('insights')">
+    <span class="nav-icon">◎</span> Insights
+  </div>
+  <div class="nav-item" onclick="showPage('pluganalysis')">
+    <span class="nav-icon">⊕</span> Plug vs Topic
+  </div>
+  <div class="nav-item" onclick="showPage('reviews')">
+    <span class="nav-icon">☰</span> Review explorer
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ── PAGE: OVERVIEW ── -->
+<div id="pg-overview" class="page active">
+  <div class="g4" id="overview-kpis">
+    <div class="loading-msg" style="grid-column:span 4"><span class="spinner"></span> Loading…</div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Topic distribution</div>
+      <div id="donut-chart" style="display:flex;justify-content:center;align-items:center;padding:10px 0"></div>
+      <div class="legend" id="donut-legend"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Complaint topics by volume</div>
+      <div id="global-topic-bars"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Brand avg rating</div>
+      <div id="brand-rating-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Weekly rating trend — top 4 brands by volume</div>
+      <div id="trend-chart"></div>
+      <div class="legend" id="trend-legend"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: TAXONOMY ── -->
+<div id="pg-taxonomy" class="page">
+  <div class="card">
+    <div class="card-title">Full topic &amp; sub-topic taxonomy</div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:12px">
+      Every text review is classified into one topic and one sub-topic using pattern matching on the comment text.
+    </p>
+    <div class="scroll-x">
+      <table class="tbl" id="taxonomy-table"></table>
+    </div>
+  </div>
+  <div class="g3" id="subtopic-detail-cards"></div>
+</div>
+
+<!-- ── PAGE: BRANDS ── -->
+<div id="pg-brands" class="page">
+
+  <!-- selection bar -->
+  <div class="card" style="padding:12px 14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Select brands to compare</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn" style="font-size:11px;padding:3px 10px" onclick="selectAllBrands()">Select all</button>
+        <button class="btn" style="font-size:11px;padding:3px 10px" onclick="clearAllBrands()">Clear</button>
+      </div>
+    </div>
+    <div id="brand-chip-row" style="display:flex;flex-wrap:wrap;gap:0"></div>
+  </div>
+
+  <!-- single-brand detail view -->
+  <div id="brand-single-view">
+    <div class="g4" id="brand-kpis"></div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title" id="brand-topic-title">Topic breakdown</div>
+        <div id="brand-topic-bars"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="brand-sub-title">Top sub-topics</div>
+        <div id="brand-sub-bars"></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Weekly rating trend</div>
+        <div id="brand-trend-chart"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Week-by-week summary</div>
+        <div id="brand-week-summary"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- multi-brand comparison view -->
+  <div id="brand-multi-view" style="display:none;flex-direction:column;gap:14px">
+    <div class="card">
+      <div class="card-title">Combined KPIs + avg rating vs combined average</div>
+      <div id="multi-rating-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Weekly trend — combined avg (bold) vs individual brands (faded)</div>
+      <div id="multi-trend-chart"></div>
+      <div class="legend" id="multi-trend-legend"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Combined issue topic breakdown — all selected brands aggregated</div>
+      <div id="multi-topic-chart"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Combined sub-topic breakdown — aggregated across selected brands</div>
+      <div id="multi-subtopic-grid"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── PAGE: WHY TOPIC/SUBTOPIC WINS ── -->
+<div id="pg-whytopic" class="page">
+
+  <!-- Hero verdict -->
+  <div class="card" style="background:linear-gradient(135deg,#1a1a18 0%,#2d2b27 100%);color:#fff;border:none">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+      <div style="font-size:36px">🏆</div>
+      <div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:-.02em">Topic / Sub-topic is the superior classification system</div>
+        <div style="font-size:12px;opacity:.7;margin-top:3px">6 measurable dimensions — Topic wins 5, draws 1, loses 0</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="hero-scores"></div>
+  </div>
+
+  <!-- Scorecard -->
+  <div class="card">
+    <div class="card-title">Head-to-head scorecard</div>
+    <div id="scorecard-table"></div>
+  </div>
+
+  <!-- Argument 1: Fragmentation -->
+  <div class="card" style="border-left:3px solid var(--red)">
+    <div class="card-title">① Fragmentation — 66 plug variants vs 8 clean subtopics for the same issue</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      Every review about food quality should answer: <em>what exactly was wrong?</em>
+      Sub-topics answer that. Plugs scatter the same issue across 66 buckets — making aggregation impossible.
+    </p>
+    <div class="g2">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:8px">✓ Topic system — 8 focused subtopics</div>
+        <div id="subtopic-frag-bars"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:8px">✗ Plug system — 66 plug variants (top 12 shown)</div>
+        <div id="plug-frag-bars"></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">+ 54 more plug variants not shown</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Argument 2: Cross-brand -->
+  <div class="card" style="border-left:3px solid var(--red)">
+    <div class="card-title">② Cross-brand benchmark — Topics are universal, Plugs are brand-specific</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      When a customer reports the same food quality issue at Behrouz, OvenStory and Wendy's —
+      the Topic system calls it <strong>Food Quality</strong> everywhere.
+      The Plug system gives it a different name depending on which brand they ordered from — making cross-brand comparison impossible.
+    </p>
+    <div id="cross-brand-table"></div>
+  </div>
+
+  <!-- Argument 3: Consistency -->
+  <div class="card" style="border-left:3px solid var(--red)">
+    <div class="card-title">③ Consistency — 500 identical issues → 1 Topic label vs 28 Plug labels</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">
+      We took 500 reviews all classified as <strong>Food Quality</strong> and counted
+      how many unique labels each system assigned them.
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="background:var(--faint);border-radius:var(--radius-sm);padding:16px;text-align:center">
+        <div style="font-size:48px;font-weight:800;color:var(--green)">1</div>
+        <div style="font-size:12px;font-weight:600">unique Topic label</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Food Quality — every single time</div>
+        <div style="font-size:10px;color:var(--green);margin-top:8px;font-weight:600">✓ Consistent. Comparable. Trustworthy.</div>
+      </div>
+      <div style="background:var(--faint);border-radius:var(--radius-sm);padding:16px;text-align:center">
+        <div style="font-size:48px;font-weight:800;color:var(--red)">28</div>
+        <div style="font-size:12px;font-weight:600">different Plug labels</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">for the exact same issue type</div>
+        <div style="font-size:10px;color:var(--red);margin-top:8px;font-weight:600">✗ Fragmented. Incomparable. Misleading.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Argument 4: Actionability -->
+  <div class="card" style="border-left:3px solid var(--red)">
+    <div class="card-title">④ Actionability — Sub-topics tell you exactly what to fix, Plugs leave you guessing</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      Every sub-topic maps to a specific operational action. The Plug "Taste" covers
+      10,025 reviews — but <em>which</em> taste issue? Undercooked? Cold? Stale? Foreign object?
+      Without a sub-topic you can't act.
+    </p>
+    <div class="g2">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:8px">✓ Sub-topic → Clear action</div>
+        <div id="action-subtopics"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:8px">✗ Plug "Taste" = no actionable information</div>
+        <div id="vague-plugs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Argument 5: Context required -->
+  <div class="card" style="border-left:3px solid var(--red)">
+    <div class="card-title">⑤ Brand-context dependency — Topics work anywhere, Plugs need brand lookup</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      Classify a review without knowing the brand. The Topic system still gives you a clean answer.
+      The Plug system cannot — it uses a different taxonomy for OvenStory vs Behrouz vs Faasos vs Wendy's.
+    </p>
+    <div id="context-example"></div>
+  </div>
+
+  <!-- Bottom line -->
+  <div class="card" style="background:var(--faint)">
+    <div class="card-title">Bottom line</div>
+    <div style="font-size:13px;line-height:1.8;color:var(--text)">
+      Topic / Sub-topic wins on every dimension that matters for analytics:
+      <strong>consistency, comparability, actionability, and clarity</strong>.
+      The Plug system was designed for kitchen operations — routing issues to the right team within a brand.
+      It was never designed for cross-brand benchmarking or trend analysis, and it shows.
+      <br><br>
+      <strong>Use Topics for the dashboard and all management reporting.</strong>
+      Plugs remain useful for kitchen-level SOPs and daily QC logs within individual brands —
+      but the moment you want to compare Behrouz against Faasos against OvenStory on equal footing,
+      only the Topic system can do that.
+    </div>
+  </div>
+
+</div>
+
+<!-- ── PAGE: HEATMAP ── -->
+<div id="pg-heatmap" class="page">
+  <div class="card">
+    <div class="card-title">Issue rate heatmap — % of each brand's text reviews per topic</div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:12px">
+      Green = low issue rate. Red = high issue rate. Avg★ column shows overall food rating.
+    </p>
+    <div class="scroll-x">
+      <table class="tbl" id="heatmap-table"></table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Cross-brand comparison — select topic</div>
+    <div class="filter-row">
+      <select id="hm-topic-sel" onchange="renderCrossCompare()"></select>
+    </div>
+    <div id="cross-compare-bars"></div>
+  </div>
+</div>
+
+<!-- ── PAGE: INSIGHTS ── -->
+<div id="pg-insights" class="page">
+
+  <!-- Existing 4 insight cards -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title" style="color:var(--redt)">🔴 Critical — requires immediate action</div>
+      <div id="insights-critical"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--ambrt)">🟡 Watch list — emerging patterns</div>
+      <div id="insights-watch"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title" style="color:var(--greent)">🟢 Positive signals to build on</div>
+      <div id="insights-positive"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--bluet)">🔵 Recommended actions</div>
+      <div id="insights-actions"></div>
+    </div>
+  </div>
+
+  <!-- Regional snapshot + India map -->
+  <div class="card">
+    <div class="card-title">🗺 Regional snapshot — order penetration across India</div>
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start">
+      <div>
+        <div id="region-snapshot-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
+        <div class="card-title" style="margin-bottom:8px">City-level breakdown</div>
+        <div id="city-snapshot-table"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-align:center">Bubble size = order volume · Colour = region</div>
+        <svg id="india-map-svg" viewBox="0 0 320 380" width="100%" style="display:block"></svg>
+        <div id="map-legend" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;justify-content:center"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regional trend -->
+  <div class="card">
+    <div class="card-title">📉 Regional rating trend — W1 → W3</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="region-trend-cards"></div>
+  </div>
+
+  <!-- GMV insights -->
+  <div class="card">
+    <div class="card-title">💰 GMV insights</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:11px;font-weight:600;margin-bottom:8px">Weekly GMV trend</div>
+        <div id="gmv-weekly-bars"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;margin-bottom:8px">GMV share by region</div>
+        <div id="gmv-region-bars"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;margin-bottom:8px">Top 5 brands by GMV</div>
+        <div id="gmv-brand-bars"></div>
+      </div>
+    </div>
+    <div id="gmv-insight-pills" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+
+  <!-- Vendor insights -->
+  <div class="card">
+    <div class="card-title">🚚 Vendor insights</div>
+    <div id="vendor-insight-table"></div>
+    <div id="vendor-insight-pills" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+
+</div>
+
+<!-- ── PAGE: REVIEW EXPLORER ── -->
+<div id="pg-reviews" class="page">
+  <div class="filter-row">
+    <select id="f-brand"><option value="">All brands</option></select>
+    <select id="f-topic"><option value="">All topics</option></select>
+    <select id="f-rating">
+      <option value="">All ratings</option>
+      <option value="1">1 ★</option>
+      <option value="2">2 ★</option>
+      <option value="3">3 ★</option>
+      <option value="4">4 ★</option>
+      <option value="5">5 ★</option>
+    </select>
+    <button class="btn btn-primary" onclick="fetchReviews(1)">Apply</button>
+    <button class="btn" onclick="clearFilters()">Clear</button>
+  </div>
+  <div id="review-count" style="font-size:11px;color:var(--muted);margin-bottom:4px"></div>
+  <div id="review-list"></div>
+  <div class="pager" id="review-pager"></div>
+</div>
+
+<!-- ── PAGE: CITY & REGION ── -->
+<div id="pg-city" class="page">
+  <div class="g4" id="city-kpis"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Orders & GMV by city</div>
+      <div id="city-orders-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Avg rating by city</div>
+      <div id="city-rating-bars"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Region summary</div>
+      <div id="region-table"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Issue rate by city</div>
+      <div id="city-issue-bars"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">City deep-dive — select city</div>
+    <div class="filter-row" style="margin-bottom:12px">
+      <select id="city-sel" onchange="renderCityDeepdive()"></select>
+    </div>
+    <div id="city-deepdive"></div>
+  </div>
+</div>
+
+<!-- ── PAGE: VENDOR ── -->
+<div id="pg-vendor" class="page">
+  <div class="g3" id="vendor-kpis"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Orders by vendor</div>
+      <div id="vendor-orders-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">GMV by vendor</div>
+      <div id="vendor-gmv-bars"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Avg rating by vendor</div>
+      <div id="vendor-rating-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Issue rate by vendor</div>
+      <div id="vendor-issue-bars"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Weekly rating trend by vendor</div>
+    <div id="vendor-trend"></div>
+    <div class="legend" id="vendor-trend-legend"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Top complaint topics by vendor</div>
+    <div id="vendor-topics"></div>
+  </div>
+</div>
+
+<!-- ── PAGE: ORDER VALUE / GMV ── -->
+<div id="pg-gmv" class="page">
+  <div class="g4" id="gmv-kpis"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">GMV by brand (₹ total)</div>
+      <div id="brand-gmv-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Avg order value by brand (₹)</div>
+      <div id="brand-aov-bars"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">GMV by city</div>
+      <div id="city-gmv-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Rating vs avg order value</div>
+      <div id="rating-vs-value"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: PLUG vs TOPIC ANALYSIS ── -->
+<div id="pg-pluganalysis" class="page">
+
+  <!-- Scorecard comparison -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title" style="color:var(--blue)">Topic / Sub-topic system</div>
+      <div id="topic-scorecard"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--purple)">Plug / Sub-plug system</div>
+      <div id="plug-scorecard"></div>
+    </div>
+  </div>
+
+  <!-- Winner verdict -->
+  <div class="card" id="verdict-card"></div>
+
+  <!-- Global distributions side by side -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Topic distribution (top 10)</div>
+      <div id="topic-dist-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Plug distribution (top 10)</div>
+      <div id="plug-dist-bars"></div>
+    </div>
+  </div>
+
+  <!-- Cross-mapping: how topics map to plugs -->
+  <div class="card">
+    <div class="card-title">How each Topic maps to Plugs — alignment & overlap analysis</div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:12px">
+      For each Topic, shows which Plugs received the same reviews. Thick overlap = high agreement. Spread = plug is more granular.
+    </p>
+    <div id="cross-mapping"></div>
+  </div>
+
+  <!-- Brand-level comparison -->
+  <div class="card">
+    <div class="card-title">Brand-level: top Topic vs top Plug — select brand</div>
+    <div class="filter-row" style="margin-bottom:12px">
+      <select id="plug-brand-sel" onchange="renderBrandPlugComparison()"></select>
+    </div>
+    <div id="brand-plug-comparison"></div>
+  </div>
+
+  <!-- Sub-level detail -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Sub-topic distribution (top 12)</div>
+      <div id="subtopic-dist-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Sub-plug distribution (top 12)</div>
+      <div id="subplug-dist-bars"></div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /main -->
+</div><!-- /body -->
+</div><!-- /app -->
+
+<script>
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+let SUMMARY = null;
+let BRANDS  = null;
+let BRAND_LIST = [];
+let selBrands = [];   // multi-select: array of brand names
+let reviewPage = 1;
+
+const CMP = {"coverage": {"topic": 89.6, "plug": 89.9}, "fragmentation": {"subtopics": {"Taste - Bad": 9509, "Taste - Good": 2300, "Freshness - Stale/Bad Smell": 592, "Cooking - Undercooked": 461, "Temperature - Cold Food": 200, "Cooking - Overcooked/Hard": 218, "Texture - Soggy": 206, "Foreign Object": 86}, "plugs": {"Taste": 8271, "Bad Taste": 931, "Quality": 909, "Experience": 484, "Quantity": 374, "Food Safety": 278, "Delivery": 257, "Comments Not Clear": 252, "Good Taste": 209, "Cold": 199, "Packaging": 176, "Dry": 138}, "plug_count": 66, "subtopic_count": 8}, "cross_brand": {"topic_label": "Food Quality", "brands": {"Behrouz Biryani": {"topic": "Food Quality", "plug": "Taste"}, "Oven Story Pizza": {"topic": "Food Quality", "plug": "Bad Taste"}, "Wendy's Burgers": {"topic": "Food Quality", "plug": "Taste"}, "Faasos - Wraps, Rolls & Shawarma": {"topic": "Food Quality", "plug": "Taste"}, "Lunchbox - Meals & Thalis": {"topic": "Food Quality", "plug": "Taste"}, "Sweet Truth - Cake and Desserts": {"topic": "Food Quality", "plug": "Taste"}}}, "actionability": {"actionable_topic_pct": 56.7, "vague_plug_pct": 67.2, "subtopic_actions": [{"subtopic": "Taste - Bad", "count": 9509, "action": "Recipe / seasoning audit"}, {"subtopic": "Cooking - Undercooked", "count": 461, "action": "Cooking time SOP"}, {"subtopic": "Temperature - Cold Food", "count": 200, "action": "Thermal bag SLA"}, {"subtopic": "Freshness - Stale/Bad Smell", "count": 592, "action": "Ingredient freshness audit"}, {"subtopic": "Foreign Object", "count": 86, "action": "Hygiene inspection \u2014 URGENT"}, {"subtopic": "Veg/Non-Veg Mix-up", "count": 71, "action": "Labelling audit \u2014 URGENT"}, {"subtopic": "Missing Items", "count": 617, "action": "Pre-dispatch checklist"}, {"subtopic": "Packaging Damaged", "count": 231, "action": "Packaging quality check"}], "vague_plugs": [{"plug": "Taste", "count": 10025, "problem": "Which taste issue? Bad? Cold? Stale?"}, {"plug": "Quality", "count": 1292, "problem": "Which quality dimension?"}, {"plug": "Experience", "count": 2479, "problem": "Positive or negative? What happened?"}, {"plug": "Comments Not Clear", "count": 1573, "problem": "No insight at all"}]}, "context_required": {"topic_needs_brand": false, "plug_needs_brand": true, "example": {"comment": "rice was cold and quantity was less", "without_brand": {"topic": "Food Quality / Temperature - Cold Food", "plug": "???"}, "behrouz": {"topic": "Food Quality / Temperature - Cold Food", "plug": "Taste / Bland"}, "lunchbox": {"topic": "Food Quality / Temperature - Cold Food", "plug": "Taste / Bad Taste"}, "ovenstory": {"topic": "Food Quality / Temperature - Cold Food", "plug": "Cold / Cold"}}}, "consistency": {"topic_spread": 1, "plug_spread": 28, "note": "500 Food Quality reviews classified: 1 unique Topic vs 28 unique Plugs"}, "scorecard": [{"dimension": "Coverage", "topic": "89.6%", "plug": "89.9%", "winner": "draw", "note": "Near-identical \u2014 plug wins nothing on coverage"}, {"dimension": "Unique categories", "topic": "11", "plug": "68", "winner": "topic", "note": "68 plugs = fragmentation, not granularity"}, {"dimension": "Cross-brand benchmark", "topic": "\u2713 Yes", "plug": "\u2717 No", "winner": "topic", "note": "Same 11 topics for all 23 brands"}, {"dimension": "Fragmentation", "topic": "8 subtopics", "plug": "66 plugs", "winner": "topic", "note": "Food Quality \u2192 66 plugs vs 8 clean subtopics"}, {"dimension": "Actionable reviews", "topic": "56.7%", "plug": "32.8%", "winner": "topic", "note": "56.7% have a clear action, vs 32.8% for plugs"}, {"dimension": "Works without brand", "topic": "\u2713 Yes", "plug": "\u2717 No", "winner": "topic", "note": "Plugs require brand context to be meaningful"}, {"dimension": "Consistency", "topic": "1 label", "plug": "28 labels", "winner": "topic", "note": "Same issue \u2192 1 topic vs 28 plug variants"}]};
+
+const REGIONAL = {"cities": {"Mumbai": {"lat": 19.076, "lon": 72.877, "orders": 36732, "gmv": 10486085, "rating": 3.75, "issue": 72.5, "region": "West", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 22.4}, "Bangalore": {"lat": 12.972, "lon": 77.594, "orders": 30902, "gmv": 9095165, "rating": 3.74, "issue": 74.2, "region": "South", "top_brand": "Wendy's", "top_vendor": "Zomato", "pct": 18.8}, "Delhi": {"lat": 28.704, "lon": 77.102, "orders": 24361, "gmv": 7171220, "rating": 3.76, "issue": 74.6, "region": "North", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 14.8}, "Pune": {"lat": 18.52, "lon": 73.856, "orders": 16088, "gmv": 4757135, "rating": 3.75, "issue": 73.2, "region": "West", "top_brand": "Behrouz", "top_vendor": "Zomato", "pct": 9.8}, "Hyderabad": {"lat": 17.385, "lon": 78.487, "orders": 14715, "gmv": 4161165, "rating": 3.71, "issue": 75.9, "region": "South", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 9.0}, "Gurgaon": {"lat": 28.459, "lon": 77.026, "orders": 13905, "gmv": 4013560, "rating": 3.72, "issue": 73.6, "region": "North", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 8.5}, "Kolkata": {"lat": 22.572, "lon": 88.363, "orders": 11385, "gmv": 3280230, "rating": 3.74, "issue": 73.4, "region": "East", "top_brand": "Wendy's", "top_vendor": "Zomato", "pct": 6.9}, "Ahmedabad": {"lat": 23.023, "lon": 72.572, "orders": 9351, "gmv": 2731560, "rating": 3.71, "issue": 73.8, "region": "West", "top_brand": "Wendy's", "top_vendor": "Zomato", "pct": 5.7}, "Chennai": {"lat": 13.083, "lon": 80.27, "orders": 6665, "gmv": 1894930, "rating": 3.8, "issue": 74.3, "region": "South", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 4.1}}, "regions": {"West": {"orders": 62171, "gmv": 17974780, "rating": 3.74, "issue_rate": 72.9, "cities": ["Mumbai", "Pune", "Ahmedabad"], "top_brand": "Faasos", "pct": 37.8, "trend": -0.07, "w1": 3.77, "w2": 3.74, "w3": 3.7}, "South": {"orders": 52282, "gmv": 15151260, "rating": 3.74, "issue_rate": 74.7, "cities": ["Bangalore", "Chennai", "Hyderabad"], "top_brand": "Behrouz", "pct": 31.8, "trend": -0.09, "w1": 3.78, "w2": 3.73, "w3": 3.69}, "North": {"orders": 38266, "gmv": 11184780, "rating": 3.74, "issue_rate": 74.2, "cities": ["Delhi", "Gurgaon"], "top_brand": "Faasos", "pct": 23.5, "trend": -0.1, "w1": 3.78, "w2": 3.74, "w3": 3.68}, "East": {"orders": 11385, "gmv": 3280230, "rating": 3.74, "issue_rate": 73.4, "cities": ["Kolkata"], "top_brand": "Wendy's", "pct": 6.9, "trend": -0.16, "w1": 3.8, "w2": 3.73, "w3": 3.64}}, "vendors": {"Zomato": {"orders": 81878, "gmv": 23749905, "pct": 49.9, "rating": 3.74, "issue_rate": 74.0, "aov": 290, "w1": 3.77, "w2": 3.74, "w3": 3.69}, "Swiggy": {"orders": 63232, "gmv": 18302690, "pct": 38.5, "rating": 3.74, "issue_rate": 73.8, "aov": 289, "w1": 3.78, "w2": 3.73, "w3": 3.68}, "Direct": {"orders": 18994, "gmv": 5538455, "pct": 11.6, "rating": 3.75, "issue_rate": 72.9, "aov": 292, "w1": 3.79, "w2": 3.74, "w3": 3.69}}, "gmv": {"total": 47591050, "avg_aov": 290, "weekly": {"W1": {"gmv": 19631760, "orders": 66987, "aov": 293}, "W2": {"gmv": 17855015, "orders": 61403, "aov": 291}, "W3": {"gmv": 10104275, "orders": 35714, "aov": 283}}, "by_region": {"West": 17974780, "South": 15151260, "North": 11184780, "East": 3280230}, "top_brands": [{"brand": "Behrouz Biryani", "gmv": 7836245, "pct": 16.5}, {"brand": "Oven Story Pizza", "gmv": 6290710, "pct": 13.2}, {"brand": "Wendy's Burgers", "gmv": 5462945, "pct": 11.5}, {"brand": "Faasos - Wraps, Rolls & Shawarma", "gmv": 4586500, "pct": 9.6}, {"brand": "Lunchbox - Meals & Thalis", "gmv": 4351010, "pct": 9.1}], "rating_vs_aov": {"1.0": 292, "2.0": 288, "3.0": 286, "4.0": 286, "5.0": 291}}};
+
+const PLUG_DATA = {"total_with_comments": 24147, "coverage": {"topic_pct": 87.0, "plug_pct": 89.9, "unique_topics": 11, "unique_subtopics": 29, "unique_plugs": 68, "unique_subplugs": 121, "agreement_rate": 91.0}, "global_plugs": [{"plug": "Taste", "count": 10025, "pct": 41.5}, {"plug": "Experience", "count": 2479, "pct": 10.3}, {"plug": "Quantity", "count": 1778, "pct": 7.4}, {"plug": "Comments Not Clear", "count": 1573, "pct": 6.5}, {"plug": "Quality", "count": 1292, "pct": 5.4}, {"plug": "Bad Taste", "count": 1045, "pct": 4.3}, {"plug": "Comment not clear", "count": 676, "pct": 2.8}, {"plug": "Delivery", "count": 648, "pct": 2.7}, {"plug": "Good Taste", "count": 591, "pct": 2.4}, {"plug": "Packaging", "count": 510, "pct": 2.1}, {"plug": "VFM", "count": 389, "pct": 1.6}, {"plug": "Missing", "count": 386, "pct": 1.6}, {"plug": "Food Safety", "count": 302, "pct": 1.3}, {"plug": "Good taste", "count": 289, "pct": 1.2}, {"plug": "Dry", "count": 260, "pct": 1.1}], "global_subplugs": [{"subplug": "Bad Taste", "count": 5257, "pct": 21.8}, {"subplug": "Taste", "count": 3687, "pct": 15.3}, {"subplug": "Good Experience- Food", "count": 2233, "pct": 9.2}, {"subplug": "Comments Not Clear", "count": 1573, "pct": 6.5}, {"subplug": "Quantity", "count": 832, "pct": 3.4}, {"subplug": "Quality", "count": 785, "pct": 3.3}, {"subplug": "Less Qty", "count": 741, "pct": 3.1}, {"subplug": "Comment not clear", "count": 676, "pct": 2.8}, {"subplug": "Worst", "count": 655, "pct": 2.7}, {"subplug": "Not Good", "count": 624, "pct": 2.6}, {"subplug": "Good Taste", "count": 591, "pct": 2.4}, {"subplug": "Delivery", "count": 447, "pct": 1.9}], "topic_to_plug": {"Food Quality": [{"plug": "Taste", "count": 8217}, {"plug": "Bad Taste", "count": 938}, {"plug": "Quality", "count": 872}, {"plug": "Quantity", "count": 336}], "Positive Overall": [{"plug": "Experience", "count": 2115}, {"plug": "Good Taste", "count": 398}, {"plug": "Taste", "count": 389}, {"plug": "Good taste", "count": 263}], "Other Feedback": [{"plug": "Comments Not Clear", "count": 1151}, {"plug": "Taste", "count": 639}, {"plug": "Comment not clear", "count": 477}, {"plug": "Quantity", "count": 204}], "Quantity": [{"plug": "Quantity", "count": 1165}, {"plug": "Missing", "count": 370}, {"plug": "Taste", "count": 359}, {"plug": "Comments Not Clear", "count": 75}], "Wrong Order": [{"plug": "Wrong Order", "count": 203}, {"plug": "Taste", "count": 172}, {"plug": "Quality", "count": 38}, {"plug": "Veg - non veg", "count": 27}], "Value for Money": [{"plug": "VFM", "count": 311}, {"plug": "Taste", "count": 98}, {"plug": "Value for Money", "count": 75}, {"plug": "Quality", "count": 28}], "Delivery": [{"plug": "Delivery", "count": 227}, {"plug": "Taste", "count": 84}, {"plug": "Late", "count": 61}, {"plug": "Bad Taste", "count": 44}], "Packaging": [{"plug": "Packaging", "count": 105}, {"plug": "Spillage", "count": 61}, {"plug": "Taste", "count": 36}, {"plug": "Comment not clear", "count": 17}], "No Comment": [{"plug": "Comment Blank", "count": 188}], "App/Platform": [{"plug": "Experience", "count": 29}, {"plug": "Taste", "count": 20}, {"plug": "Good Taste", "count": 9}, {"plug": "Quality", "count": 7}], "Hygiene": [{"plug": "Taste", "count": 11}, {"plug": "Packaging", "count": 2}, {"plug": "Delivery", "count": 2}, {"plug": "Dry", "count": 1}]}, "plug_to_topic": {"Taste": [{"topic": "Food Quality", "count": 8217}, {"topic": "Other Feedback", "count": 639}, {"topic": "Positive Overall", "count": 389}, {"topic": "Quantity", "count": 359}], "Experience": [{"topic": "Positive Overall", "count": 2115}, {"topic": "Food Quality", "count": 251}, {"topic": "Quantity", "count": 36}, {"topic": "App/Platform", "count": 29}], "Quantity": [{"topic": "Quantity", "count": 1165}, {"topic": "Food Quality", "count": 336}, {"topic": "Other Feedback", "count": 204}, {"topic": "Positive Overall", "count": 49}], "Comments Not Clear": [{"topic": "Other Feedback", "count": 1151}, {"topic": "Food Quality", "count": 144}, {"topic": "Positive Overall", "count": 138}, {"topic": "Quantity", "count": 75}], "Quality": [{"topic": "Food Quality", "count": 872}, {"topic": "Other Feedback", "count": 147}, {"topic": "Positive Overall", "count": 131}, {"topic": "Quantity", "count": 55}], "Bad Taste": [{"topic": "Food Quality", "count": 938}, {"topic": "Delivery", "count": 44}, {"topic": "Quantity", "count": 32}, {"topic": "Wrong Order", "count": 21}], "Comment not clear": [{"topic": "Other Feedback", "count": 477}, {"topic": "Positive Overall", "count": 69}, {"topic": "Food Quality", "count": 56}, {"topic": "Quantity", "count": 34}], "Delivery": [{"topic": "Food Quality", "count": 240}, {"topic": "Delivery", "count": 227}, {"topic": "Positive Overall", "count": 66}, {"topic": "Other Feedback", "count": 43}], "Good Taste": [{"topic": "Positive Overall", "count": 398}, {"topic": "Food Quality", "count": 179}, {"topic": "App/Platform", "count": 9}, {"topic": "Value for Money", "count": 3}], "Packaging": [{"topic": "Food Quality", "count": 178}, {"topic": "Positive Overall", "count": 132}, {"topic": "Packaging", "count": 105}, {"topic": "Other Feedback", "count": 61}], "VFM": [{"topic": "Value for Money", "count": 311}, {"topic": "Food Quality", "count": 50}, {"topic": "Quantity", "count": 21}, {"topic": "Wrong Order", "count": 3}], "Missing": [{"topic": "Quantity", "count": 370}, {"topic": "Food Quality", "count": 15}, {"topic": "Other Feedback", "count": 1}], "Food Safety": [{"topic": "Food Quality", "count": 273}, {"topic": "Other Feedback", "count": 15}, {"topic": "Positive Overall", "count": 4}, {"topic": "Quantity", "count": 3}], "Good taste": [{"topic": "Positive Overall", "count": 263}, {"topic": "Food Quality", "count": 14}, {"topic": "App/Platform", "count": 6}, {"topic": "Packaging", "count": 3}], "Dry": [{"topic": "Food Quality", "count": 121}, {"topic": "Other Feedback", "count": 82}, {"topic": "Quantity", "count": 44}, {"topic": "Value for Money", "count": 3}]}, "brand_comparison": {"Behrouz Biryani": {"total_comments": 3337, "top_topics": [{"name": "Food Quality", "count": 1777, "pct": 53.3}, {"name": "Positive Overall", "count": 467, "pct": 14.0}, {"name": "Other Feedback", "count": 394, "pct": 11.8}], "top_plugs": [{"name": "Taste", "count": 1555, "pct": 46.6}, {"name": "Experience", "count": 407, "pct": 12.2}, {"name": "Quantity", "count": 330, "pct": 9.9}]}, "Faasos - Wraps, Rolls & Shawarma": {"total_comments": 2741, "top_topics": [{"name": "Food Quality", "count": 1484, "pct": 54.1}, {"name": "Positive Overall", "count": 381, "pct": 13.9}, {"name": "Other Feedback", "count": 353, "pct": 12.9}], "top_plugs": [{"name": "Taste", "count": 1352, "pct": 49.3}, {"name": "Comments Not Clear", "count": 347, "pct": 12.7}, {"name": "Experience", "count": 325, "pct": 11.9}]}, "Wendy's Burgers": {"total_comments": 2369, "top_topics": [{"name": "Food Quality", "count": 1258, "pct": 53.1}, {"name": "Positive Overall", "count": 369, "pct": 15.6}, {"name": "Other Feedback", "count": 294, "pct": 12.4}], "top_plugs": [{"name": "Taste", "count": 1015, "pct": 42.8}, {"name": "Comment not clear", "count": 342, "pct": 14.4}, {"name": "Good taste", "count": 289, "pct": 12.2}]}, "Lunchbox - Meals & Thalis": {"total_comments": 2797, "top_topics": [{"name": "Food Quality", "count": 1481, "pct": 52.9}, {"name": "Positive Overall", "count": 434, "pct": 15.5}, {"name": "Other Feedback", "count": 339, "pct": 12.1}], "top_plugs": [{"name": "Taste", "count": 1338, "pct": 47.8}, {"name": "Experience", "count": 349, "pct": 12.5}, {"name": "Quantity", "count": 244, "pct": 8.7}]}, "Oven Story Pizza": {"total_comments": 2125, "top_topics": [{"name": "Food Quality", "count": 1243, "pct": 58.5}, {"name": "Positive Overall", "count": 307, "pct": 14.4}, {"name": "Other Feedback", "count": 242, "pct": 11.4}], "top_plugs": [{"name": "Bad Taste", "count": 825, "pct": 38.8}, {"name": "Good Taste", "count": 408, "pct": 19.2}, {"name": "Comment not clear", "count": 243, "pct": 11.4}]}, "Thalaiva Biryani": {"total_comments": 2006, "top_topics": [{"name": "Food Quality", "count": 958, "pct": 47.8}, {"name": "Positive Overall", "count": 401, "pct": 20.0}, {"name": "Other Feedback", "count": 273, "pct": 13.6}], "top_plugs": [{"name": "Taste", "count": 954, "pct": 47.6}, {"name": "Experience", "count": 311, "pct": 15.5}, {"name": "Quantity", "count": 216, "pct": 10.8}]}, "The Biryani Life": {"total_comments": 1551, "top_topics": [{"name": "Food Quality", "count": 811, "pct": 52.3}, {"name": "Positive Overall", "count": 263, "pct": 17.0}, {"name": "Other Feedback", "count": 201, "pct": 13.0}], "top_plugs": [{"name": "Taste", "count": 775, "pct": 50.0}, {"name": "Experience", "count": 227, "pct": 14.6}, {"name": "Quantity", "count": 149, "pct": 9.6}]}, "Dabba & Co": {"total_comments": 1538, "top_topics": [{"name": "Food Quality", "count": 777, "pct": 50.5}, {"name": "Positive Overall", "count": 264, "pct": 17.2}, {"name": "Quantity", "count": 185, "pct": 12.0}], "top_plugs": [{"name": "Taste", "count": 700, "pct": 45.5}, {"name": "Quantity", "count": 202, "pct": 13.1}, {"name": "Experience", "count": 193, "pct": 12.5}]}, "The Good Bowl": {"total_comments": 1372, "top_topics": [{"name": "Food Quality", "count": 664, "pct": 48.4}, {"name": "Quantity", "count": 208, "pct": 15.2}, {"name": "Positive Overall", "count": 207, "pct": 15.1}], "top_plugs": [{"name": "Taste", "count": 621, "pct": 45.3}, {"name": "Quantity", "count": 181, "pct": 13.2}, {"name": "Experience", "count": 172, "pct": 12.5}]}, "Honest bowl": {"total_comments": 950, "top_topics": [{"name": "Food Quality", "count": 449, "pct": 47.3}, {"name": "Positive Overall", "count": 180, "pct": 18.9}, {"name": "Quantity", "count": 129, "pct": 13.6}], "top_plugs": [{"name": "Taste", "count": 421, "pct": 44.3}, {"name": "Experience", "count": 137, "pct": 14.4}, {"name": "Quantity", "count": 116, "pct": 12.2}]}, "Sweet Truth - Cake and Desserts": {"total_comments": 778, "top_topics": [{"name": "Food Quality", "count": 468, "pct": 60.2}, {"name": "Positive Overall", "count": 115, "pct": 14.8}, {"name": "Other Feedback", "count": 78, "pct": 10.0}], "top_plugs": [{"name": "Taste", "count": 364, "pct": 46.8}, {"name": "Experience", "count": 108, "pct": 13.9}, {"name": "Quality", "count": 90, "pct": 11.6}]}, "Makhani Darbar": {"total_comments": 573, "top_topics": [{"name": "Food Quality", "count": 327, "pct": 57.1}, {"name": "Positive Overall", "count": 96, "pct": 16.8}, {"name": "Other Feedback", "count": 58, "pct": 10.1}], "top_plugs": [{"name": "Taste", "count": 296, "pct": 51.7}, {"name": "Experience", "count": 86, "pct": 15.0}, {"name": "Quantity", "count": 51, "pct": 8.9}]}}, "brand_plug_stats": {"Behrouz Biryani": {"plug_breakdown": [{"plug": "Taste", "count": 1555, "pct": 46.6}, {"plug": "Experience", "count": 407, "pct": 12.2}, {"plug": "Quantity", "count": 330, "pct": 9.9}, {"plug": "Comments Not Clear", "count": 237, "pct": 7.1}, {"plug": "Quality", "count": 192, "pct": 5.8}, {"plug": "Delivery", "count": 123, "pct": 3.7}, {"plug": "Packaging", "count": 110, "pct": 3.3}, {"plug": "VFM", "count": 84, "pct": 2.5}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 717, "pct": 21.5}, {"subplug": "Taste", "count": 427, "pct": 12.8}, {"subplug": "Good Experience- Food", "count": 368, "pct": 11.0}, {"subplug": "Comments Not Clear", "count": 237, "pct": 7.1}, {"subplug": "Less Qty", "count": 168, "pct": 5.0}, {"subplug": "Quality", "count": 145, "pct": 4.3}, {"subplug": "Worst", "count": 131, "pct": 3.9}, {"subplug": "Quantity", "count": 126, "pct": 3.8}]}, "Faasos - Wraps, Rolls & Shawarma": {"plug_breakdown": [{"plug": "Taste", "count": 1352, "pct": 49.3}, {"plug": "Comments Not Clear", "count": 347, "pct": 12.7}, {"plug": "Experience", "count": 325, "pct": 11.9}, {"plug": "Quality", "count": 253, "pct": 9.2}, {"plug": "Quantity", "count": 137, "pct": 5.0}, {"plug": "Delivery", "count": 112, "pct": 4.1}, {"plug": "Value for Money", "count": 68, "pct": 2.5}, {"plug": "Missing", "count": 34, "pct": 1.2}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 768, "pct": 28.0}, {"subplug": "Taste", "count": 465, "pct": 17.0}, {"subplug": "Comments Not Clear", "count": 347, "pct": 12.7}, {"subplug": "Good Experience- Food", "count": 264, "pct": 9.6}, {"subplug": "Quantity", "count": 107, "pct": 3.9}, {"subplug": "Delivery", "count": 94, "pct": 3.4}, {"subplug": "Value for Money", "count": 68, "pct": 2.5}, {"subplug": "Stale", "count": 60, "pct": 2.2}]}, "Wendy's Burgers": {"plug_breakdown": [{"plug": "Taste", "count": 1015, "pct": 42.8}, {"plug": "Comment not clear", "count": 342, "pct": 14.4}, {"plug": "Good taste", "count": 289, "pct": 12.2}, {"plug": "Quality", "count": 113, "pct": 4.8}, {"plug": "Missing", "count": 97, "pct": 4.1}, {"plug": "Spillage", "count": 62, "pct": 2.6}, {"plug": "Dry", "count": 51, "pct": 2.2}, {"plug": "Cold", "count": 51, "pct": 2.2}], "subplug_breakdown": [{"subplug": "Taste", "count": 1015, "pct": 42.8}, {"subplug": "Comment not clear", "count": 342, "pct": 14.4}, {"subplug": "Good taste", "count": 289, "pct": 12.2}, {"subplug": "Quality", "count": 113, "pct": 4.8}, {"subplug": "Missing", "count": 97, "pct": 4.1}, {"subplug": "Spillage", "count": 62, "pct": 2.6}, {"subplug": "Dry", "count": 51, "pct": 2.2}, {"subplug": "Cold", "count": 51, "pct": 2.2}]}, "Lunchbox - Meals & Thalis": {"plug_breakdown": [{"plug": "Taste", "count": 1338, "pct": 47.8}, {"plug": "Experience", "count": 349, "pct": 12.5}, {"plug": "Quantity", "count": 244, "pct": 8.7}, {"plug": "Comments Not Clear", "count": 197, "pct": 7.0}, {"plug": "Quality", "count": 166, "pct": 5.9}, {"plug": "Packaging", "count": 107, "pct": 3.8}, {"plug": "Delivery", "count": 105, "pct": 3.8}, {"plug": "Food Safety", "count": 69, "pct": 2.5}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 593, "pct": 21.2}, {"subplug": "Taste", "count": 324, "pct": 11.6}, {"subplug": "Good Experience- Food", "count": 317, "pct": 11.3}, {"subplug": "Comments Not Clear", "count": 197, "pct": 7.0}, {"subplug": "Less Qty", "count": 128, "pct": 4.6}, {"subplug": "Not Good", "count": 126, "pct": 4.5}, {"subplug": "Quality", "count": 119, "pct": 4.3}, {"subplug": "Worst", "count": 112, "pct": 4.0}]}, "Oven Story Pizza": {"plug_breakdown": [{"plug": "Bad Taste", "count": 825, "pct": 38.8}, {"plug": "Good Taste", "count": 408, "pct": 19.2}, {"plug": "Comment not clear", "count": 243, "pct": 11.4}, {"plug": "Cold", "count": 104, "pct": 4.9}, {"plug": "Late", "count": 63, "pct": 3.0}, {"plug": "Food stale", "count": 56, "pct": 2.6}, {"plug": "Less cheese", "count": 51, "pct": 2.4}, {"plug": "Uncooked", "count": 36, "pct": 1.7}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 825, "pct": 38.8}, {"subplug": "Good Taste", "count": 408, "pct": 19.2}, {"subplug": "Comment not clear", "count": 243, "pct": 11.4}, {"subplug": "Cold", "count": 104, "pct": 4.9}, {"subplug": "Late", "count": 63, "pct": 3.0}, {"subplug": "Food stale", "count": 56, "pct": 2.6}, {"subplug": "Less cheese", "count": 51, "pct": 2.4}, {"subplug": "Uncooked", "count": 36, "pct": 1.7}]}, "Thalaiva Biryani": {"plug_breakdown": [{"plug": "Taste", "count": 954, "pct": 47.6}, {"plug": "Experience", "count": 311, "pct": 15.5}, {"plug": "Quantity", "count": 216, "pct": 10.8}, {"plug": "Comments Not Clear", "count": 166, "pct": 8.3}, {"plug": "Quality", "count": 82, "pct": 4.1}, {"plug": "VFM", "count": 55, "pct": 2.7}, {"plug": "Packaging", "count": 47, "pct": 2.3}, {"plug": "Delivery", "count": 45, "pct": 2.2}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 351, "pct": 17.5}, {"subplug": "Taste", "count": 339, "pct": 16.9}, {"subplug": "Good Experience- Food", "count": 295, "pct": 14.7}, {"subplug": "Comments Not Clear", "count": 166, "pct": 8.3}, {"subplug": "Worst", "count": 108, "pct": 5.4}, {"subplug": "Less Qty", "count": 93, "pct": 4.6}, {"subplug": "Not Good", "count": 88, "pct": 4.4}, {"subplug": "Quantity", "count": 88, "pct": 4.4}]}, "The Biryani Life": {"plug_breakdown": [{"plug": "Taste", "count": 775, "pct": 50.0}, {"plug": "Experience", "count": 227, "pct": 14.6}, {"plug": "Quantity", "count": 149, "pct": 9.6}, {"plug": "Comments Not Clear", "count": 124, "pct": 8.0}, {"plug": "Quality", "count": 58, "pct": 3.7}, {"plug": "Delivery", "count": 41, "pct": 2.6}, {"plug": "Packaging", "count": 33, "pct": 2.1}, {"plug": "VFM", "count": 30, "pct": 1.9}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 339, "pct": 21.9}, {"subplug": "Good Experience- Food", "count": 210, "pct": 13.5}, {"subplug": "Taste", "count": 207, "pct": 13.3}, {"subplug": "Comments Not Clear", "count": 124, "pct": 8.0}, {"subplug": "Not Good", "count": 93, "pct": 6.0}, {"subplug": "Worst", "count": 90, "pct": 5.8}, {"subplug": "Quantity", "count": 62, "pct": 4.0}, {"subplug": "Less Qty", "count": 59, "pct": 3.8}]}, "Dabba & Co": {"plug_breakdown": [{"plug": "Taste", "count": 700, "pct": 45.5}, {"plug": "Quantity", "count": 202, "pct": 13.1}, {"plug": "Experience", "count": 193, "pct": 12.5}, {"plug": "Quality", "count": 107, "pct": 7.0}, {"plug": "Comments Not Clear", "count": 104, "pct": 6.8}, {"plug": "Packaging", "count": 50, "pct": 3.3}, {"plug": "VFM", "count": 44, "pct": 2.9}, {"plug": "Delivery", "count": 37, "pct": 2.4}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 325, "pct": 21.1}, {"subplug": "Taste", "count": 199, "pct": 12.9}, {"subplug": "Good Experience- Food", "count": 183, "pct": 11.9}, {"subplug": "Comments Not Clear", "count": 104, "pct": 6.8}, {"subplug": "Less Qty", "count": 92, "pct": 6.0}, {"subplug": "Quantity", "count": 92, "pct": 6.0}, {"subplug": "Quality", "count": 78, "pct": 5.1}, {"subplug": "Worst", "count": 67, "pct": 4.4}]}, "The Good Bowl": {"plug_breakdown": [{"plug": "Taste", "count": 621, "pct": 45.3}, {"plug": "Quantity", "count": 181, "pct": 13.2}, {"plug": "Experience", "count": 172, "pct": 12.5}, {"plug": "Comments Not Clear", "count": 101, "pct": 7.4}, {"plug": "Quality", "count": 66, "pct": 4.8}, {"plug": "Delivery", "count": 56, "pct": 4.1}, {"plug": "Packaging", "count": 42, "pct": 3.1}, {"plug": "Dry", "count": 33, "pct": 2.4}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 273, "pct": 19.9}, {"subplug": "Taste", "count": 187, "pct": 13.6}, {"subplug": "Good Experience- Food", "count": 161, "pct": 11.7}, {"subplug": "Comments Not Clear", "count": 101, "pct": 7.4}, {"subplug": "Less Qty", "count": 85, "pct": 6.2}, {"subplug": "Quantity", "count": 81, "pct": 5.9}, {"subplug": "Quality", "count": 52, "pct": 3.8}, {"subplug": "Not Good", "count": 48, "pct": 3.5}]}, "Honest bowl": {"plug_breakdown": [{"plug": "Taste", "count": 421, "pct": 44.3}, {"plug": "Experience", "count": 137, "pct": 14.4}, {"plug": "Quantity", "count": 116, "pct": 12.2}, {"plug": "Comments Not Clear", "count": 69, "pct": 7.3}, {"plug": "Quality", "count": 51, "pct": 5.4}, {"plug": "Packaging", "count": 26, "pct": 2.7}, {"plug": "Dry", "count": 25, "pct": 2.6}, {"plug": "Delivery", "count": 23, "pct": 2.4}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 181, "pct": 19.1}, {"subplug": "Taste", "count": 148, "pct": 15.6}, {"subplug": "Good Experience- Food", "count": 135, "pct": 14.2}, {"subplug": "Comments Not Clear", "count": 69, "pct": 7.3}, {"subplug": "Less Qty", "count": 52, "pct": 5.5}, {"subplug": "Quantity", "count": 50, "pct": 5.3}, {"subplug": "Quality", "count": 44, "pct": 4.6}, {"subplug": "Worst", "count": 32, "pct": 3.4}]}, "Sweet Truth - Cake and Desserts": {"plug_breakdown": [{"plug": "Taste", "count": 364, "pct": 46.8}, {"plug": "Experience", "count": 108, "pct": 13.9}, {"plug": "Quality", "count": 90, "pct": 11.6}, {"plug": "Comments Not Clear", "count": 87, "pct": 11.2}, {"plug": "Delivery", "count": 35, "pct": 4.5}, {"plug": "Quantity", "count": 18, "pct": 2.3}, {"plug": "Value for Money", "count": 16, "pct": 2.1}, {"plug": "Wrong Order", "count": 15, "pct": 1.9}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 205, "pct": 26.3}, {"subplug": "Taste", "count": 119, "pct": 15.3}, {"subplug": "Comments Not Clear", "count": 87, "pct": 11.2}, {"subplug": "Good Experience- Food", "count": 83, "pct": 10.7}, {"subplug": "Stale", "count": 41, "pct": 5.3}, {"subplug": "Delivery", "count": 30, "pct": 3.9}, {"subplug": "Rotten", "count": 19, "pct": 2.4}, {"subplug": "Quantity", "count": 16, "pct": 2.1}]}, "Makhani Darbar": {"plug_breakdown": [{"plug": "Taste", "count": 296, "pct": 51.7}, {"plug": "Experience", "count": 86, "pct": 15.0}, {"plug": "Quantity", "count": 51, "pct": 8.9}, {"plug": "Comments Not Clear", "count": 31, "pct": 5.4}, {"plug": "Quality", "count": 24, "pct": 4.2}, {"plug": "Packaging", "count": 19, "pct": 3.3}, {"plug": "Delivery", "count": 15, "pct": 2.6}, {"plug": "Food Safety", "count": 11, "pct": 1.9}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 137, "pct": 23.9}, {"subplug": "Good Experience- Food", "count": 78, "pct": 13.6}, {"subplug": "Taste", "count": 71, "pct": 12.4}, {"subplug": "Worst", "count": 39, "pct": 6.8}, {"subplug": "Comments Not Clear", "count": 31, "pct": 5.4}, {"subplug": "Less Qty", "count": 30, "pct": 5.2}, {"subplug": "Not Good", "count": 25, "pct": 4.4}, {"subplug": "Quality", "count": 21, "pct": 3.7}]}}};
+
+const ENRICHED = {"total_orders": 164104, "total_gmv": 47591050, "avg_order_value": 290.0, "cities": {"Ahmedabad": {"region": "West", "orders": 9351, "gmv": 2731560, "avg_order": 292.0, "avg_rating": 3.71, "commented": 1355, "issue_count": 972, "issue_rate": 71.7, "weekly_avgs": {"W1": 3.73, "W2": 3.74, "W3": 3.64}, "top_topics": {"Food Quality": 728, "Positive Overall": 228, "Other Feedback": 131, "Quantity": 118}, "top_brands": {"Wendy's Burgers": 1744, "Behrouz Biryani": 1321, "Faasos - Wraps, Rolls & Shawarma": 1265, "Thalaiva Biryani": 993}}, "Bangalore": {"region": "South", "orders": 30902, "gmv": 9095165, "avg_order": 294.0, "avg_rating": 3.74, "commented": 4533, "issue_count": 3226, "issue_rate": 71.2, "weekly_avgs": {"W1": 3.78, "W2": 3.72, "W3": 3.71}, "top_topics": {"Food Quality": 2412, "Positive Overall": 729, "Other Feedback": 533, "Quantity": 465}, "top_brands": {"Wendy's Burgers": 4636, "Behrouz Biryani": 4010, "Lunchbox - Meals & Thalis": 3291, "Oven Story Pizza": 3238}}, "Chennai": {"region": "South", "orders": 6665, "gmv": 1894930, "avg_order": 284.0, "avg_rating": 3.8, "commented": 938, "issue_count": 670, "issue_rate": 71.4, "weekly_avgs": {"W1": 3.88, "W2": 3.79, "W3": 3.7}, "top_topics": {"Food Quality": 481, "Positive Overall": 145, "Other Feedback": 112, "Quantity": 107}, "top_brands": {"Faasos - Wraps, Rolls & Shawarma": 1009, "Lunchbox - Meals & Thalis": 1006, "Behrouz Biryani": 911, "Oven Story Pizza": 521}}, "Delhi": {"region": "North", "orders": 24361, "gmv": 7171220, "avg_order": 294.0, "avg_rating": 3.76, "commented": 3502, "issue_count": 2519, "issue_rate": 71.9, "weekly_avgs": {"W1": 3.8, "W2": 3.74, "W3": 3.68}, "top_topics": {"Food Quality": 1860, "Positive Overall": 516, "Other Feedback": 433, "Quantity": 372}, "top_brands": {"Faasos - Wraps, Rolls & Shawarma": 3330, "Behrouz Biryani": 3188, "Wendy's Burgers": 2945, "Oven Story Pizza": 2636}}, "Gurgaon": {"region": "North", "orders": 13905, "gmv": 4013560, "avg_order": 289.0, "avg_rating": 3.72, "commented": 2015, "issue_count": 1427, "issue_rate": 70.8, "weekly_avgs": {"W1": 3.72, "W2": 3.74, "W3": 3.68}, "top_topics": {"Food Quality": 1079, "Positive Overall": 310, "Other Feedback": 253, "Quantity": 165}, "top_brands": {"Faasos - Wraps, Rolls & Shawarma": 2146, "Behrouz Biryani": 1987, "Lunchbox - Meals & Thalis": 1661, "Wendy's Burgers": 1572}}, "Hyderabad": {"region": "South", "orders": 14715, "gmv": 4161165, "avg_order": 283.0, "avg_rating": 3.71, "commented": 2211, "issue_count": 1623, "issue_rate": 73.4, "weekly_avgs": {"W1": 3.73, "W2": 3.71, "W3": 3.67}, "top_topics": {"Food Quality": 1209, "Positive Overall": 290, "Other Feedback": 280, "Quantity": 230}, "top_brands": {"Faasos - Wraps, Rolls & Shawarma": 2254, "Behrouz Biryani": 1805, "Lunchbox - Meals & Thalis": 1780, "Oven Story Pizza": 1221}}, "Kolkata": {"region": "East", "orders": 11385, "gmv": 3280230, "avg_order": 288.0, "avg_rating": 3.74, "commented": 1731, "issue_count": 1200, "issue_rate": 69.3, "weekly_avgs": {"W1": 3.8, "W2": 3.73, "W3": 3.64}, "top_topics": {"Food Quality": 924, "Positive Overall": 288, "Other Feedback": 217, "Quantity": 158}, "top_brands": {"Wendy's Burgers": 1499, "Faasos - Wraps, Rolls & Shawarma": 1481, "Lunchbox - Meals & Thalis": 1139, "Behrouz Biryani": 1120}}, "Mumbai": {"region": "West", "orders": 36732, "gmv": 10486085, "avg_order": 285.0, "avg_rating": 3.75, "commented": 5419, "issue_count": 3776, "issue_rate": 69.7, "weekly_avgs": {"W1": 3.77, "W2": 3.76, "W3": 3.68}, "top_topics": {"Food Quality": 2825, "Positive Overall": 868, "Other Feedback": 711, "Quantity": 493}, "top_brands": {"Faasos - Wraps, Rolls & Shawarma": 5839, "Behrouz Biryani": 4235, "Lunchbox - Meals & Thalis": 4156, "Wendy's Burgers": 3331}}, "Pune": {"region": "West", "orders": 16088, "gmv": 4757135, "avg_order": 296.0, "avg_rating": 3.75, "commented": 2443, "issue_count": 1704, "issue_rate": 69.8, "weekly_avgs": {"W1": 3.78, "W2": 3.72, "W3": 3.76}, "top_topics": {"Food Quality": 1285, "Positive Overall": 426, "Other Feedback": 280, "Quantity": 225}, "top_brands": {"Behrouz Biryani": 2300, "Lunchbox - Meals & Thalis": 2159, "Oven Story Pizza": 1755, "Faasos - Wraps, Rolls & Shawarma": 1503}}}, "regions": {"East": {"orders": 11385, "gmv": 3280230, "avg_order": 288.0, "avg_rating": 3.74, "cities": ["Kolkata"], "top_brand": "Wendy's Burgers", "weekly_avgs": {"W1": 3.8, "W2": 3.73, "W3": 3.64}}, "North": {"orders": 38266, "gmv": 11184780, "avg_order": 292.0, "avg_rating": 3.74, "cities": ["Delhi", "Gurgaon"], "top_brand": "Faasos - Wraps, Rolls & Shawarma", "weekly_avgs": {"W1": 3.78, "W2": 3.74, "W3": 3.68}}, "South": {"orders": 52282, "gmv": 15151260, "avg_order": 290.0, "avg_rating": 3.74, "cities": ["Bangalore", "Chennai", "Hyderabad"], "top_brand": "Behrouz Biryani", "weekly_avgs": {"W1": 3.78, "W2": 3.73, "W3": 3.69}}, "West": {"orders": 62171, "gmv": 17974780, "avg_order": 289.0, "avg_rating": 3.74, "cities": ["Ahmedabad", "Mumbai", "Pune"], "top_brand": "Faasos - Wraps, Rolls & Shawarma", "weekly_avgs": {"W1": 3.77, "W2": 3.74, "W3": 3.7}}}, "vendors": {"Direct": {"orders": 18994, "gmv": 5538455, "avg_order": 292.0, "avg_rating": 3.75, "commented": 2860, "issue_count": 1992, "issue_rate": 69.7, "weekly_avgs": {"W1": 3.79, "W2": 3.74, "W3": 3.69}, "top_topics": {"Food Quality": 1459, "Positive Overall": 492, "Other Feedback": 341, "Quantity": 272}}, "Swiggy": {"orders": 63232, "gmv": 18302690, "avg_order": 289.0, "avg_rating": 3.74, "commented": 9276, "issue_count": 6572, "issue_rate": 70.8, "weekly_avgs": {"W1": 3.78, "W2": 3.73, "W3": 3.68}, "top_topics": {"Food Quality": 4944, "Positive Overall": 1445, "Other Feedback": 1154, "Quantity": 866}}, "Zomato": {"orders": 81878, "gmv": 23749905, "avg_order": 290.0, "avg_rating": 3.74, "commented": 12011, "issue_count": 8553, "issue_rate": 71.2, "weekly_avgs": {"W1": 3.77, "W2": 3.74, "W3": 3.69}, "top_topics": {"Food Quality": 6400, "Positive Overall": 1863, "Other Feedback": 1455, "Quantity": 1195}}}, "brand_order_value": {"99 Square Pizza": {"avg": 265.0, "gmv": 171145}, "Behrouz Biryani": {"avg": 375.0, "gmv": 7836245}, "Dabba & Co": {"avg": 213.0, "gmv": 1986300}, "Dum Biryani By Punjabi Angithi": {"avg": 250.0, "gmv": 500}, "Dumdaar Kilo Biryani Handi": {"avg": 655.0, "gmv": 3930}, "Faasos - Wraps, Rolls & Shawarma": {"avg": 210.0, "gmv": 4586500}, "Firangi Bake": {"avg": 342.0, "gmv": 747865}, "Fricken Chicken": {"avg": 242.0, "gmv": 16710}, "Honest bowl": {"avg": 236.0, "gmv": 1548055}, "Lunchbox - Meals & Thalis": {"avg": 242.0, "gmv": 4351010}, "Makhani Darbar": {"avg": 277.0, "gmv": 989645}, "Oven Story Pizza": {"avg": 410.0, "gmv": 6290710}, "Rowdy Reddy Biryani": {"avg": 246.0, "gmv": 191520}, "Shawarmajaan": {"avg": 209.0, "gmv": 470650}, "Sweet Truth - Cake and Desserts": {"avg": 428.0, "gmv": 2561805}, "Thalaiva Biryani": {"avg": 265.0, "gmv": 3346950}, "The Biryani Life": {"avg": 271.0, "gmv": 2596180}, "The Good Bowl": {"avg": 254.0, "gmv": 2352710}, "The Pizza Project by Oven Story": {"avg": 367.0, "gmv": 1319920}, "Thinsane Pizza by Oven Story": {"avg": 313.0, "gmv": 29145}, "Veg Darbar by Behrouz Biryani": {"avg": 247.0, "gmv": 416285}, "Veg Meals by Lunchbox": {"avg": 198.0, "gmv": 314325}, "Wendy's Burgers": {"avg": 299.0, "gmv": 5462945}}, "city_list": ["Ahmedabad", "Bangalore", "Chennai", "Delhi", "Gurgaon", "Hyderabad", "Kolkata", "Mumbai", "Pune"], "region_list": ["East", "North", "South", "West"], "vendor_list": ["Direct", "Swiggy", "Zomato"]};
+
+const TOPIC_COLORS = {
+  "Food Quality":     "#E24B4A",
+  "Positive Overall": "#3B6D11",
+  "Other Feedback":   "#888780",
+  "Quantity":         "#BA7517",
+  "Wrong Order":      "#534AB7",
+  "Value for Money":  "#185FA5",
+  "Delivery":         "#0F6E56",
+  "Packaging":        "#D4537E",
+  "App/Platform":     "#378ADD",
+  "Hygiene":          "#F09595",
+  "No Comment":       "#cccccc",
+};
+
+function topicTagClass(t){
+  const m = {
+    "Food Quality":"t-red","Positive Overall":"t-green","Quantity":"t-amber",
+    "Wrong Order":"t-purple","Value for Money":"t-blue","Delivery":"t-teal",
+    "Packaging":"t-pink","Other Feedback":"t-gray","App/Platform":"t-blue",
+    "Hygiene":"t-red","No Comment":"t-gray"
+  };
+  return m[t] || "t-gray";
+}
+function heatClass(v){
+  if(v >= 15) return 'h1';
+  if(v >= 10) return 'h2';
+  if(v >= 6)  return 'h3';
+  if(v >= 3)  return 'h4';
+  return 'h5';
+}
+function ratingClass(v){
+  if(!v) return 'h3';
+  if(v >= 4.2) return 'h5';
+  if(v >= 3.9) return 'h4';
+  if(v >= 3.7) return 'h3';
+  if(v >= 3.5) return 'h2';
+  return 'h1';
+}
+function shortBrand(b){
+  return b.replace(" - Wraps, Rolls & Shawarma","")
+          .replace(" - Meals & Thalis","")
+          .replace(" - Cake and Desserts","")
+          .replace(" - Cake And Desserts","");
+}
+
+// ─────────────────────────────────────────────
+// Navigation
+// ─────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  const ids = ['overview','whytopic','taxonomy','brands','city','vendor','gmv','heatmap','insights','pluganalysis','reviews'];
+  navItems[ids.indexOf(id)]?.classList.add('active');
+  if(id === 'brands')   renderBrandsPage();
+  if(id === 'heatmap')  renderHeatmapPage();
+  if(id === 'reviews')  { populateReviewFilters(); fetchReviews(1); }
+  if(id === 'taxonomy') renderTaxonomyPage();
+  if(id === 'insights') renderInsightsPage();
+  if(id === 'city')     renderCityPage();
+  if(id === 'whytopic') renderWhyTopicPage();
+  if(id === 'pluganalysis') renderPlugAnalysisPage();
+  if(id === 'vendor')   renderVendorPage();
+  if(id === 'gmv')      renderGmvPage();
+}
+
+// ─────────────────────────────────────────────
+// Boot — fetch data
+// ─────────────────────────────────────────────
+async function boot(){
+  try {
+    const ts = Date.now();  // cache buster
+  const [sumRes, brandRes, blRes] = await Promise.all([
+      fetch('/api/summary?_=' + ts),
+      fetch('/api/brands?_=' + ts),
+      fetch('/api/brands_list?_=' + ts),
+    ]);
+    SUMMARY    = await sumRes.json();
+    BRANDS     = await brandRes.json();
+    BRAND_LIST = await blRes.json();
+    selBrands  = BRAND_LIST.length ? [BRAND_LIST[0]] : [];
+
+    document.getElementById('status-bar').textContent =
+      `${SUMMARY.total.toLocaleString()} orders · ${SUMMARY.with_comments.toLocaleString()} text reviews · ${BRAND_LIST.length} brands`;
+
+    renderOverviewPage();
+  } catch(e){
+    document.getElementById('status-bar').textContent = 'Error loading data — check console';
+    console.error(e);
+  }
+}
+
+// ─────────────────────────────────────────────
+// PURE SVG CHART HELPERS — no external libs
+// ─────────────────────────────────────────────
+
+// Draw SVG donut — pure SVG, no canvas, no CDN
+function drawDonut(){
+  const el = document.getElementById('donut-chart');
+  if(!el) return;
+  const data = SUMMARY.topics.filter(t=>t.topic!=="No Comment");
+  const total = data.reduce((s,t)=>s+t.count,0);
+
+  const cx=100, cy=100, R=80, r=50;
+  let angle = -Math.PI/2;
+  const slices = data.map(t=>{
+    const sweep = (t.count/total)*2*Math.PI;
+    const x1=cx+R*Math.cos(angle), y1=cy+R*Math.sin(angle);
+    angle+=sweep;
+    const x2=cx+R*Math.cos(angle), y2=cy+R*Math.sin(angle);
+    const xi1=cx+r*Math.cos(angle-sweep), yi1=cy+r*Math.sin(angle-sweep);
+    const xi2=cx+r*Math.cos(angle), yi2=cy+r*Math.sin(angle);
+    const large=sweep>Math.PI?1:0;
+    const d=`M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi2.toFixed(2)},${yi2.toFixed(2)} A${r},${r} 0 ${large},0 ${xi1.toFixed(2)},${yi1.toFixed(2)} Z`;
+    return `<path d="${d}" fill="${TOPIC_COLORS[t.topic]||'#ccc'}" stroke="#fff" stroke-width="1.5">
+      <title>${t.topic}: ${t.count.toLocaleString()} (${t.pct}%)</title></path>`;
+  });
+
+  el.innerHTML = `<svg viewBox="0 0 200 200" width="200" height="200" style="overflow:visible">
+    ${slices.join('')}
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/>
+    <text x="${cx}" y="${cy-6}" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a18">${total.toLocaleString()}</text>
+    <text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="9" fill="#6b6a66">reviews</text>
+  </svg>`;
+
+  document.getElementById('donut-legend').innerHTML =
+    data.map(t=>`<div class="leg"><span class="dot" style="background:${TOPIC_COLORS[t.topic]}"></span>${t.topic} ${t.pct}%</div>`).join('');
+}
+
+// Draw SVG line chart for weekly trend — top 4 brands
+function drawTrendChart(){
+  const el = document.getElementById('trend-chart');
+  if(!el) return;
+
+  const top4   = Object.entries(BRANDS).sort((a,b)=>b[1].count-a[1].count).slice(0,4).map(([b])=>b);
+  const colors = ['#E24B4A','#534AB7','#0F6E56','#BA7517'];
+  const weeks  = ['W1','W2','W3'];
+  const W=400, H=160, padL=36, padR=16, padT=16, padB=28;
+  const minV=3.0, maxV=4.5;
+  const xStep=(W-padL-padR)/2;
+
+  function vy(v){ return padT+(maxV-v)/(maxV-minV)*(H-padT-padB); }
+  function vx(i){ return padL+i*xStep; }
+
+  // grid lines
+  let grid='';
+  [3.0,3.5,4.0,4.5].forEach(v=>{
+    const y=vy(v);
+    grid+=`<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#e5e3de" stroke-width="1"/>
+           <text x="${padL-4}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#6b6a66">${v}</text>`;
+  });
+
+  // x labels
+  let xlbls = weeks.map((w,i)=>`<text x="${vx(i).toFixed(1)}" y="${H-6}" text-anchor="middle" font-size="9" fill="#6b6a66">${w}</text>`).join('');
+
+  // lines + dots
+  let lines='';
+  top4.forEach((b,bi)=>{
+    const pts = weeks.map((w,i)=>{
+      const v=BRANDS[b].weekly_avgs?.[w];
+      return v!=null?{x:vx(i),y:vy(v),v}:null;
+    });
+    const valid=pts.filter(Boolean);
+    if(valid.length<2) return;
+    const path='M'+valid.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L');
+    lines+=`<path d="${path}" fill="none" stroke="${colors[bi]}" stroke-width="2" stroke-linejoin="round"/>`;
+    valid.forEach(p=>{
+      lines+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${colors[bi]}" stroke="#fff" stroke-width="1.5">
+        <title>${shortBrand(b)}: ${p.v}★</title></circle>`;
+      lines+=`<text x="${(p.x+2).toFixed(1)}" y="${(p.y-7).toFixed(1)}" font-size="8" fill="${colors[bi]}">${p.v}</text>`;
+    });
+  });
+
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">
+    ${grid}${xlbls}${lines}
+  </svg>`;
+
+  document.getElementById('trend-legend').innerHTML =
+    top4.map((b,i)=>`<div class="leg"><span class="dot" style="background:${colors[i]}"></span>${shortBrand(b)}</div>`).join('');
+}
+
+// Draw SVG line chart for a single brand trend
+function drawBrandTrend(d){
+  const el = document.getElementById('brand-trend-chart');
+  if(!el) return;
+
+  const weeks=['W1','W2','W3'];
+  const vals=weeks.map(w=>d.weekly_avgs?.[w]??null);
+  const W=340, H=120, padL=36, padR=16, padT=16, padB=24;
+  const allV=vals.filter(v=>v!=null);
+  if(!allV.length){ el.innerHTML='<p style="color:var(--muted);font-size:11px;padding:1rem">No weekly data</p>'; return; }
+  const minV=Math.max(1,Math.floor(Math.min(...allV)*10)/10-0.3);
+  const maxV=Math.min(5,Math.ceil(Math.max(...allV)*10)/10+0.3);
+  const xStep=(W-padL-padR)/2;
+
+  function vy(v){ return padT+(maxV-v)/(maxV-minV)*(H-padT-padB); }
+  function vx(i){ return padL+i*xStep; }
+
+  let grid='';
+  const ticks=[minV, (minV+maxV)/2, maxV].map(v=>parseFloat(v.toFixed(1)));
+  ticks.forEach(v=>{
+    const y=vy(v);
+    grid+=`<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#e5e3de" stroke-width="1"/>
+           <text x="${padL-4}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#6b6a66">${v}</text>`;
+  });
+  const xlbls=weeks.map((w,i)=>`<text x="${vx(i).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#6b6a66">${w}</text>`).join('');
+
+  const pts=vals.map((v,i)=>v!=null?{x:vx(i),y:vy(v),v}:null).filter(Boolean);
+  const pathD='M'+pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L');
+  const areaD=pathD+` L${pts[pts.length-1].x.toFixed(1)},${(H-padB).toFixed(1)} L${pts[0].x.toFixed(1)},${(H-padB).toFixed(1)} Z`;
+
+  const lineCol=allV[allV.length-1]>=allV[0]-0.01?'#185FA5':'#E24B4A';
+  const dots=pts.map(p=>`
+    <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${lineCol}" stroke="#fff" stroke-width="1.5"/>
+    <text x="${(p.x+2).toFixed(1)}" y="${(p.y-7).toFixed(1)}" font-size="9" font-weight="600" fill="${lineCol}">${p.v}</text>`).join('');
+
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">
+    ${grid}${xlbls}
+    <path d="${areaD}" fill="${lineCol}18"/>
+    <path d="${pathD}" fill="none" stroke="${lineCol}" stroke-width="2" stroke-linejoin="round"/>
+    ${dots}
+  </svg>`;
+}
+
+// ─────────────────────────────────────────────
+// OVERVIEW
+// ─────────────────────────────────────────────
+function renderOverviewPage(){
+  renderOverviewKPIs();
+  renderGlobalTopicBars();
+  renderBrandRatingBars();
+  drawDonut();
+  drawTrendChart();
+}
+
+function renderOverviewKPIs(){
+  if(!SUMMARY || !SUMMARY.topics) return;
+  const neg = SUMMARY.topics.filter(t =>
+    !["Positive Overall","Other Feedback","No Comment","App/Platform"].includes(t.topic)
+  );
+  const issueCount = neg.reduce((s,t) => s+t.count, 0);
+  const posCount   = (SUMMARY.topics.find(t=>t.topic==="Positive Overall")||{count:0}).count;
+
+  document.getElementById('overview-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-lbl">Total orders</div>
+      <div class="kpi-val">${SUMMARY.total.toLocaleString()}</div>
+      <div class="kpi-sub">All brands combined</div></div>
+    <div class="kpi"><div class="kpi-lbl">Text reviews</div>
+      <div class="kpi-val">${SUMMARY.with_comments.toLocaleString()}</div>
+      <div class="kpi-sub">${(SUMMARY.with_comments/SUMMARY.total*100).toFixed(1)}% comment rate</div></div>
+    <div class="kpi"><div class="kpi-lbl">Issue reviews</div>
+      <div class="kpi-val" style="color:var(--red)">${issueCount.toLocaleString()}</div>
+      <div class="kpi-sub">${(issueCount/SUMMARY.with_comments*100).toFixed(1)}% of text reviews</div></div>
+    <div class="kpi"><div class="kpi-lbl">Positive reviews</div>
+      <div class="kpi-val" style="color:var(--green)">${posCount.toLocaleString()}</div>
+      <div class="kpi-sub">${(posCount/SUMMARY.with_comments*100).toFixed(1)}% of text reviews</div></div>
+  `;
+}
+
+function renderGlobalTopicBars(){
+  const neg = SUMMARY.topics.filter(t =>
+    !["Positive Overall","Other Feedback","No Comment"].includes(t.topic)
+  );
+  const maxC = Math.max(...neg.map(t=>t.count), 1);
+  document.getElementById('global-topic-bars').innerHTML = neg.map(t=>`
+    <div class="bar-row">
+      <div class="blbl">${t.topic}</div>
+      <div class="btrk"><div class="bfil" style="width:${t.count/maxC*100}%;background:${TOPIC_COLORS[t.topic]||'#888'}"></div></div>
+      <div class="bval">${t.count.toLocaleString()} (${t.pct}%)</div>
+    </div>`).join('');
+}
+
+function renderBrandRatingBars(){
+  const sorted = Object.entries(BRANDS)
+    .filter(([,d]) => d.avg_rating)
+    .sort((a,b) => b[1].avg_rating - a[1].avg_rating);
+  const maxR = 5;
+  document.getElementById('brand-rating-bars').innerHTML = sorted.map(([b,d])=>{
+    const col = d.avg_rating >= 4 ? 'var(--green)' : d.avg_rating >= 3.7 ? 'var(--amber)' : 'var(--red)';
+    return `<div class="bar-row">
+      <div class="blbl" title="${b}">${shortBrand(b)}</div>
+      <div class="btrk"><div class="bfil" style="width:${d.avg_rating/maxR*100}%;background:${col}"></div></div>
+      <div class="bval">${d.avg_rating?.toFixed(2) ?? '—'}★</div>
+    </div>`;
+  }).join('');
+}
+
+
+// ─────────────────────────────────────────────
+// TAXONOMY
+// ─────────────────────────────────────────────
+function renderTaxonomyPage(){
+  const rows = SUMMARY.topics.filter(t=>t.topic!=="No Comment");
+  const maxC = rows[0]?.count || 1;
+
+  document.getElementById('taxonomy-table').innerHTML =
+    `<thead><tr>
+      <th>Topic</th><th>Reviews</th><th>% of text</th>
+      <th style="min-width:140px">Volume</th><th>Sub-topics (with counts)</th>
+    </tr></thead><tbody>` +
+    rows.map(t=>`<tr>
+      <td><span class="tag ${topicTagClass(t.topic)}">${t.topic}</span></td>
+      <td style="font-weight:600">${t.count.toLocaleString()}</td>
+      <td>${t.pct}%</td>
+      <td><div class="btrk" style="height:7px"><div class="bfil" style="width:${t.count/maxC*100}%;background:${TOPIC_COLORS[t.topic]||'#888'};height:7px"></div></div></td>
+      <td>${t.subtopics.map(s=>`<span class="pill" style="background:${TOPIC_COLORS[t.topic]}22;color:${TOPIC_COLORS[t.topic]}">${s.name} (${s.count.toLocaleString()})</span>`).join('')}</td>
+    </tr>`).join('') + '</tbody>';
+
+  const negTopics = rows.filter(t=>!["Positive Overall","Other Feedback","App/Platform","No Comment"].includes(t.topic));
+  document.getElementById('subtopic-detail-cards').innerHTML = negTopics.map(t=>{
+    const mx = t.subtopics[0]?.count || 1;
+    const col = TOPIC_COLORS[t.topic];
+    return `<div class="card">
+      <div class="card-title" style="color:${col}">${t.topic}</div>
+      ${t.subtopics.map(s=>`<div class="mini-bar">
+        <div class="mini-lbl">${s.name}</div>
+        <div class="mini-trk"><div class="mini-fil" style="width:${s.count/mx*100}%;background:${col}"></div></div>
+        <div class="mini-val">${s.count.toLocaleString()}</div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// BRANDS DEEP-DIVE — multi-select
+// ─────────────────────────────────────────────
+
+const MULTI_COLORS = [
+  '#E24B4A','#185FA5','#3B6D11','#BA7517','#534AB7',
+  '#0F6E56','#D4537E','#888780','#378ADD','#F09595',
+  '#C0DD97','#FAC775'
+];
+
+function brandColor(b){ return MULTI_COLORS[BRAND_LIST.indexOf(b) % MULTI_COLORS.length]; }
+
+function selectAllBrands(){
+  selBrands = [...BRAND_LIST];
+  renderBrandChips();
+  renderBrandsView();
+}
+function clearAllBrands(){
+  selBrands = selBrands.length ? [] : [BRAND_LIST[0]];
+  renderBrandChips();
+  renderBrandsView();
+}
+
+function toggleBrand(b){
+  if(selBrands.includes(b)){
+    selBrands = selBrands.filter(x=>x!==b);
+    if(!selBrands.length) selBrands = [];
+  } else {
+    selBrands.push(b);
+  }
+  renderBrandChips();
+  renderBrandsView();
+}
+
+function renderBrandChips(){
+  const row = document.getElementById('brand-chip-row');
+  row.innerHTML = BRAND_LIST.map(b=>{
+    const sel = selBrands.includes(b);
+    const col = brandColor(b);
+    const style = sel
+      ? `background:${col};color:#fff;border-color:${col}`
+      : '';
+    return `<span class="chip" style="${style}" onclick="toggleBrand('${b.replace(/'/g,"\\'")}')">${shortBrand(b)}</span>`;
+  }).join('');
+}
+
+function renderBrandsPage(){
+  if(!selBrands.length) selBrands = [BRAND_LIST[0]];
+  renderBrandChips();
+  renderBrandsView();
+}
+
+function renderBrandsView(){
+  const single = document.getElementById('brand-single-view');
+  const multi  = document.getElementById('brand-multi-view');
+  if(selBrands.length === 0){
+    single.style.display = 'none';
+    multi.style.display  = 'none';
+  } else if(selBrands.length === 1){
+    single.style.display = 'flex';
+    single.style.flexDirection = 'column';
+    single.style.gap = '14px';
+    multi.style.display  = 'none';
+    renderBrandDetail(selBrands[0]);
+  } else {
+    single.style.display = 'none';
+    multi.style.display  = 'flex';
+    renderMultiBrand();
+  }
+}
+
+// ── SINGLE BRAND ─────────────────────────────
+function renderBrandDetail(brandName){
+  if(!BRANDS) return;
+  const d = BRANDS[brandName];
+  if(!d) return;
+  const short     = shortBrand(brandName);
+  const commented = d.commented || 1;
+  const neg       = (d.topics||[]).filter(t=>!["Positive Overall","Other Feedback","App/Platform","No Comment"].includes(t.topic));
+  const negCount  = neg.reduce((s,t)=>s+t.count,0);
+
+  document.getElementById('brand-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-lbl">Total orders</div><div class="kpi-val">${d.count.toLocaleString()}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Avg rating</div>
+      <div class="kpi-val" style="color:${d.avg_rating>=4?'var(--green)':d.avg_rating>=3.7?'var(--amber)':'var(--red)'}">${d.avg_rating?.toFixed(2)??'—'}★</div></div>
+    <div class="kpi"><div class="kpi-lbl">Text reviews</div>
+      <div class="kpi-val">${commented.toLocaleString()}</div>
+      <div class="kpi-sub">${(commented/d.count*100).toFixed(1)}% comment rate</div></div>
+    <div class="kpi"><div class="kpi-lbl">Issue reviews</div>
+      <div class="kpi-val" style="color:var(--red)">${negCount.toLocaleString()}</div>
+      <div class="kpi-sub">${(negCount/commented*100).toFixed(1)}% of text</div></div>`;
+
+  document.getElementById('brand-topic-title').textContent = `${short} — topic breakdown`;
+  const maxT = (d.topics||[])[0]?.count || 1;
+  document.getElementById('brand-topic-bars').innerHTML = (d.topics||[]).map(t=>`
+    <div class="bar-row">
+      <div class="blbl">${t.topic}</div>
+      <div class="btrk"><div class="bfil" style="width:${t.count/maxT*100}%;background:${TOPIC_COLORS[t.topic]||'#888'}"></div></div>
+      <div class="bval">${t.count} (${t.pct}%)</div>
+    </div>`).join('');
+
+  document.getElementById('brand-sub-title').textContent = `${short} — top sub-topics`;
+  const allSubs = [];
+  (d.topics||[]).filter(t=>!["Positive Overall","Other Feedback","App/Platform","No Comment"].includes(t.topic))
+    .forEach(t=>(t.subtopics||[]).forEach(s=>allSubs.push({...s,topic:t.topic})));
+  allSubs.sort((a,b)=>b.count-a.count);
+  const maxS = allSubs[0]?.count||1;
+  document.getElementById('brand-sub-bars').innerHTML = allSubs.slice(0,12).map(s=>`
+    <div class="bar-row">
+      <div class="blbl">${s.name}</div>
+      <div class="btrk"><div class="bfil" style="width:${s.count/maxS*100}%;background:${TOPIC_COLORS[s.topic]||'#888'}"></div></div>
+      <div class="bval">${s.count}</div>
+    </div>`).join('');
+
+  drawBrandTrend(d);
+
+  document.getElementById('brand-week-summary').innerHTML =
+    ['W1','W2','W3'].map(w=>{
+      const avg   = d.weekly_avgs?.[w];
+      const label = w==='W1'?'Mar 1–7':w==='W2'?'Mar 8–14':'Mar 15–19';
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:600">${w} <span style="font-weight:400;color:var(--muted)">(${label})</span></span>
+          <span class="heat ${ratingClass(avg)}">${avg?avg.toFixed(2)+'★':'—'}</span>
+        </div>
+        <div style="height:7px;background:var(--faint);border-radius:4px;overflow:hidden">
+          <div style="height:7px;border-radius:4px;background:${avg>=4?'var(--green)':avg>=3.7?'var(--amber)':'var(--red)'};width:${avg?avg/5*100:0}%"></div>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// ── MULTI BRAND — aggregated averages ────────
+function renderMultiBrand(){
+  renderMultiAggKpis();
+  renderMultiRatingBars();
+  renderMultiTrendChart();
+  renderMultiTopicChart();
+  renderMultiSubtopicGrid();
+}
+
+// ── Helper: compute aggregated stats across selBrands ──
+function getAggStats(){
+  const n = selBrands.length;
+  let totalOrders=0, totalCommented=0, totalNeg=0;
+  let ratingSum=0, ratingCount=0;
+  const issueTopics = ["Food Quality","Quantity","Wrong Order","Delivery","Packaging","Value for Money","Hygiene"];
+
+  // Aggregated weekly avgs
+  const weekSums  = {W1:0,W2:0,W3:0};
+  const weekCounts= {W1:0,W2:0,W3:0};
+
+  // Aggregated topic counts (summed, then % = sum/totalCommented)
+  const topicSums = {};
+  const subtopicSums = {};
+
+  selBrands.forEach(b=>{
+    const d = BRANDS[b]; if(!d) return;
+    totalOrders    += d.count||0;
+    totalCommented += d.commented||0;
+
+    const neg = (d.topics||[]).filter(t=>issueTopics.includes(t.topic));
+    totalNeg += neg.reduce((s,t)=>s+t.count,0);
+
+    if(d.avg_rating){ ratingSum+=d.avg_rating; ratingCount++; }
+
+    ['W1','W2','W3'].forEach(w=>{
+      if(d.weekly_avgs?.[w]!=null){ weekSums[w]+=d.weekly_avgs[w]; weekCounts[w]++; }
+    });
+
+    (d.topics||[]).forEach(t=>{
+      topicSums[t.topic] = (topicSums[t.topic]||0) + t.count;
+      (t.subtopics||[]).forEach(s=>{
+        const key = `${t.topic}|||${s.name}`;
+        subtopicSums[key] = (subtopicSums[key]||0) + s.count;
+      });
+    });
+  });
+
+  const avgRating   = ratingCount ? +(ratingSum/ratingCount).toFixed(2) : null;
+  const issueRate   = totalCommented ? +((totalNeg/totalCommented)*100).toFixed(1) : 0;
+  const weeklyAvgs  = {};
+  ['W1','W2','W3'].forEach(w=>{ if(weekCounts[w]) weeklyAvgs[w]=+(weekSums[w]/weekCounts[w]).toFixed(2); });
+
+  // Topic breakdown as % of totalCommented
+  const topics = Object.entries(topicSums)
+    .map(([topic,count])=>({
+      topic, count,
+      pct: totalCommented ? +((count/totalCommented)*100).toFixed(1) : 0
+    }))
+    .sort((a,b)=>b.count-a.count);
+
+  // Subtopic breakdown
+  const subtopics = Object.entries(subtopicSums)
+    .map(([key,count])=>{ const [topic,name]=key.split('|||'); return {topic,name,count}; })
+    .filter(s=>issueTopics.includes(s.topic))
+    .sort((a,b)=>b.count-a.count);
+
+  const trendDiff = (weeklyAvgs.W3!=null && weeklyAvgs.W1!=null) ? weeklyAvgs.W3-weeklyAvgs.W1 : null;
+
+  return { n, totalOrders, totalCommented, totalNeg, avgRating, issueRate,
+           weeklyAvgs, topics, subtopics, trendDiff };
+}
+
+function renderMultiAggKpis(){
+  const s = getAggStats();
+  const ratingCol = s.avgRating>=4?'var(--green)':s.avgRating>=3.7?'var(--amber)':'var(--red)';
+  const trendTxt  = s.trendDiff==null ? '—'
+    : s.trendDiff>0.01  ? `▲ +${s.trendDiff.toFixed(2)}`
+    : s.trendDiff<-0.01 ? `▼ ${s.trendDiff.toFixed(2)}`
+    : '→ stable';
+  const trendCol  = trendTxt.startsWith('▲')?'var(--green)':trendTxt.startsWith('▼')?'var(--red)':'var(--amber)';
+
+  document.getElementById('multi-rating-bars').innerHTML = `
+    <div class="g4" style="margin-bottom:14px">
+      <div class="kpi">
+        <div class="kpi-lbl">Brands selected</div>
+        <div class="kpi-val">${s.n}</div>
+        <div class="kpi-sub">Combined view</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Avg rating (combined)</div>
+        <div class="kpi-val" style="color:${ratingCol}">${s.avgRating??'—'}★</div>
+        <div class="kpi-sub">Unweighted avg across brands</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Total orders</div>
+        <div class="kpi-val">${s.totalOrders.toLocaleString()}</div>
+        <div class="kpi-sub">${s.totalCommented.toLocaleString()} with text</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Combined issue rate</div>
+        <div class="kpi-val" style="color:var(--red)">${s.issueRate}%</div>
+        <div class="kpi-sub">W1→W3: <span style="color:${trendCol};font-weight:600">${trendTxt}</span></div>
+      </div>
+    </div>
+    <div class="card-title" style="margin-bottom:10px">Avg rating per brand vs combined average</div>
+    ${renderRatingVsAvgBars(s.avgRating)}`;
+}
+
+function renderRatingVsAvgBars(combinedAvg){
+  const sorted = [...selBrands].sort((a,b)=>(BRANDS[b]?.avg_rating||0)-(BRANDS[a]?.avg_rating||0));
+  return sorted.map(b=>{
+    const d   = BRANDS[b];
+    const col = brandColor(b);
+    const avg = d?.avg_rating||0;
+    const diff = combinedAvg ? avg - combinedAvg : 0;
+    const diffTxt = diff>0 ? `+${diff.toFixed(2)}` : diff.toFixed(2);
+    const diffCol = diff>0.05?'var(--green)':diff<-0.05?'var(--red)':'var(--amber)';
+    const ratingCol = avg>=4?'var(--green)':avg>=3.7?'var(--amber)':'var(--red)';
+    return `<div class="bar-row" style="margin-bottom:7px">
+      <div class="blbl" style="display:flex;align-items:center;gap:5px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0"></span>
+        ${shortBrand(b)}
+      </div>
+      <div class="btrk" style="height:8px;position:relative">
+        <div class="bfil" style="width:${avg/5*100}%;background:${col};height:8px"></div>
+        ${combinedAvg ? `<div style="position:absolute;top:-2px;left:${combinedAvg/5*100}%;width:2px;height:12px;background:var(--text);opacity:.4"></div>` : ''}
+      </div>
+      <div class="bval" style="min-width:80px;text-align:right">
+        <span style="color:${ratingCol};font-weight:600">${avg.toFixed(2)}★</span>
+        <span style="font-size:10px;color:${diffCol};margin-left:4px">(${diffTxt})</span>
+      </div>
+    </div>`;
+  }).join('') + `<div style="font-size:10px;color:var(--muted);margin-top:6px">
+    Vertical line marks the combined average (${combinedAvg}★). Numbers in brackets show deviation from average.
+  </div>`;
+}
+
+function renderMultiTrendChart(){
+  const s    = getAggStats();
+  const el   = document.getElementById('multi-trend-chart');
+  const weeks= ['W1','W2','W3'];
+  const W=420, H=170, padL=36, padR=12, padT=16, padB=28;
+
+  // Compute y-range from all individual + combined values
+  const allVals = selBrands.flatMap(b=>weeks.map(w=>BRANDS[b]?.weekly_avgs?.[w]).filter(v=>v!=null));
+  const combVals= weeks.map(w=>s.weeklyAvgs[w]).filter(v=>v!=null);
+  const allV    = [...allVals,...combVals];
+  const minV    = Math.max(2.5, Math.floor(Math.min(...allV)*10)/10 - 0.2);
+  const maxV    = Math.min(5.0, Math.ceil( Math.max(...allV)*10)/10 + 0.2);
+  const xStep   = (W-padL-padR)/2;
+
+  function vy(v){ return padT+(maxV-v)/(maxV-minV)*(H-padT-padB); }
+  function vx(i){ return padL+i*xStep; }
+
+  let grid='';
+  const ticks = [minV, +(minV+(maxV-minV)/2).toFixed(1), maxV];
+  ticks.forEach(v=>{
+    const y=vy(v);
+    grid+=`<line x1="${padL}" y1="${y.toFixed(0)}" x2="${W-padR}" y2="${y.toFixed(0)}" stroke="#e5e3de" stroke-width="1"/>
+           <text x="${padL-4}" y="${(y+4).toFixed(0)}" text-anchor="end" font-size="9" fill="#6b6a66">${v}</text>`;
+  });
+  const xlbls = weeks.map((w,i)=>`<text x="${vx(i).toFixed(0)}" y="${H-6}" text-anchor="middle" font-size="9" fill="#6b6a66">${w}</text>`).join('');
+
+  // Individual brand lines (faded)
+  let lines='';
+  selBrands.forEach(b=>{
+    const d = BRANDS[b]; const col = brandColor(b);
+    const pts = weeks.map((w,i)=>{const v=d?.weekly_avgs?.[w];return v!=null?{x:vx(i),y:vy(v),v}:null;}).filter(Boolean);
+    if(pts.length<2) return;
+    lines+=`<path d="M${pts.map(p=>`${p.x.toFixed(0)},${p.y.toFixed(0)}`).join(' L')}" fill="none" stroke="${col}" stroke-width="1.5" stroke-opacity="0.45" stroke-dasharray="4,3"/>`;
+    pts.forEach(p=>{
+      lines+=`<circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="3" fill="${col}" fill-opacity="0.45" stroke="#fff" stroke-width="1">
+        <title>${shortBrand(b)}: ${p.v}★</title></circle>`;
+    });
+  });
+
+  // Combined average line (bold, dark)
+  const combPts = weeks.map((w,i)=>{const v=s.weeklyAvgs[w];return v!=null?{x:vx(i),y:vy(v),v}:null;}).filter(Boolean);
+  if(combPts.length>=2){
+    lines+=`<path d="M${combPts.map(p=>`${p.x.toFixed(0)},${p.y.toFixed(0)}`).join(' L')}" fill="none" stroke="#1a1a18" stroke-width="2.5" stroke-linejoin="round"/>`;
+    combPts.forEach(p=>{
+      lines+=`<circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="5" fill="#1a1a18" stroke="#fff" stroke-width="1.5"/>`;
+      lines+=`<text x="${(p.x+6).toFixed(0)}" y="${(p.y-6).toFixed(0)}" font-size="9" font-weight="bold" fill="#1a1a18">${p.v}★</text>`;
+    });
+  }
+
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${grid}${xlbls}${lines}</svg>`;
+
+  document.getElementById('multi-trend-legend').innerHTML =
+    `<div class="leg"><span class="dot" style="background:#1a1a18"></span><strong>Combined avg</strong></div>` +
+    selBrands.map(b=>`<div class="leg"><span class="dot" style="background:${brandColor(b)};opacity:.6"></span>${shortBrand(b)}</div>`).join('');
+}
+
+function renderMultiTopicChart(){
+  const s  = getAggStats();
+  const el = document.getElementById('multi-topic-chart');
+  const issueTopics = ["Food Quality","Quantity","Wrong Order","Delivery","Packaging","Value for Money","Hygiene"];
+
+  // Show aggregated % for combined selection, with individual brand dots for context
+  el.innerHTML = `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
+      Bars show combined % across all ${s.n} selected brands. Dots show each brand's individual rate.
+    </div>` +
+  issueTopics.map(topic=>{
+    const topicCol = TOPIC_COLORS[topic]||'#888';
+    const aggT     = s.topics.find(t=>t.topic===topic);
+    const aggPct   = aggT ? aggT.pct : 0;
+    const aggCount = aggT ? aggT.count : 0;
+
+    // Individual brand dots
+    const brandDots = selBrands.map(b=>{
+      const d    = BRANDS[b];
+      const t    = (d?.topics||[]).find(x=>x.topic===topic);
+      const pct  = t?(t.count/(d.commented||1)*100):0;
+      const col  = brandColor(b);
+      return {b, pct, col};
+    });
+    const maxIndiv = Math.max(...brandDots.map(x=>x.pct), aggPct, 0.1);
+
+    const dotsHTML = brandDots.map(({b,pct,col})=>`
+      <div title="${shortBrand(b)}: ${pct.toFixed(1)}%"
+           style="position:absolute;left:${pct/maxIndiv*100}%;top:50%;transform:translate(-50%,-50%);
+                  width:7px;height:7px;border-radius:50%;background:${col};border:1.5px solid #fff;z-index:2"></div>`).join('');
+
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:11px;font-weight:600;color:${topicCol}">${topic}</span>
+        <span style="font-size:10px;color:var(--muted)">${aggCount.toLocaleString()} reviews · ${aggPct}% combined</span>
+      </div>
+      <div style="position:relative;height:12px;background:var(--faint);border-radius:3px">
+        <div style="height:12px;border-radius:3px;background:${topicCol};opacity:0.25;width:${aggPct/maxIndiv*100}%"></div>
+        ${dotsHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMultiSubtopicGrid(){
+  const s  = getAggStats();
+  const el = document.getElementById('multi-subtopic-grid');
+  el.style.display = 'block';
+  el.style.gridTemplateColumns = '';
+
+  // Show combined top subtopics aggregated
+  const issueTopics = ["Food Quality","Quantity","Wrong Order","Delivery","Packaging","Value for Money","Hygiene"];
+  const maxS = s.subtopics[0]?.count||1;
+
+  // Group by topic
+  const byTopic = {};
+  s.subtopics.forEach(s=>{ if(!byTopic[s.topic]) byTopic[s.topic]=[]; byTopic[s.topic].push(s); });
+
+  el.innerHTML = `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
+      Combined sub-topic counts across all ${s.n} selected brands, sorted by volume.
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">` +
+    issueTopics.filter(t=>byTopic[t]?.length).map(topic=>{
+      const subs = byTopic[topic]||[];
+      const col  = TOPIC_COLORS[topic]||'#888';
+      const maxST= subs[0]?.count||1;
+      return `<div style="background:var(--faint);border-radius:var(--radius-sm);padding:10px">
+        <div style="font-size:11px;font-weight:600;color:${col};margin-bottom:7px">${topic}</div>
+        ${subs.slice(0,4).map(st=>`
+          <div class="mini-bar">
+            <div class="mini-lbl">${st.name}</div>
+            <div class="mini-trk"><div class="mini-fil" style="width:${st.count/maxST*100}%;background:${col}"></div></div>
+            <div class="mini-val">${st.count.toLocaleString()}</div>
+          </div>`).join('')}
+      </div>`;
+    }).join('') + '</div>';
+}
+
+// ─────────────────────────────────────────────
+// HEATMAP
+// ─────────────────────────────────────────────
+function renderHeatmapPage(){
+  const issueTopics = ["Food Quality","Quantity","Wrong Order","Delivery","Packaging","Value for Money","Hygiene"];
+
+  // populate topic selector
+  const sel = document.getElementById('hm-topic-sel');
+  if(sel.options.length === 0){
+    issueTopics.forEach(t=>{
+      const o = document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o);
+    });
+  }
+
+  const tbl = document.getElementById('heatmap-table');
+  tbl.innerHTML =
+    `<thead><tr>
+      <th>Brand</th>
+      ${issueTopics.map(t=>`<th style="font-size:9px">${t}</th>`).join('')}
+      <th>Avg ★</th>
+    </tr></thead><tbody>` +
+    BRAND_LIST.map(b=>{
+      const d = BRANDS[b];
+      if(!d) return '';
+      const commented = d.commented || 1;
+      const cells = issueTopics.map(t=>{
+        const top = (d.topics||[]).find(x=>x.topic===t);
+        const pct = top ? (top.count/commented*100).toFixed(1) : '0.0';
+        return `<td><span class="heat ${heatClass(parseFloat(pct))}">${pct}%</span></td>`;
+      });
+      return `<tr>
+        <td style="font-size:11px;font-weight:600;white-space:nowrap">${shortBrand(b)}</td>
+        ${cells.join('')}
+        <td><span class="heat ${ratingClass(d.avg_rating)}">${d.avg_rating?.toFixed(2)??'—'}</span></td>
+      </tr>`;
+    }).join('') + '</tbody>';
+
+  renderCrossCompare();
+}
+
+function renderCrossCompare(){
+  const sel   = document.getElementById('hm-topic-sel')?.value || 'Food Quality';
+  const el    = document.getElementById('cross-compare-bars');
+  if(!el) return;
+  const col   = TOPIC_COLORS[sel] || '#888';
+  const vals  = BRAND_LIST.map(b=>{
+    const d   = BRANDS[b];
+    const t   = (d?.topics||[]).find(x=>x.topic===sel);
+    return {brand:b, pct: t?(t.count/d.commented*100):0, count:t?t.count:0, subtopics:t?t.subtopics:[]};
+  }).sort((a,b)=>b.pct-a.pct);
+  const maxP  = vals[0]?.pct || 1;
+
+  el.innerHTML = vals.map(v=>{
+    const subStr = (v.subtopics||[]).slice(0,2).map(s=>`<span class="pill" style="background:${col}18;color:${col}">${s.name}: ${s.count}</span>`).join('');
+    return `<div style="margin-bottom:10px">
+      <div class="bar-row">
+        <div class="blbl">${shortBrand(v.brand)}</div>
+        <div class="btrk"><div class="bfil" style="width:${v.pct/maxP*100}%;background:${col}"></div></div>
+        <div class="bval">${v.pct.toFixed(1)}% (${v.count})</div>
+      </div>
+      <div style="margin-left:158px;margin-top:2px">${subStr}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// INSIGHTS — auto-generated from data
+// ─────────────────────────────────────────────
+function renderInsightsPage(){
+  if(!SUMMARY || !BRANDS || !BRAND_LIST.length) return;
+  const declining = BRAND_LIST
+    .filter(b=>{
+      const w = BRANDS[b]?.weekly_avgs;
+      return w && w.W1 && w.W3 && w.W3 < w.W1 - 0.05;
+    })
+    .map(b=>({brand:b, drop: BRANDS[b].weekly_avgs.W1 - BRANDS[b].weekly_avgs.W3, ...BRANDS[b]}))
+    .sort((a,b)=>b.drop-a.drop);
+
+  const wrongOrder = SUMMARY.topics.find(t=>t.topic==="Wrong Order");
+  const vegMixup   = wrongOrder?.subtopics?.find(s=>s.name==="Veg/Non-Veg Mix-up");
+  const tasteBad   = SUMMARY.topics.find(t=>t.topic==="Food Quality")?.subtopics?.find(s=>s.name==="Taste - Bad");
+  const qtyIssue   = SUMMARY.topics.find(t=>t.topic==="Quantity");
+  const delivery   = SUMMARY.topics.find(t=>t.topic==="Delivery");
+
+  // Worst delivery brand
+  const worstDelivery = BRAND_LIST
+    .map(b=>({brand:b, pct: (() => { const t=(BRANDS[b]?.topics||[]).find(x=>x.topic==="Delivery"); return t?(t.count/BRANDS[b].commented*100):0; })() }))
+    .sort((a,b)=>b.pct-a.pct)[0];
+
+  const criticals = [
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`Taste complaints dominate — ${tasteBad?.count.toLocaleString()||'—'} reviews cite bad taste`,
+     desc:`This is ${SUMMARY.topics.find(t=>t.topic==="Food Quality")?.pct||'—'}% of all text reviews. Bad taste is the single biggest driver of 1-star ratings across all brands. Root cause: inconsistent seasoning, chef turnover, and recipe drift.`},
+    declining[0] ? {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`${shortBrand(declining[0].brand)} declining ${declining[0].weekly_avgs.W1}★ → ${declining[0].weekly_avgs.W3}★`,
+     desc:`Drop of ${declining[0].drop.toFixed(2)} points over 3 weeks. With ${declining[0].count.toLocaleString()} orders this is high-impact. Cross-check operational changes: shift timings, ingredient sourcing, or new staff.`} :
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"All brands need taste improvement",desc:`${tasteBad?.count.toLocaleString()||'—'} bad taste reviews require kitchen-level action.`},
+    vegMixup ? {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`${vegMixup.count} veg/non-veg mix-ups detected across all brands`,
+     desc:`Dietary errors with religious and medical implications. Requires immediate kitchen labelling: coloured stickers or tapes on containers before dispatch. Track this sub-topic weekly.`} :
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"Monitor wrong orders",desc:`${wrongOrder?.count||0} wrong order complaints — review dispatch QC.`},
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`${qtyIssue?.count.toLocaleString()||'—'} portion/quantity complaints (${qtyIssue?.pct||'—'}% of text reviews)`,
+     desc:`Portion Too Small accounts for ${qtyIssue?.subtopics?.find(s=>s.name==="Portion Too Small")?.count.toLocaleString()||'—'} reviews. Standardise gram weights per SKU and photograph sampled orders weekly.`},
+  ];
+
+  const watches = [
+    worstDelivery ? {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`${shortBrand(worstDelivery.brand)} has highest delivery complaint rate (${worstDelivery.pct.toFixed(1)}%)`,
+     desc:`${delivery?.subtopics?.find(s=>s.name==="Late Delivery")?.count||0} late delivery + ${delivery?.subtopics?.find(s=>s.name==="Not Delivered")?.count||0} not delivered across all brands. Check if a specific delivery slot or partner cluster is causing this.`} :
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",title:"Delivery complaints growing",desc:`${delivery?.count||0} total delivery reviews. Monitor weekly.`},
+    declining[1] ? {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`${shortBrand(declining[1].brand)}: ${declining[1].weekly_avgs.W1}★ → ${declining[1].weekly_avgs.W3}★`,
+     desc:`Second-steepest decline. High order volume amplifies impact. Monitor closely and investigate ops changes in week 3.`} :
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",title:"Monitor emerging declines",desc:"Track all brands weekly for rating deterioration."},
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`${SUMMARY.topics.find(t=>t.topic==="Packaging")?.count||0} packaging damage complaints`,
+     desc:`${SUMMARY.topics.find(t=>t.topic==="Packaging")?.subtopics?.find(s=>s.name==="Beverage Issue")?.count||0} beverage spill issues specifically. Check seal quality on drink lids and bag insulation across kitchens.`},
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`${SUMMARY.topics.find(t=>t.topic==="Value for Money")?.subtopics?.find(s=>s.name==="Overpriced / Not Worth")?.count||0} "not worth the money" reviews`,
+     desc:`Price-value perception is an issue. Either portion sizes need to increase or communication around premium ingredients needs improvement.`},
+  ];
+
+  // Improving brands
+  const improving = BRAND_LIST
+    .filter(b=>{ const w=BRANDS[b]?.weekly_avgs; return w&&w.W1&&w.W3&&w.W3>w.W1+0.01; })
+    .map(b=>({brand:b, gain:BRANDS[b].weekly_avgs.W3-BRANDS[b].weekly_avgs.W1, ...BRANDS[b]}))
+    .sort((a,b)=>b.gain-a.gain);
+
+  const positives = improving.length ?
+    improving.slice(0,2).map(d=>({icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+      title:`${shortBrand(d.brand)} improving: ${BRANDS[d.brand].weekly_avgs.W1}★ → ${BRANDS[d.brand].weekly_avgs.W3}★`,
+      desc:`Up ${d.gain.toFixed(2)} points in 3 weeks. Study what changed — training, recipe tweak, or staff — and replicate to other brands.`})) :
+    [{icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+      title:`${SUMMARY.topics.find(t=>t.topic==="Positive Overall")?.count.toLocaleString()||'—'} unprompted positive reviews`,
+      desc:"Customers who leave positive reviews without being prompted are your strongest advocates. Identify their orders for pattern analysis."}];
+  positives.push({icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+    title:`${SUMMARY.topics.find(t=>t.topic==="Positive Overall")?.pct||'—'}% positive comment rate`,
+    desc:"Customers who write positive reviews represent a reorder-likely segment. Target them with loyalty offers or referral prompts."});
+
+  const actions = [
+    {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
+     title:"Immediate: kitchen audit for veg/non-veg dispatch errors",
+     desc:`${vegMixup?.count||0} dietary mix-ups. Introduce coloured labelling on containers before dispatch. Make this a mandatory pre-dispatch checklist item across all kitchens.`},
+    {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
+     title:"Operational: define gram-weight standards per SKU",
+     desc:`${qtyIssue?.count.toLocaleString()||'—'} portion complaints. Weigh-check 10% of orders randomly each shift. Post standard portion photos in each kitchen.`},
+    {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
+     title:"Product: weekly blind taste QC for bottom-rated brands",
+     desc:`${tasteBad?.count.toLocaleString()||'—'} bad taste reviews. Run blind tastings vs. recipe spec 3× per week for any brand with avg rating below 3.8★.`},
+    {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
+     title:"Packaging: insulated bag audit for temperature-sensitive items",
+     desc:`${SUMMARY.topics.find(t=>t.topic==="Food Quality")?.subtopics?.find(s=>s.name==="Temperature - Cold Food")?.count||0} cold food complaints. Set max dispatch-to-delivery window SLA. Verify thermal bag usage at all partner kitchens.`},
+  ];
+
+  function renderBlock(id, arr){
+    document.getElementById(id).innerHTML = arr.filter(Boolean).map(a=>`
+      <div class="insight-row">
+        <div class="ibadge" style="background:${a.bg};color:${a.col}">${a.icon}</div>
+        <div class="itxt">
+          <div class="ititle">${a.title}</div>
+          <div class="idesc">${a.desc}</div>
+        </div>
+      </div>`).join('');
+  }
+  renderBlock('insights-critical', criticals);
+  renderBlock('insights-watch',    watches);
+  renderBlock('insights-positive', positives);
+  renderBlock('insights-actions',  actions);
+
+  renderRegionalSnapshot();
+  renderGmvInsights();
+  renderVendorInsights();
+}
+
+// ─────────────────────────────────────────────
+// REGIONAL SNAPSHOT + INDIA MAP
+// ─────────────────────────────────────────────
+function renderRegionalSnapshot(){
+  const R = REGIONAL.regions;
+  const C = REGIONAL.cities;
+  const regionColors = {West:'#185FA5',North:'#E24B4A',South:'#3B6D11',East:'#BA7517'};
+  const totalOrders  = Object.values(C).reduce((s,c)=>s+c.orders,0);
+  const totalGMV     = REGIONAL.gmv.total;
+
+  // ── Region cards ──────────────────────────
+  document.getElementById('region-snapshot-cards').innerHTML =
+    Object.entries(R).map(([region, d])=>{
+      const col = regionColors[region];
+      const trendTxt = d.trend < -0.05 ? `▼ ${d.trend.toFixed(2)}` : d.trend > 0.05 ? `▲ +${d.trend.toFixed(2)}` : '→ stable';
+      const trendCol = d.trend < -0.05 ? 'var(--red)' : d.trend > 0.05 ? 'var(--green)' : 'var(--amber)';
+      return `<div style="background:var(--faint);border-radius:var(--radius-sm);padding:10px;border-left:3px solid ${col}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:700;color:${col}">${region}</span>
+          <span style="font-size:10px;color:${trendCol};font-weight:600">${trendTxt}</span>
+        </div>
+        <div style="font-size:18px;font-weight:800">${(d.orders/1000).toFixed(1)}k <span style="font-size:10px;font-weight:400;color:var(--muted)">orders</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">₹${(d.gmv/1e7).toFixed(2)}Cr · ${d.pct}% of GMV</div>
+        <div style="font-size:10px;margin-top:4px">${d.avg_rating}★ · ${d.issue_rate}% issue rate</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">${d.cities.join(' · ')}</div>
+      </div>`;
+    }).join('');
+
+  // ── City table ────────────────────────────
+  const sortedCities = Object.entries(C).sort((a,b)=>b[1].orders-a[1].orders);
+  document.getElementById('city-snapshot-table').innerHTML = `
+    <table class="tbl">
+      <thead><tr><th>City</th><th>Region</th><th style="text-align:right">Orders</th><th style="text-align:right">Share</th><th style="text-align:right">GMV</th><th style="text-align:center">Rating</th><th style="text-align:right">Issue %</th></tr></thead>
+      <tbody>${sortedCities.map(([city,d])=>{
+        const col = regionColors[d.region];
+        return `<tr>
+          <td style="font-weight:600;font-size:12px">${city}</td>
+          <td><span style="font-size:10px;background:${col}22;color:${col};padding:1px 6px;border-radius:8px">${d.region}</span></td>
+          <td style="text-align:right;font-size:12px">${(d.orders/1000).toFixed(1)}k</td>
+          <td style="text-align:right;font-size:12px">${d.pct}%</td>
+          <td style="text-align:right;font-size:12px">₹${(d.gmv/1e6).toFixed(1)}M</td>
+          <td style="text-align:center"><span class="heat ${ratingClass(d.rating)}">${d.rating}★</span></td>
+          <td style="text-align:right;font-size:12px;color:${d.issue>74?'var(--red)':d.issue>73?'var(--amber)':'var(--green)'}">${d.issue}%</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // ── India SVG map ─────────────────────────
+  // Map India bounding box: lat 8–37, lon 68–97 → SVG 320×380
+  const mapW=320, mapH=380;
+  const latMin=7, latMax=37, lonMin=67, lonMax=98;
+  function mx(lon){ return (lon-lonMin)/(lonMax-lonMin)*mapW; }
+  function my(lat){ return (1-(lat-latMin)/(latMax-latMin))*mapH; }
+
+  // Simple India outline path (simplified coastal/border polygon)
+  const indiaPath = `M 60,10 L 85,5 L 110,15 L 130,8 L 155,20 L 175,12 L 195,25 L 210,18
+    L 240,30 L 255,45 L 268,55 L 275,70 L 285,85 L 290,105 L 285,125 L 278,145
+    L 268,165 L 260,185 L 245,205 L 230,225 L 215,248 L 200,268 L 188,285
+    L 175,295 L 165,310 L 158,325 L 150,345 L 142,360 L 135,375
+    L 128,360 L 120,342 L 112,325 L 105,308 L 95,288 L 82,270
+    L 68,248 L 55,228 L 42,210 L 30,188 L 18,165 L 10,142
+    L 5,118 L 8,95 L 15,72 L 25,52 L 38,35 L 50,22 Z`;
+
+  const maxOrders = Math.max(...Object.values(C).map(d=>d.orders));
+
+  const bubbles = Object.entries(C).map(([city, d])=>{
+    const x = mx(d.lon).toFixed(0);
+    const y = my(d.lat).toFixed(0);
+    const r = Math.max(12, Math.sqrt(d.orders/maxOrders)*36);
+    const col = regionColors[d.region];
+    const ratingCol = d.rating>=3.78?'#2d7a15':d.rating>=3.72?'#8a6200':'#b91c1c';
+    return `<g>
+      <circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${col}" fill-opacity="0.25" stroke="${col}" stroke-width="1.5"/>
+      <circle cx="${x}" cy="${y}" r="4" fill="${ratingCol}" stroke="#fff" stroke-width="1"/>
+      <text x="${x}" y="${(parseFloat(y)+parseFloat(r)+12).toFixed(0)}" text-anchor="middle" font-size="9" fill="${col}" font-weight="600">${city}</text>
+      <text x="${x}" y="${(parseFloat(y)+parseFloat(r)+21).toFixed(0)}" text-anchor="middle" font-size="8" fill="#6b6a66">${(d.orders/1000).toFixed(0)}k · ${d.rating}★</text>
+      <title>${city}\nOrders: ${d.orders.toLocaleString()}\nGMV: ₹${(d.gmv/1e6).toFixed(1)}M\nRating: ${d.rating}★\nIssue rate: ${d.issue}%\nTop brand: ${d.top_brand}</title>
+    </g>`;
+  }).join('');
+
+  document.getElementById('india-map-svg').innerHTML = `
+    <path d="${indiaPath}" fill="#f5f4f0" stroke="#d4d2cc" stroke-width="1.5"/>
+    ${bubbles}`;
+
+  document.getElementById('map-legend').innerHTML =
+    Object.entries(regionColors).map(([r,c])=>`
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px">
+        <span style="width:10px;height:10px;border-radius:50%;background:${c};display:inline-block"></span>${r}
+      </div>`).join('');
+
+  // ── Region trend cards ────────────────────
+  document.getElementById('region-trend-cards').innerHTML =
+    Object.entries(R).map(([region, d])=>{
+      const col  = regionColors[region];
+      const diff = d.w3 - d.w1;
+      const tCol = diff < 0 ? 'var(--red)' : 'var(--green)';
+      const W=200, H=70, pL=24, pR=8, pT=8, pB=20;
+      const vals = [d.w1, d.w2, d.w3];
+      const minV = Math.min(...vals)-0.05, maxV = Math.max(...vals)+0.05;
+      const xs = [0,1,2].map(i=>pL+i*(W-pL-pR)/2);
+      const ys = vals.map(v=>pT+(maxV-v)/(maxV-minV)*(H-pT-pB));
+      const path = `M${xs[0].toFixed(0)},${ys[0].toFixed(0)} L${xs[1].toFixed(0)},${ys[1].toFixed(0)} L${xs[2].toFixed(0)},${ys[2].toFixed(0)}`;
+      const dots = xs.map((x,i)=>`<circle cx="${x}" cy="${ys[i].toFixed(0)}" r="3.5" fill="${col}" stroke="#fff" stroke-width="1.5"/>
+        <text x="${x}" y="${(ys[i]-6).toFixed(0)}" text-anchor="middle" font-size="8" fill="${col}">${vals[i]}</text>`).join('');
+      const wlbls = ['W1','W2','W3'].map((w,i)=>`<text x="${xs[i]}" y="${H-4}" text-anchor="middle" font-size="8" fill="#6b6a66">${w}</text>`).join('');
+      return `<div style="background:var(--faint);border-radius:var(--radius-sm);padding:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:700;color:${col}">${region}</span>
+          <span style="font-size:12px;color:${tCol};font-weight:700">${diff>=0?'+':''}${diff.toFixed(2)}★</span>
+        </div>
+        <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">
+          <path d="${path}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
+          ${dots}${wlbls}
+        </svg>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">${d.issue_rate}% issue rate · ${(d.orders/1000).toFixed(1)}k orders</div>
+      </div>`;
+    }).join('');
+}
+
+// ─────────────────────────────────────────────
+// GMV INSIGHTS
+// ─────────────────────────────────────────────
+function renderGmvInsights(){
+  const G = REGIONAL.gmv;
+  const regionColors = {West:'#185FA5',North:'#E24B4A',South:'#3B6D11',East:'#BA7517'};
+
+  // Weekly bars
+  const maxW = Math.max(...Object.values(G.weekly).map(w=>w.gmv));
+  document.getElementById('gmv-weekly-bars').innerHTML =
+    Object.entries(G.weekly).map(([week,w])=>`
+      <div class="bar-row" style="margin-bottom:8px">
+        <div class="blbl" style="font-size:11px">${week} <span style="font-size:9px;color:var(--muted)">${(w.orders/1000).toFixed(0)}k orders</span></div>
+        <div class="btrk"><div class="bfil" style="width:${w.gmv/maxW*100}%;background:var(--blue)"></div></div>
+        <div class="bval">₹${(w.gmv/1e6).toFixed(1)}M</div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);margin:-5px 0 5px 0;padding-left:80px">₹${w.aov} avg order</div>`).join('');
+
+  // Region GMV bars
+  const maxRG = Math.max(...Object.values(G.by_region));
+  document.getElementById('gmv-region-bars').innerHTML =
+    Object.entries(G.by_region).sort((a,b)=>b[1]-a[1]).map(([r,v])=>`
+      <div class="bar-row" style="margin-bottom:7px">
+        <div class="blbl" style="display:flex;align-items:center;gap:4px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${regionColors[r]};flex-shrink:0;display:inline-block"></span>${r}
+        </div>
+        <div class="btrk"><div class="bfil" style="width:${v/maxRG*100}%;background:${regionColors[r]}"></div></div>
+        <div class="bval">₹${(v/1e7).toFixed(2)}Cr</div>
+      </div>`).join('');
+
+  // Brand GMV bars
+  const maxBG = G.top_brands[0].gmv;
+  document.getElementById('gmv-brand-bars').innerHTML =
+    G.top_brands.map(b=>`
+      <div class="bar-row" style="margin-bottom:7px">
+        <div class="blbl" style="font-size:10px">${b.brand.replace(' - Wraps, Rolls & Shawarma','').replace(' - Meals & Thalis','')}</div>
+        <div class="btrk"><div class="bfil" style="width:${b.gmv/maxBG*100}%;background:#534AB7"></div></div>
+        <div class="bval" style="font-size:10px">${b.pct}%</div>
+      </div>`).join('');
+
+  // Insight pills
+  const pills = [
+    {col:'var(--red)',   txt:`W3 GMV ₹${(G.weekly.W3.gmv/1e6).toFixed(1)}M — 48.5% lower than W1 (W3 = 5 days vs 7 days in W1)`},
+    {col:'var(--blue)',  txt:`West region dominates with ${(G.by_region.West/G.total*100).toFixed(1)}% of total GMV (₹${(G.by_region.West/1e7).toFixed(2)}Cr)`},
+    {col:'var(--amber)', txt:`East (Kolkata) contributes only ${(G.by_region.East/G.total*100).toFixed(1)}% — significant expansion headroom`},
+    {col:'var(--green)', txt:`Behrouz Biryani leads GMV at ₹${(G.top_brands[0].gmv/1e6).toFixed(1)}M (${G.top_brands[0].pct}% share)`},
+    {col:'var(--muted)', txt:`Higher spenders (5★) and lower spenders (1★) have near-identical AOV (₹${G.rating_vs_aov['5.0']} vs ₹${G.rating_vs_aov['1.0']}) — price is not the driver of dissatisfaction`},
+  ];
+  document.getElementById('gmv-insight-pills').innerHTML =
+    pills.map(p=>`<div style="padding:7px 12px;border-radius:20px;font-size:11px;border:1px solid ${p.col}22;background:${p.col}11;color:var(--text)">${p.txt}</div>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// VENDOR INSIGHTS
+// ─────────────────────────────────────────────
+function renderVendorInsights(){
+  const V = REGIONAL.vendors;
+  const vendorColors = {Zomato:'#E24B4A', Swiggy:'#3B6D11', Direct:'#185FA5'};
+
+  // Table
+  document.getElementById('vendor-insight-table').innerHTML = `
+    <table class="tbl">
+      <thead><tr>
+        <th>Vendor</th>
+        <th style="text-align:right">Orders</th>
+        <th style="text-align:right">Order share</th>
+        <th style="text-align:right">GMV</th>
+        <th style="text-align:right">Avg order</th>
+        <th style="text-align:center">Avg rating</th>
+        <th style="text-align:right">Issue rate</th>
+        <th style="text-align:center">W1→W3 trend</th>
+      </tr></thead>
+      <tbody>${Object.entries(V).map(([vendor, d])=>{
+        const col = vendorColors[vendor];
+        const diff = d.w3 - d.w1;
+        const tCol = diff < 0 ? 'var(--red)' : 'var(--green)';
+        const tTxt = diff < 0 ? `▼ ${diff.toFixed(2)}` : `▲ +${diff.toFixed(2)}`;
+        return `<tr>
+          <td style="font-weight:600">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};margin-right:5px"></span>${vendor}
+          </td>
+          <td style="text-align:right">${(d.orders/1000).toFixed(1)}k</td>
+          <td style="text-align:right">${d.pct.toFixed(1)}%</td>
+          <td style="text-align:right">₹${(d.gmv/1e7).toFixed(2)}Cr</td>
+          <td style="text-align:right">₹${d.aov}</td>
+          <td style="text-align:center"><span class="heat ${ratingClass(d.rating)}">${d.rating}★</span></td>
+          <td style="text-align:right;color:${d.issue_rate>73.5?'var(--red)':'var(--green)'}">${d.issue_rate}%</td>
+          <td style="text-align:center;color:${tCol};font-weight:600">${tTxt}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // Insight pills
+  const best  = Object.entries(V).sort((a,b)=>a[1].issue_rate-b[1].issue_rate)[0];
+  const worst = Object.entries(V).sort((a,b)=>b[1].issue_rate-a[1].issue_rate)[0];
+  const pills = [
+    {col:'var(--red)',   txt:`Zomato has highest issue rate (${V.Zomato.issue_rate}%) despite being the largest platform — investigate order handling`},
+    {col:'var(--green)', txt:`Direct channel has best rating (${V.Direct.rating}★) and lowest issue rate (${V.Direct.issue_rate}%) — own app/website orders are highest quality`},
+    {col:'var(--blue)',  txt:`Zomato drives ${V.Zomato.pct.toFixed(1)}% of all orders and ${(V.Zomato.gmv/REGIONAL.gmv.total*100).toFixed(1)}% of GMV — platform dependency risk`},
+    {col:'var(--amber)', txt:`Swiggy AOV (₹${V.Swiggy.aov}) slightly lower than Zomato (₹${V.Zomato.aov}) and Direct (₹${V.Direct.aov}) — different customer price sensitivity`},
+    {col:'var(--green)', txt:`All 3 vendors show W1→W3 rating decline — this is a kitchen quality signal, not a platform signal`},
+  ];
+  document.getElementById('vendor-insight-pills').innerHTML =
+    pills.map(p=>`<div style="padding:7px 12px;border-radius:20px;font-size:11px;border:1px solid ${p.col}22;background:${p.col}11;color:var(--text)">${p.txt}</div>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// REVIEW EXPLORER
+// ─────────────────────────────────────────────
+function populateReviewFilters(){
+  if(!SUMMARY || !BRAND_LIST.length) return;
+  const bSel = document.getElementById('f-brand');
+  if(bSel.options.length === 1){
+    BRAND_LIST.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=shortBrand(b);bSel.appendChild(o);});
+  }
+  const tSel = document.getElementById('f-topic');
+  if(tSel.options.length === 1){
+    SUMMARY.topics.filter(t=>t.topic!=="No Comment").forEach(t=>{
+      const o=document.createElement('option');o.value=t.topic;o.textContent=t.topic;tSel.appendChild(o);
+    });
+  }
+}
+
+function clearFilters(){
+  document.getElementById('f-brand').value  = '';
+  document.getElementById('f-topic').value  = '';
+  document.getElementById('f-rating').value = '';
+  fetchReviews(1);
+}
+
+async function fetchReviews(page){
+  reviewPage = page;
+  const brand  = document.getElementById('f-brand').value;
+  const topic  = document.getElementById('f-topic').value;
+  const rating = document.getElementById('f-rating').value;
+  const list   = document.getElementById('review-list');
+  list.innerHTML = '<div class="loading-msg"><span class="spinner"></span> Loading reviews…</div>';
+
+  const params = new URLSearchParams({page});
+  if(brand)  params.set('brand',  brand);
+  if(topic)  params.set('topic',  topic);
+  if(rating) params.set('rating', rating);
+
+  try {
+    const res  = await fetch('/api/reviews?' + params.toString());
+    const data = await res.json();
+    const { total, reviews, per } = data;
+    document.getElementById('review-count').textContent =
+      `${total.toLocaleString()} reviews match · showing ${(page-1)*per+1}–${Math.min(page*per,total)}`;
+
+    if(!reviews.length){
+      list.innerHTML = '<div class="loading-msg">No reviews match these filters.</div>'; return;
+    }
+
+    list.innerHTML = reviews.map(r=>{
+      const rCol = r.rating<=2?'var(--red)':r.rating===3?'var(--amber)':'var(--green)';
+      const srcBadge = r.source==='swiggy'
+        ? '<span class="src-s">S</span>' : '<span class="src-z">Z</span>';
+      return `<div class="rc">
+        <div class="rc-head">
+          <span class="rc-brand">${r.brand}</span>
+          <span class="rc-meta">${r.date} · <span style="color:${rCol};font-weight:600">${r.rating??'—'}★</span> ${srcBadge}</span>
+        </div>
+        <div class="rc-text">"${r.comment}"</div>
+        <div class="rc-tags">
+          <span class="tag ${topicTagClass(r.topic)}">${r.topic}</span>
+          <span class="tag t-teal">${r.subtopic}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    const totalPages = Math.ceil(total/per);
+    const pager = document.getElementById('review-pager');
+    pager.innerHTML = '';
+    if(totalPages > 1){
+      if(page > 1){
+        const b=document.createElement('button'); b.className='btn'; b.textContent='← Prev';
+        b.onclick=()=>fetchReviews(page-1); pager.appendChild(b);
+      }
+      const sp=document.createElement('span'); sp.textContent=`Page ${page} of ${totalPages}`; pager.appendChild(sp);
+      if(page < totalPages){
+        const b=document.createElement('button'); b.className='btn'; b.textContent='Next →';
+        b.onclick=()=>fetchReviews(page+1); pager.appendChild(b);
+      }
+    }
+  } catch(e){
+    list.innerHTML = '<div class="loading-msg">Error loading reviews.</div>';
+    console.error(e);
+  }
+}
+
+// ─────────────────────────────────────────────
+// CITY & REGION PAGE
+// ─────────────────────────────────────────────
+function renderCityPage(){
+  const cities   = ENRICHED.cities;
+  const regions  = ENRICHED.regions;
+  const cityList = ENRICHED.city_list;
+
+  // KPIs
+  const totalGMV = ENRICHED.total_gmv;
+  const regionList = ENRICHED.region_list;
+  document.getElementById('city-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-lbl">Total GMV</div><div class="kpi-val">₹${(totalGMV/1e7).toFixed(1)}Cr</div><div class="kpi-sub">Across all cities</div></div>
+    <div class="kpi"><div class="kpi-lbl">Cities tracked</div><div class="kpi-val">${cityList.length}</div><div class="kpi-sub">${regionList.length} regions</div></div>
+    <div class="kpi"><div class="kpi-lbl">Best rated city</div><div class="kpi-val" style="color:var(--green)">${cityList.reduce((a,b)=>cities[a].avg_rating>cities[b].avg_rating?a:b)}</div><div class="kpi-sub">${Math.max(...cityList.map(c=>cities[c].avg_rating))}★</div></div>
+    <div class="kpi"><div class="kpi-lbl">Highest GMV city</div><div class="kpi-val">Mumbai</div><div class="kpi-sub">₹${(cities['Mumbai'].gmv/1e6).toFixed(1)}M</div></div>`;
+
+  // Orders & GMV bars
+  const sortedByOrders = [...cityList].sort((a,b)=>cities[b].orders-cities[a].orders);
+  const maxO = cities[sortedByOrders[0]].orders;
+  document.getElementById('city-orders-bars').innerHTML = sortedByOrders.map(c=>{
+    const d = cities[c];
+    const regionCol = {West:'#185FA5',North:'#E24B4A',South:'#3B6D11',East:'#BA7517'}[d.region]||'#888';
+    return `<div class="bar-row" style="margin-bottom:7px">
+      <div class="blbl" style="display:flex;align-items:center;gap:5px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${regionCol};flex-shrink:0;display:inline-block"></span>
+        ${c}
+      </div>
+      <div class="btrk"><div class="bfil" style="width:${d.orders/maxO*100}%;background:${regionCol}"></div></div>
+      <div class="bval">${(d.orders/1000).toFixed(1)}k <span style="color:var(--muted);font-size:9px">₹${(d.gmv/1e6).toFixed(1)}M</span></div>
+    </div>`;
+  }).join('');
+
+  // Rating bars
+  const sortedByRating = [...cityList].sort((a,b)=>cities[b].avg_rating-cities[a].avg_rating);
+  const maxR = 5;
+  document.getElementById('city-rating-bars').innerHTML = sortedByRating.map(c=>{
+    const d = cities[c];
+    const col = d.avg_rating>=3.8?'var(--green)':d.avg_rating>=3.7?'var(--amber)':'var(--red)';
+    return `<div class="bar-row" style="margin-bottom:7px">
+      <div class="blbl">${c} <span class="tag t-gray" style="font-size:9px">${d.region}</span></div>
+      <div class="btrk"><div class="bfil" style="width:${d.avg_rating/maxR*100}%;background:${col}"></div></div>
+      <div class="bval" style="color:${col};font-weight:600">${d.avg_rating}★</div>
+    </div>`;
+  }).join('');
+
+  // Region table
+  const regionColors = {West:'t-blue',North:'t-red',South:'t-green',East:'t-amber'};
+  document.getElementById('region-table').innerHTML = `
+    <table class="tbl">
+      <thead><tr><th>Region</th><th>Cities</th><th>Orders</th><th>GMV</th><th>Avg ★</th><th>W1→W3</th></tr></thead>
+      <tbody>${regionList.map(r=>{
+        const d = regions[r];
+        const diff = d.weekly_avgs.W3 - d.weekly_avgs.W1;
+        const trendCol = diff>0?'var(--green)':diff<0?'var(--red)':'var(--amber)';
+        const trend = diff>0?`▲ +${diff.toFixed(2)}`:diff<0?`▼ ${diff.toFixed(2)}`:'→ stable';
+        return `<tr>
+          <td><span class="tag ${regionColors[r]||'t-gray'}">${r}</span></td>
+          <td style="font-size:11px">${d.cities.join(', ')}</td>
+          <td>${(d.orders/1000).toFixed(1)}k</td>
+          <td>₹${(d.gmv/1e7).toFixed(2)}Cr</td>
+          <td><span class="heat ${ratingClass(d.avg_rating)}">${d.avg_rating}★</span></td>
+          <td style="color:${trendCol};font-weight:600;font-size:12px">${trend}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // Issue rate bars
+  const sortedByIssue = [...cityList].sort((a,b)=>cities[b].issue_rate-cities[a].issue_rate);
+  const maxI = Math.max(...sortedByIssue.map(c=>cities[c].issue_rate));
+  document.getElementById('city-issue-bars').innerHTML = sortedByIssue.map(c=>{
+    const d = cities[c];
+    const col = d.issue_rate>=72?'var(--red)':d.issue_rate>=70?'var(--amber)':'var(--green)';
+    return `<div class="bar-row" style="margin-bottom:7px">
+      <div class="blbl">${c}</div>
+      <div class="btrk"><div class="bfil" style="width:${d.issue_rate/maxI*100}%;background:${col}"></div></div>
+      <div class="bval" style="color:${col};font-weight:600">${d.issue_rate}%</div>
+    </div>`;
+  }).join('');
+
+  // Populate city selector
+  const sel = document.getElementById('city-sel');
+  if(sel.options.length===0){
+    cityList.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=`${c} (${ENRICHED.cities[c].region})`;sel.appendChild(o);});
+  }
+  renderCityDeepdive();
+}
+
+function renderCityDeepdive(){
+  const city = document.getElementById('city-sel')?.value || ENRICHED.city_list[0];
+  const d    = ENRICHED.cities[city];
+  if(!d) return;
+  const el   = document.getElementById('city-deepdive');
+  const regionColors = {West:'t-blue',North:'t-red',South:'t-green',East:'t-amber'};
+
+  const topBrandHTML = Object.entries(d.top_brands).map(([b,c])=>`
+    <div class="bar-row" style="margin-bottom:4px">
+      <div class="blbl" style="font-size:11px">${b.replace(" - Wraps, Rolls & Shawarma","").replace(" - Meals & Thalis","")}</div>
+      <div class="btrk"><div class="bfil" style="width:${c/Object.values(d.top_brands)[0]*100}%;background:var(--blue)"></div></div>
+      <div class="bval">${(c/1000).toFixed(1)}k</div>
+    </div>`).join('');
+
+  const topTopicHTML = Object.entries(d.top_topics).map(([t,c])=>`
+    <span class="pill" style="background:${TOPIC_COLORS[t]||'#888'}22;color:${TOPIC_COLORS[t]||'#888'}">${t}: ${c.toLocaleString()}</span>`).join('');
+
+  const weekHTML = ['W1','W2','W3'].map(w=>{
+    const avg = d.weekly_avgs[w];
+    return `<div style="text-align:center;padding:8px 16px;background:var(--faint);border-radius:var(--radius-sm)">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px">${w}</div>
+      <div style="font-size:16px;font-weight:700;color:${avg>=3.8?'var(--green)':avg>=3.7?'var(--amber)':'var(--red)'}">${avg}★</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+      <div class="kpi"><div class="kpi-lbl">Region</div><div class="kpi-val" style="font-size:16px"><span class="tag ${regionColors[d.region]||'t-gray'}">${d.region}</span></div></div>
+      <div class="kpi"><div class="kpi-lbl">Orders</div><div class="kpi-val">${d.orders.toLocaleString()}</div></div>
+      <div class="kpi"><div class="kpi-lbl">GMV</div><div class="kpi-val">₹${(d.gmv/1e6).toFixed(1)}M</div></div>
+      <div class="kpi"><div class="kpi-lbl">Avg order</div><div class="kpi-val">₹${d.avg_order}</div></div>
+    </div>
+    <div class="g2">
+      <div>
+        <div class="card-title" style="margin-bottom:8px">Top brands in ${city}</div>
+        ${topBrandHTML}
+      </div>
+      <div>
+        <div class="card-title" style="margin-bottom:8px">Weekly trend</div>
+        <div style="display:flex;gap:8px">${weekHTML}</div>
+        <div style="margin-top:12px">
+          <div class="card-title" style="margin-bottom:6px">Top topics</div>
+          <div>${topTopicHTML}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+// VENDOR PAGE
+// ─────────────────────────────────────────────
+function renderVendorPage(){
+  const vendors    = ENRICHED.vendors;
+  const vendorList = ENRICHED.vendor_list;
+  const vendorColors = {Zomato:'#E24B4A', Swiggy:'#3B6D11', Direct:'#185FA5'};
+
+  // KPIs
+  document.getElementById('vendor-kpis').innerHTML = vendorList.map(v=>{
+    const d = vendors[v];
+    const col = vendorColors[v];
+    return `<div class="kpi">
+      <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block"></span>${v}
+      </div>
+      <div class="kpi-val">${(d.orders/1000).toFixed(1)}k orders</div>
+      <div class="kpi-sub">₹${(d.gmv/1e7).toFixed(2)}Cr GMV · ${d.avg_rating}★</div>
+    </div>`;
+  }).join('');
+
+  const maxO = Math.max(...vendorList.map(v=>vendors[v].orders));
+  const maxG = Math.max(...vendorList.map(v=>vendors[v].gmv));
+  const maxI = Math.max(...vendorList.map(v=>vendors[v].issue_rate));
+
+  document.getElementById('vendor-orders-bars').innerHTML = vendorList.map(v=>{
+    const d = vendors[v]; const col = vendorColors[v];
+    return `<div class="bar-row" style="margin-bottom:8px">
+      <div class="blbl" style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block"></span>${v}</div>
+      <div class="btrk"><div class="bfil" style="width:${d.orders/maxO*100}%;background:${col}"></div></div>
+      <div class="bval">${(d.orders/1000).toFixed(1)}k</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('vendor-gmv-bars').innerHTML = vendorList.map(v=>{
+    const d = vendors[v]; const col = vendorColors[v];
+    return `<div class="bar-row" style="margin-bottom:8px">
+      <div class="blbl" style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block"></span>${v}</div>
+      <div class="btrk"><div class="bfil" style="width:${d.gmv/maxG*100}%;background:${col}"></div></div>
+      <div class="bval">₹${(d.gmv/1e7).toFixed(2)}Cr</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('vendor-rating-bars').innerHTML = vendorList.map(v=>{
+    const d = vendors[v]; const col = vendorColors[v];
+    const rCol = d.avg_rating>=3.8?'var(--green)':d.avg_rating>=3.7?'var(--amber)':'var(--red)';
+    return `<div class="bar-row" style="margin-bottom:8px">
+      <div class="blbl" style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block"></span>${v}</div>
+      <div class="btrk"><div class="bfil" style="width:${d.avg_rating/5*100}%;background:${col}"></div></div>
+      <div class="bval" style="color:${rCol};font-weight:600">${d.avg_rating}★</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('vendor-issue-bars').innerHTML = vendorList.map(v=>{
+    const d = vendors[v]; const col = vendorColors[v];
+    const iCol = d.issue_rate>=72?'var(--red)':d.issue_rate>=70?'var(--amber)':'var(--green)';
+    return `<div class="bar-row" style="margin-bottom:8px">
+      <div class="blbl" style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block"></span>${v}</div>
+      <div class="btrk"><div class="bfil" style="width:${d.issue_rate/maxI*100}%;background:${col}"></div></div>
+      <div class="bval" style="color:${iCol};font-weight:600">${d.issue_rate}%</div>
+    </div>`;
+  }).join('');
+
+  // Vendor weekly trend SVG
+  const el = document.getElementById('vendor-trend');
+  const weeks = ['W1','W2','W3'];
+  const W=400,H=140,padL=36,padR=12,padT=14,padB=26;
+  const minV=3.5,maxV=4.0;
+  const xStep=(W-padL-padR)/2;
+  function vy(v){return padT+(maxV-v)/(maxV-minV)*(H-padT-padB);}
+  function vx(i){return padL+i*xStep;}
+  let grid='';
+  [3.5,3.7,3.9].forEach(v=>{
+    const y=vy(v);
+    grid+=`<line x1="${padL}" y1="${y.toFixed(0)}" x2="${W-padR}" y2="${y.toFixed(0)}" stroke="#e5e3de" stroke-width="1"/>
+           <text x="${padL-4}" y="${(y+4).toFixed(0)}" text-anchor="end" font-size="9" fill="#6b6a66">${v}</text>`;
+  });
+  const xlbls = weeks.map((w,i)=>`<text x="${vx(i).toFixed(0)}" y="${H-6}" text-anchor="middle" font-size="9" fill="#6b6a66">${w}</text>`).join('');
+  let lines='';
+  vendorList.forEach(v=>{
+    const d=vendors[v]; const col=vendorColors[v];
+    const pts=weeks.map((w,i)=>{const val=d.weekly_avgs[w];return val!=null?{x:vx(i),y:vy(val),val}:null;}).filter(Boolean);
+    if(pts.length<2) return;
+    lines+=`<path d="M${pts.map(p=>`${p.x.toFixed(0)},${p.y.toFixed(0)}`).join(' L')}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>`;
+    pts.forEach(p=>{
+      lines+=`<circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="4" fill="${col}" stroke="#fff" stroke-width="1.5"><title>${v}: ${p.val}★</title></circle>`;
+      lines+=`<text x="${(p.x+4).toFixed(0)}" y="${(p.y-6).toFixed(0)}" font-size="9" fill="${col}">${p.val}</text>`;
+    });
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${grid}${xlbls}${lines}</svg>`;
+  document.getElementById('vendor-trend-legend').innerHTML=vendorList.map(v=>`<div class="leg"><span class="dot" style="background:${vendorColors[v]}"></span>${v}</div>`).join('');
+
+  // Top topics per vendor
+  const topicEl = document.getElementById('vendor-topics');
+  topicEl.innerHTML = vendorList.map(v=>{
+    const d = vendors[v]; const col = vendorColors[v];
+    const maxT = Math.max(...Object.values(d.top_topics));
+    const bars = Object.entries(d.top_topics).map(([t,c])=>`
+      <div class="bar-row" style="margin-bottom:3px">
+        <div class="blbl" style="font-size:10px">${t}</div>
+        <div class="btrk" style="height:5px"><div class="bfil" style="width:${c/maxT*100}%;background:${TOPIC_COLORS[t]||col};height:5px"></div></div>
+        <div class="bval" style="font-size:10px">${c.toLocaleString()}</div>
+      </div>`).join('');
+    return `<div style="flex:1;min-width:200px">
+      <div style="font-size:11px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:5px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block"></span>${v}
+      </div>${bars}</div>`;
+  }).join('');
+  topicEl.style.display='flex';
+  topicEl.style.gap='20px';
+}
+
+// ─────────────────────────────────────────────
+// GMV / ORDER VALUE PAGE
+// ─────────────────────────────────────────────
+function renderGmvPage(){
+  if(!BRANDS) return;
+  const bov  = ENRICHED.brand_order_value;
+  const cities = ENRICHED.cities;
+  const cityList = ENRICHED.city_list;
+
+  // KPIs
+  const totalGMV = ENRICHED.total_gmv;
+  const avgAOV   = ENRICHED.avg_order_value;
+  const topBrand = Object.entries(bov).sort((a,b)=>b[1].gmv-a[1].gmv)[0];
+  const topAOV   = Object.entries(bov).sort((a,b)=>b[1].avg-a[1].avg)[0];
+  document.getElementById('gmv-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-lbl">Total GMV</div><div class="kpi-val">₹${(totalGMV/1e7).toFixed(2)}Cr</div><div class="kpi-sub">Mar 1–19, 2026</div></div>
+    <div class="kpi"><div class="kpi-lbl">Avg order value</div><div class="kpi-val">₹${avgAOV}</div><div class="kpi-sub">Across all brands</div></div>
+    <div class="kpi"><div class="kpi-lbl">Highest GMV brand</div><div class="kpi-val" style="font-size:14px">${topBrand[0].replace(" Biryani","")}</div><div class="kpi-sub">₹${(topBrand[1].gmv/1e6).toFixed(1)}M</div></div>
+    <div class="kpi"><div class="kpi-lbl">Highest AOV brand</div><div class="kpi-val" style="font-size:14px">${topAOV[0].replace(" - Cake and Desserts","")}</div><div class="kpi-sub">₹${topAOV[1].avg} avg</div></div>`;
+
+  // Brand GMV bars
+  const gmvSorted = Object.entries(bov).sort((a,b)=>b[1].gmv-a[1].gmv).filter(([,d])=>d.gmv>100000);
+  const maxGmv = gmvSorted[0][1].gmv;
+  document.getElementById('brand-gmv-bars').innerHTML = gmvSorted.map(([b,d])=>`
+    <div class="bar-row" style="margin-bottom:5px">
+      <div class="blbl" style="font-size:11px">${b.replace(" - Wraps, Rolls & Shawarma","").replace(" - Meals & Thalis","").replace(" - Cake and Desserts","")}</div>
+      <div class="btrk"><div class="bfil" style="width:${d.gmv/maxGmv*100}%;background:#185FA5"></div></div>
+      <div class="bval">₹${(d.gmv/1e6).toFixed(1)}M</div>
+    </div>`).join('');
+
+  // Brand AOV bars
+  const aovSorted = Object.entries(bov).sort((a,b)=>b[1].avg-a[1].avg).filter(([,d])=>d.gmv>100000);
+  const maxAov = aovSorted[0][1].avg;
+  document.getElementById('brand-aov-bars').innerHTML = aovSorted.map(([b,d])=>`
+    <div class="bar-row" style="margin-bottom:5px">
+      <div class="blbl" style="font-size:11px">${b.replace(" - Wraps, Rolls & Shawarma","").replace(" - Meals & Thalis","").replace(" - Cake and Desserts","")}</div>
+      <div class="btrk"><div class="bfil" style="width:${d.avg/maxAov*100}%;background:#534AB7"></div></div>
+      <div class="bval">₹${d.avg}</div>
+    </div>`).join('');
+
+  // City GMV bars
+  const citySorted = [...cityList].sort((a,b)=>cities[b].gmv-cities[a].gmv);
+  const maxCGmv = cities[citySorted[0]].gmv;
+  const regionCol = {West:'#185FA5',North:'#E24B4A',South:'#3B6D11',East:'#BA7517'};
+  document.getElementById('city-gmv-bars').innerHTML = citySorted.map(c=>{
+    const d = cities[c];
+    const col = regionCol[d.region];
+    return `<div class="bar-row" style="margin-bottom:7px">
+      <div class="blbl" style="display:flex;align-items:center;gap:5px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;display:inline-block"></span>${c}
+      </div>
+      <div class="btrk"><div class="bfil" style="width:${d.gmv/maxCGmv*100}%;background:${col}"></div></div>
+      <div class="bval">₹${(d.gmv/1e6).toFixed(1)}M <span style="font-size:9px;color:var(--muted)">₹${d.avg_order} avg</span></div>
+    </div>`;
+  }).join('');
+
+  // Rating vs AOV scatter (SVG)
+  const el   = document.getElementById('rating-vs-value');
+  const pts  = Object.entries(bov).filter(([,d])=>d.gmv>100000).map(([b,d])=>{
+    const brandData = BRANDS ? BRANDS[b] : null;
+    return {brand:b, aov:d.avg, rating: brandData?.avg_rating||0};
+  }).filter(p=>p.rating>0);
+
+  const W=380,H=180,padL=40,padR=20,padT=14,padB=30;
+  const minR=3.4,maxR=4.0,minA=100,maxA=500;
+  const svgPts = pts.map(p=>{
+    const x = padL+(p.aov-minA)/(maxA-minA)*(W-padL-padR);
+    const y = padT+(maxR-p.rating)/(maxR-minR)*(H-padT-padB);
+    return {...p, x:x.toFixed(0), y:y.toFixed(0)};
+  });
+
+  let grid='';
+  [3.5,3.7,3.9].forEach(r=>{
+    const y=(padT+(maxR-r)/(maxR-minR)*(H-padT-padB)).toFixed(0);
+    grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e5e3de" stroke-width="1"/>
+           <text x="${padL-4}" y="${parseInt(y)+4}" text-anchor="end" font-size="8" fill="#6b6a66">${r}★</text>`;
+  });
+  [150,250,350,450].forEach(a=>{
+    if(a<minA||a>maxA) return;
+    const x=(padL+(a-minA)/(maxA-minA)*(W-padL-padR)).toFixed(0);
+    grid+=`<line x1="${x}" y1="${padT}" x2="${x}" y2="${H-padB}" stroke="#e5e3de" stroke-width="1"/>
+           <text x="${x}" y="${H-padB+12}" text-anchor="middle" font-size="8" fill="#6b6a66">₹${a}</text>`;
+  });
+  grid+=`<text x="${W/2}" y="${H-2}" text-anchor="middle" font-size="9" fill="#6b6a66">Avg order value (₹)</text>`;
+
+  const dots = svgPts.map(p=>`
+    <circle cx="${p.x}" cy="${p.y}" r="5" fill="#185FA5" fill-opacity="0.7" stroke="#fff" stroke-width="1">
+      <title>${p.brand.replace(" - Wraps, Rolls & Shawarma","")}: ₹${p.aov} avg, ${p.rating}★</title>
+    </circle>`).join('');
+
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${grid}${dots}</svg>
+    <p style="font-size:10px;color:var(--muted);margin-top:4px">Hover over dots to see brand details. Higher right = higher value + better rated.</p>`;
+}
+
+// ─────────────────────────────────────────────
+// PLUG vs TOPIC ANALYSIS PAGE
+// ─────────────────────────────────────────────
+function renderPlugAnalysisPage(){
+  const cv = PLUG_DATA.coverage;
+  const total = PLUG_DATA.total_with_comments;
+
+  // ── Scorecards ──────────────────────────────
+  const topicMetrics = [
+    {label:'Coverage',         value: cv.topic_pct+'%',      note:'of text reviews classified'},
+    {label:'Unique categories',value: cv.unique_topics,      note:'top-level topics'},
+    {label:'Sub-categories',   value: cv.unique_subtopics,   note:'sub-topics'},
+    {label:'Design basis',     value: 'Universal',           note:'same taxonomy for all brands'},
+    {label:'Designed by',      value: 'NLP pattern rules',   note:'rule-based classifier'},
+    {label:'Primary use',      value: 'Platform analytics',  note:'cross-brand comparisons'},
+  ];
+  const plugMetrics = [
+    {label:'Coverage',         value: cv.plug_pct+'%',       note:'of text reviews classified'},
+    {label:'Unique categories',value: cv.unique_plugs,       note:'plugs across brands'},
+    {label:'Sub-categories',   value: cv.unique_subplugs,    note:'sub-plugs'},
+    {label:'Design basis',     value: 'Brand-specific',      note:"OvenStory / LB+TGB / Faasos / Wendy's"},
+    {label:'Designed by',      value: 'Ops & QC teams',      note:'domain knowledge'},
+    {label:'Primary use',      value: 'Kitchen operations',  note:'brand-level issue routing'},
+  ];
+
+  function scoreHTML(metrics, col){
+    return metrics.map(m=>`
+      <div style="display:flex;justify-content:space-between;align-items:baseline;
+                  padding:7px 0;border-bottom:0.5px solid var(--border)">
+        <span style="font-size:12px;color:var(--muted)">${m.label}</span>
+        <div style="text-align:right">
+          <span style="font-size:14px;font-weight:600;color:${col}">${m.value}</span>
+          <div style="font-size:10px;color:var(--muted)">${m.note}</div>
+        </div>
+      </div>`).join('');
+  }
+  document.getElementById('topic-scorecard').innerHTML = scoreHTML(topicMetrics,'var(--blue)');
+  document.getElementById('plug-scorecard').innerHTML  = scoreHTML(plugMetrics,'var(--purple)');
+
+  // ── Verdict ─────────────────────────────────
+  const plugWins  = cv.plug_pct > cv.topic_pct;
+  const plugMore  = cv.unique_plugs > cv.unique_topics;
+  document.getElementById('verdict-card').innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:16px">
+      <div style="font-size:32px;flex-shrink:0">⚖️</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px">Which is better?</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7">
+          <strong style="color:var(--blue)">Topic/Sub-topic</strong> wins for <strong>cross-brand benchmarking</strong> —
+          same 11 categories applied universally, making it easy to compare Behrouz vs Faasos vs OvenStory on identical axes.
+          ${cv.topic_pct}% coverage with ${cv.unique_topics} topics and ${cv.unique_subtopics} sub-topics.
+          <br><br>
+          <strong style="color:var(--purple)">Plug/Sub-plug</strong> wins for <strong>kitchen operations</strong> —
+          ${cv.plug_pct}% coverage, ${cv.unique_plugs} plugs and ${cv.unique_subplugs} sub-plugs designed specifically
+          per brand by ops teams. OvenStory has pizza-specific plugs (Cheese Burst, Thin Crust, Less Topping) that no generic
+          topic system would capture. ${cv.agreement_rate}% of negative reviews are classified identically by both systems —
+          confirming they agree on the fundamentals.
+          <br><br>
+          <strong>Recommendation:</strong> Use <em>Topics</em> for the analytics dashboard and management reporting.
+          Use <em>Plugs</em> for kitchen SOPs, daily issue logs, and QC routing. They are complementary, not competing.
+        </div>
+      </div>
+    </div>`;
+
+  // ── Global distribution bars ─────────────────
+  const topicData = SUMMARY?.topics?.filter(t=>t.topic!=='No Comment') || [];
+  const maxTC = topicData[0]?.count || 1;
+  document.getElementById('topic-dist-bars').innerHTML = topicData.slice(0,10).map(t=>`
+    <div class="bar-row" style="margin-bottom:6px">
+      <div class="blbl"><span class="tag ${topicTagClass(t.topic)}" style="font-size:10px">${t.topic}</span></div>
+      <div class="btrk"><div class="bfil" style="width:${t.count/maxTC*100}%;background:${TOPIC_COLORS[t.topic]||'#888'}"></div></div>
+      <div class="bval">${t.count.toLocaleString()} (${t.pct}%)</div>
+    </div>`).join('');
+
+  const maxPC = PLUG_DATA.global_plugs[0]?.count || 1;
+  document.getElementById('plug-dist-bars').innerHTML = PLUG_DATA.global_plugs.map(p=>`
+    <div class="bar-row" style="margin-bottom:6px">
+      <div class="blbl" style="font-size:11px">${p.plug}</div>
+      <div class="btrk"><div class="bfil" style="width:${p.count/maxPC*100}%;background:#534AB7"></div></div>
+      <div class="bval">${p.count.toLocaleString()} (${p.pct}%)</div>
+    </div>`).join('');
+
+  // ── Cross-mapping ────────────────────────────
+  const crossEl = document.getElementById('cross-mapping');
+  const t2p = PLUG_DATA.topic_to_plug;
+  const issueTopicsForCross = ['Food Quality','Quantity','Wrong Order','Delivery','Packaging','Value for Money','Hygiene'];
+
+  crossEl.innerHTML = issueTopicsForCross.map(topic=>{
+    const plugMappings = t2p[topic] || [];
+    const topTotal = plugMappings.reduce((s,x)=>s+x.count,0) || 1;
+    const topicCol = TOPIC_COLORS[topic]||'#888';
+
+    const plugBars = plugMappings.map(p=>{
+      const pct = (p.count/topTotal*100).toFixed(0);
+      return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+        <div style="min-width:110px;font-size:10px;color:var(--muted);text-align:right">${p.plug}</div>
+        <div style="flex:1;background:var(--faint);border-radius:2px;height:14px;position:relative">
+          <div style="width:${pct}%;background:#534AB7;opacity:0.7;height:14px;border-radius:2px"></div>
+          <span style="position:absolute;left:4px;top:1px;font-size:10px;font-weight:500;color:#3C3489">${p.count.toLocaleString()} (${pct}%)</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Alignment score: % that goes to the dominant plug
+    const dominant = plugMappings[0];
+    const alignment = dominant ? (dominant.count/topTotal*100).toFixed(0) : 0;
+    const alignCol  = alignment>=70?'var(--green)':alignment>=50?'var(--amber)':'var(--red)';
+
+    return `<div style="display:grid;grid-template-columns:160px 1fr 90px;gap:10px;align-items:start;
+                        margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--border)">
+      <div>
+        <span class="tag ${topicTagClass(topic)}" style="font-size:11px">${topic}</span>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">${topTotal.toLocaleString()} reviews</div>
+      </div>
+      <div>${plugBars}</div>
+      <div style="text-align:center;padding-top:4px">
+        <div style="font-size:18px;font-weight:700;color:${alignCol}">${alignment}%</div>
+        <div style="font-size:9px;color:var(--muted)">alignment<br>to top plug</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Brand comparison selector ────────────────
+  const brandSel = document.getElementById('plug-brand-sel');
+  if(brandSel.options.length === 0){
+    Object.keys(PLUG_DATA.brand_comparison).forEach(b=>{
+      const o=document.createElement('option');o.value=b;o.textContent=shortBrand(b);brandSel.appendChild(o);
+    });
+  }
+  renderBrandPlugComparison();
+
+  // ── Sub-level bars ───────────────────────────
+  const topicSubs = SUMMARY?.topics?.flatMap(t=>
+    (t.subtopics||[]).map(s=>({name:s.name,count:s.count,topic:t.topic}))
+  ).sort((a,b)=>b.count-a.count).slice(0,12) || [];
+  const maxST = topicSubs[0]?.count||1;
+  document.getElementById('subtopic-dist-bars').innerHTML = topicSubs.map(s=>`
+    <div class="bar-row" style="margin-bottom:5px">
+      <div class="blbl" style="font-size:10px">${s.name}</div>
+      <div class="btrk"><div class="bfil" style="width:${s.count/maxST*100}%;background:${TOPIC_COLORS[s.topic]||'#888'}"></div></div>
+      <div class="bval" style="font-size:10px">${s.count.toLocaleString()}</div>
+    </div>`).join('');
+
+  const maxSP = PLUG_DATA.global_subplugs[0]?.count||1;
+  document.getElementById('subplug-dist-bars').innerHTML = PLUG_DATA.global_subplugs.map(s=>`
+    <div class="bar-row" style="margin-bottom:5px">
+      <div class="blbl" style="font-size:10px">${s.subplug}</div>
+      <div class="btrk"><div class="bfil" style="width:${s.count/maxSP*100}%;background:#534AB7;opacity:.7"></div></div>
+      <div class="bval" style="font-size:10px">${s.count.toLocaleString()}</div>
+    </div>`).join('');
+}
+
+function renderBrandPlugComparison(){
+  const brand = document.getElementById('plug-brand-sel')?.value;
+  const el    = document.getElementById('brand-plug-comparison');
+  if(!brand || !PLUG_DATA.brand_comparison[brand]) return;
+
+  const bc  = PLUG_DATA.brand_comparison[brand];
+  const bps = PLUG_DATA.brand_plug_stats[brand];
+  const total = bc.total_comments;
+
+  const maxT = bc.top_topics[0]?.count||1;
+  const maxP = bc.top_plugs[0]?.count||1;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:8px">Topics for ${shortBrand(brand)}</div>
+        ${bc.top_topics.map(t=>`
+          <div class="bar-row" style="margin-bottom:7px">
+            <div class="blbl"><span class="tag ${topicTagClass(t.name)}" style="font-size:10px">${t.name}</span></div>
+            <div class="btrk" style="height:8px"><div class="bfil" style="width:${t.count/maxT*100}%;background:${TOPIC_COLORS[t.name]||'#888'};height:8px"></div></div>
+            <div class="bval">${t.count} (${t.pct}%)</div>
+          </div>`).join('')}
+        ${bps ? `<div style="margin-top:10px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:6px">Sub-topics</div>
+          ${(bps.subplug_breakdown||[]).slice(0,5).map(s=>`
+            <div style="font-size:10px;color:var(--muted);padding:2px 0;border-bottom:0.5px solid var(--border);
+                        display:flex;justify-content:space-between">
+              <span>${s.subplug}</span><span style="font-weight:500">${s.count}</span>
+            </div>`).join('')}
+        </div>` : ''}
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--purple);margin-bottom:8px">Plugs for ${shortBrand(brand)}</div>
+        ${bc.top_plugs.map(p=>`
+          <div class="bar-row" style="margin-bottom:7px">
+            <div class="blbl" style="font-size:11px">${p.name}</div>
+            <div class="btrk" style="height:8px"><div class="bfil" style="width:${p.count/maxP*100}%;background:#534AB7;height:8px"></div></div>
+            <div class="bval">${p.count} (${p.pct}%)</div>
+          </div>`).join('')}
+        ${bps ? `<div style="margin-top:10px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:6px">Sub-plugs</div>
+          ${(bps.subplug_breakdown||[]).slice(0,5).map(s=>`
+            <div style="font-size:10px;color:var(--muted);padding:2px 0;border-bottom:0.5px solid var(--border);
+                        display:flex;justify-content:space-between">
+              <span>${s.subplug}</span><span style="font-weight:500;color:#534AB7">${s.count}</span>
+            </div>`).join('')}
+        </div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+// WHY TOPIC/SUBTOPIC WINS
+// ─────────────────────────────────────────────
+function renderWhyTopicPage(){
+
+  // ── Hero scores ─────────────────────────────
+  const wins  = CMP.scorecard.filter(r=>r.winner==='topic').length;
+  const draws = CMP.scorecard.filter(r=>r.winner==='draw').length;
+  const loses = CMP.scorecard.filter(r=>r.winner==='plug').length;
+  document.getElementById('hero-scores').innerHTML = `
+    <div style="background:rgba(59,109,17,.25);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:36px;font-weight:800;color:#7ecb55">${wins}</div>
+      <div style="font-size:11px;opacity:.9">dimensions won</div>
+    </div>
+    <div style="background:rgba(186,117,23,.25);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:36px;font-weight:800;color:#f4c06b">${draws}</div>
+      <div style="font-size:11px;opacity:.9">draws</div>
+    </div>
+    <div style="background:rgba(226,75,74,.25);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:36px;font-weight:800;color:#f08080">${loses}</div>
+      <div style="font-size:11px;opacity:.9">dimensions lost</div>
+    </div>`;
+
+  // ── Scorecard ────────────────────────────────
+  document.getElementById('scorecard-table').innerHTML = `
+    <table class="tbl">
+      <thead><tr>
+        <th>Dimension</th>
+        <th style="text-align:center;color:var(--blue)">Topic / Sub-topic</th>
+        <th style="text-align:center;color:#534AB7">Plug / Sub-plug</th>
+        <th>Verdict</th>
+      </tr></thead>
+      <tbody>${CMP.scorecard.map(r=>{
+        const bg = r.winner==='topic' ? 'background:#f0f9eb' : r.winner==='draw' ? '' : 'background:#fff5f5';
+        const badge = r.winner==='topic'
+          ? '<span style="color:var(--green);font-weight:700">✓ Topic wins</span>'
+          : r.winner==='draw'
+          ? '<span style="color:var(--amber);font-weight:600">— Draw</span>'
+          : '<span style="color:var(--red)">✗ Plug wins</span>';
+        return `<tr style="${bg}">
+          <td style="font-weight:600;font-size:12px">${r.dimension}</td>
+          <td style="text-align:center;font-size:12px;color:var(--blue)">${r.topic}</td>
+          <td style="text-align:center;font-size:12px;color:#534AB7">${r.plug}</td>
+          <td style="font-size:11px">${badge}<br><span style="color:var(--muted)">${r.note}</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // ── Argument 1: Fragmentation bars ──────────
+  const maxST = Math.max(...Object.values(CMP.fragmentation.subtopics));
+  document.getElementById('subtopic-frag-bars').innerHTML =
+    Object.entries(CMP.fragmentation.subtopics).map(([name, count])=>`
+      <div class="bar-row" style="margin-bottom:5px">
+        <div class="blbl" style="font-size:11px">${name}</div>
+        <div class="btrk" style="height:7px">
+          <div class="bfil" style="width:${count/maxST*100}%;background:var(--green);height:7px"></div>
+        </div>
+        <div class="bval">${count.toLocaleString()}</div>
+      </div>`).join('');
+
+  const maxPL = Math.max(...Object.values(CMP.fragmentation.plugs));
+  document.getElementById('plug-frag-bars').innerHTML =
+    Object.entries(CMP.fragmentation.plugs).map(([name, count])=>`
+      <div class="bar-row" style="margin-bottom:5px">
+        <div class="blbl" style="font-size:11px">${name}</div>
+        <div class="btrk" style="height:7px">
+          <div class="bfil" style="width:${count/maxPL*100}%;background:var(--red);opacity:.7;height:7px"></div>
+        </div>
+        <div class="bval">${count.toLocaleString()}</div>
+      </div>`).join('');
+
+  // ── Argument 2: Cross-brand table ───────────
+  const brands = Object.entries(CMP.cross_brand.brands);
+  document.getElementById('cross-brand-table').innerHTML = `
+    <table class="tbl">
+      <thead><tr>
+        <th>Brand</th>
+        <th style="text-align:center">Top complaint</th>
+        <th style="text-align:center;color:var(--blue)">Topic system labels it</th>
+        <th style="text-align:center;color:#534AB7">Plug system labels it</th>
+        <th style="text-align:center">Comparable?</th>
+      </tr></thead>
+      <tbody>${brands.map(([brand, d])=>`
+        <tr>
+          <td style="font-size:12px;font-weight:600">${shortBrand(brand)}</td>
+          <td style="text-align:center;font-size:11px;color:var(--muted)">Taste complaint</td>
+          <td style="text-align:center">
+            <span class="tag t-red" style="font-size:11px">Food Quality</span>
+          </td>
+          <td style="text-align:center">
+            <span style="font-size:11px;background:#534AB722;color:#534AB7;padding:2px 7px;border-radius:10px">${d.plug}</span>
+          </td>
+          <td style="text-align:center;font-size:12px">
+            ${d.plug === brands[0][1].plug || d.plug === 'Taste'
+              ? '<span style="color:var(--amber)">⚠ Same name, different system</span>'
+              : '<span style="color:var(--red);font-weight:600">✗ Different label</span>'}
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:10px;padding:10px;background:#fff5f5;border-radius:6px;font-size:11px;color:var(--red)">
+      <strong>The problem:</strong> OvenStory calls it "Bad Taste", Wendy's calls it "Taste",
+      LB+TGB calls it "Taste", Faasos calls it "Taste" — but "Taste" (LB+TGB) ≠ "Bad Taste" (OvenStory).
+      You cannot run a single query across all brands. With Topics you can — always "Food Quality".
+    </div>`;
+
+  // ── Argument 4: Actionability ────────────────
+  document.getElementById('action-subtopics').innerHTML =
+    CMP.actionability.subtopic_actions.map(a=>`
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;
+                  padding:8px;background:var(--faint);border-radius:5px">
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:600">${a.subtopic}
+            <span style="font-size:10px;color:var(--muted);font-weight:400"> — ${a.count.toLocaleString()} reviews</span>
+          </div>
+          <div style="font-size:11px;color:var(--green);margin-top:2px">→ ${a.action}</div>
+        </div>
+      </div>`).join('');
+
+  document.getElementById('vague-plugs').innerHTML =
+    CMP.actionability.vague_plugs.map(p=>`
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;
+                  padding:8px;background:#fff5f5;border-radius:5px;border:1px solid #ffd0d0">
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:600">"${p.plug}"
+            <span style="font-size:10px;color:var(--muted);font-weight:400"> — ${p.count.toLocaleString()} reviews</span>
+          </div>
+          <div style="font-size:11px;color:var(--red);margin-top:2px">✗ ${p.problem}</div>
+        </div>
+      </div>`).join('');
+
+  // ── Argument 5: Context example ──────────────
+  const ex = CMP.context_required.example;
+  document.getElementById('context-example').innerHTML = `
+    <div style="background:var(--faint);border-radius:8px;padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Review text:</div>
+      <div style="font-size:13px;font-weight:600;font-style:italic">"${ex.comment}"</div>
+    </div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Scenario</th>
+        <th style="color:var(--blue)">Topic / Sub-topic result</th>
+        <th style="color:#534AB7">Plug result</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#fff5f5">
+          <td style="font-size:12px;font-weight:600">Without knowing the brand</td>
+          <td style="color:var(--green);font-size:12px">✓ Food Quality / Temperature - Cold Food</td>
+          <td style="color:var(--red);font-size:12px">✗ Cannot classify — which taxonomy to use?</td>
+        </tr>
+        <tr>
+          <td style="font-size:12px">Behrouz Biryani order</td>
+          <td style="color:var(--blue);font-size:12px">Food Quality / Temperature - Cold Food</td>
+          <td style="font-size:12px;color:#534AB7">Taste / Bland (LB+TGB taxonomy)</td>
+        </tr>
+        <tr>
+          <td style="font-size:12px">Oven Story Pizza order</td>
+          <td style="color:var(--blue);font-size:12px">Food Quality / Temperature - Cold Food</td>
+          <td style="font-size:12px;color:#534AB7">Cold / Cold (OvenStory taxonomy)</td>
+        </tr>
+        <tr>
+          <td style="font-size:12px">Faasos order</td>
+          <td style="color:var(--blue);font-size:12px">Food Quality / Temperature - Cold Food</td>
+          <td style="font-size:12px;color:#534AB7">Taste / Bad Taste (Faasos taxonomy)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:10px;padding:10px;background:#fff5f5;border-radius:6px;font-size:11px;color:var(--red)">
+      <strong>The same complaint</strong> — cold rice, less quantity — gets 3 different Plug labels
+      depending on which brand ordered. Topics give the same label every time.
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+// Start
+// ─────────────────────────────────────────────
+boot();
+</script>
+</body>
+</html>
