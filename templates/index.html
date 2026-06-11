@@ -189,11 +189,14 @@ button.btn-primary:hover{opacity:.85}
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <div class="nav-item active" onclick="showPage('overview')">
-    <span class="nav-icon">◼</span> Overview
+  <div class="nav-item active" onclick="showPage('overviewplug')">
+    <span class="nav-icon">◼</span> Overview (Plug)
   </div>
-  <div class="nav-item" onclick="showPage('whytopic')">
-    <span class="nav-icon">★</span> Why Topics Win
+  <div class="nav-item" onclick="showPage('overviewtopic')">
+    <span class="nav-icon">◈</span> Overview (Topic)
+  </div>
+  <div class="nav-item" onclick="showPage('plugtaxonomy')">
+    <span class="nav-icon">⊡</span> Plug taxonomy
   </div>
   <div class="nav-item" onclick="showPage('taxonomy')">
     <span class="nav-icon">⊞</span> Topic taxonomy
@@ -213,11 +216,11 @@ button.btn-primary:hover{opacity:.85}
   <div class="nav-item" onclick="showPage('heatmap')">
     <span class="nav-icon">▦</span> Issue heatmap
   </div>
-  <div class="nav-item" onclick="showPage('insights')">
-    <span class="nav-icon">◎</span> Insights
+  <div class="nav-item" onclick="showPage('insightsplug')">
+    <span class="nav-icon">◎</span> Insights (Plug)
   </div>
-  <div class="nav-item" onclick="showPage('pluganalysis')">
-    <span class="nav-icon">⊕</span> Plug vs Topic
+  <div class="nav-item" onclick="showPage('insightstopic')">
+    <span class="nav-icon">◉</span> Insights (Topic)
   </div>
   <div class="nav-item" onclick="showPage('reviews')">
     <span class="nav-icon">☰</span> Review explorer
@@ -227,32 +230,162 @@ button.btn-primary:hover{opacity:.85}
 <!-- MAIN -->
 <div class="main">
 
-<!-- ── PAGE: OVERVIEW ── -->
-<div id="pg-overview" class="page active">
-  <div class="g4" id="overview-kpis">
-    <div class="loading-msg" style="grid-column:span 4"><span class="spinner"></span> Loading…</div>
+
+<!-- ── PAGE: OVERVIEW (PLUG/SUBPLUG) ── -->
+<div id="pg-overviewplug" class="page active">
+  <div class="g4" id="ovplug-kpis"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Plug group distribution</div>
+      <div id="ovplug-donut" style="display:flex;justify-content:center;align-items:center;padding:8px 0"></div>
+      <div class="legend" id="ovplug-donut-legend"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top plugs by volume</div>
+      <div id="ovplug-bars"></div>
+    </div>
   </div>
   <div class="g2">
     <div class="card">
-      <div class="card-title">Topic distribution</div>
-      <div id="donut-chart" style="display:flex;justify-content:center;align-items:center;padding:10px 0"></div>
-      <div class="legend" id="donut-legend"></div>
+      <div class="card-title">Top sub-plugs by volume</div>
+      <div id="ovplug-subplug-bars"></div>
     </div>
     <div class="card">
-      <div class="card-title">Complaint topics by volume</div>
-      <div id="global-topic-bars"></div>
+      <div class="card-title">Plug groups — all 13</div>
+      <div id="ovplug-group-bars"></div>
     </div>
   </div>
   <div class="g2">
     <div class="card">
       <div class="card-title">Brand avg rating</div>
-      <div id="brand-rating-bars"></div>
+      <div id="ovplug-brand-rating"></div>
     </div>
     <div class="card">
-      <div class="card-title">Weekly rating trend — top 4 brands by volume</div>
-      <div id="trend-chart"></div>
-      <div class="legend" id="trend-legend"></div>
+      <div class="card-title">Top plug per brand</div>
+      <div id="ovplug-brand-plugs"></div>
     </div>
+  </div>
+</div>
+
+<!-- ── PAGE: OVERVIEW (TOPIC/SUBTOPIC) ── -->
+<div id="pg-overviewtopic" class="page">
+  <div class="g4" id="ovtopic-kpis"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Topic distribution</div>
+      <div id="ovtopic-donut" style="display:flex;justify-content:center;align-items:center;padding:8px 0"></div>
+      <div class="legend" id="ovtopic-donut-legend"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Complaint topics by volume</div>
+      <div id="ovtopic-bars"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Brand avg rating</div>
+      <div id="ovtopic-brand-rating"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Weekly rating trend — top 4 brands</div>
+      <div id="ovtopic-trend"></div>
+      <div class="legend" id="ovtopic-trend-legend"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Top sub-topics by volume</div>
+      <div id="ovtopic-subtopic-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top topic per brand</div>
+      <div id="ovtopic-brand-topics"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: INSIGHTS (PLUG/SUBPLUG) ── -->
+<div id="pg-insightsplug" class="page">
+  <div class="g2">
+    <div class="card">
+      <div class="card-title" style="color:var(--redt)">🔴 Critical plug issues</div>
+      <div id="insplug-critical"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--ambrt)">🟡 Watch — plug patterns</div>
+      <div id="insplug-watch"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title" style="color:var(--greent)">🟢 Positive plug signals</div>
+      <div id="insplug-positive"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--bluet)">🔵 Plug-based actions</div>
+      <div id="insplug-actions"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Brand-level plug hotspots</div>
+    <div id="insplug-brand-table"></div>
+  </div>
+</div>
+
+<!-- ── PAGE: INSIGHTS (TOPIC/SUBTOPIC) ── -->
+<div id="pg-insightstopic" class="page">
+  <div class="g2">
+    <div class="card">
+      <div class="card-title" style="color:var(--redt)">🔴 Critical — requires immediate action</div>
+      <div id="instopic-critical"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--ambrt)">🟡 Watch list — emerging patterns</div>
+      <div id="instopic-watch"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title" style="color:var(--greent)">🟢 Positive signals to build on</div>
+      <div id="instopic-positive"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--bluet)">🔵 Recommended actions</div>
+      <div id="instopic-actions"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🗺 Regional snapshot — order penetration across India</div>
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start">
+      <div>
+        <div id="region-snapshot-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
+        <div class="card-title" style="margin-bottom:8px">City-level breakdown</div>
+        <div id="city-snapshot-table"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-align:center">Bubble size = order volume · Colour = region</div>
+        <svg id="india-map-svg" viewBox="0 0 320 380" width="100%" style="display:block"></svg>
+        <div id="map-legend" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;justify-content:center"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📉 Regional rating trend — W1 → W3</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="region-trend-cards"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">💰 GMV insights</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div><div style="font-size:11px;font-weight:600;margin-bottom:8px">Weekly GMV trend</div><div id="gmv-weekly-bars"></div></div>
+      <div><div style="font-size:11px;font-weight:600;margin-bottom:8px">GMV share by region</div><div id="gmv-region-bars"></div></div>
+      <div><div style="font-size:11px;font-weight:600;margin-bottom:8px">Top 5 brands by GMV</div><div id="gmv-brand-bars"></div></div>
+    </div>
+    <div id="gmv-insight-pills" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚚 Vendor insights</div>
+    <div id="vendor-insight-table"></div>
+    <div id="vendor-insight-pills" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
   </div>
 </div>
 
@@ -333,125 +466,42 @@ button.btn-primary:hover{opacity:.85}
 
 </div>
 
-<!-- ── PAGE: WHY TOPIC/SUBTOPIC WINS ── -->
-<div id="pg-whytopic" class="page">
 
-  <!-- Hero verdict -->
-  <div class="card" style="background:linear-gradient(135deg,#1a1a18 0%,#2d2b27 100%);color:#fff;border:none">
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
-      <div style="font-size:36px">🏆</div>
-      <div>
-        <div style="font-size:18px;font-weight:700;letter-spacing:-.02em">Topic / Sub-topic is the superior classification system</div>
-        <div style="font-size:12px;opacity:.7;margin-top:3px">6 measurable dimensions — Topic wins 5, draws 1, loses 0</div>
-      </div>
+
+<!-- ── PAGE: PLUG TAXONOMY ── -->
+<div id="pg-plugtaxonomy" class="page">
+
+  <!-- KPI tiles -->
+  <div class="g4" id="plug-tax-kpis"></div>
+
+  <!-- Overview: global plug distribution + overview donut -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Top 15 plugs — global distribution</div>
+      <div id="plug-tax-global-bars"></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="hero-scores"></div>
+    <div class="card">
+      <div class="card-title">Top 15 sub-plugs — global distribution</div>
+      <div id="plug-tax-subplug-bars"></div>
+    </div>
   </div>
 
-  <!-- Scorecard -->
+  <!-- Plug group overview (like topic taxonomy) -->
   <div class="card">
-    <div class="card-title">Head-to-head scorecard</div>
-    <div id="scorecard-table"></div>
+    <div class="card-title">Plug group breakdown — 13 semantic groups</div>
+    <div id="plug-tax-group-bars"></div>
   </div>
 
-  <!-- Argument 1: Fragmentation -->
-  <div class="card" style="border-left:3px solid var(--red)">
-    <div class="card-title">① Fragmentation — 66 plug variants vs 8 clean subtopics for the same issue</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
-      Every review about food quality should answer: <em>what exactly was wrong?</em>
-      Sub-topics answer that. Plugs scatter the same issue across 66 buckets — making aggregation impossible.
-    </p>
-    <div class="g2">
-      <div>
-        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:8px">✓ Topic system — 8 focused subtopics</div>
-        <div id="subtopic-frag-bars"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:8px">✗ Plug system — 66 plug variants (top 12 shown)</div>
-        <div id="plug-frag-bars"></div>
-        <div style="font-size:10px;color:var(--muted);margin-top:6px">+ 54 more plug variants not shown</div>
-      </div>
-    </div>
+  <!-- Full plug taxonomy drill-down -->
+  <div class="card">
+    <div class="card-title">Full plug / sub-plug taxonomy — click a group to expand</div>
+    <div id="plug-tax-tree"></div>
   </div>
 
-  <!-- Argument 2: Cross-brand -->
-  <div class="card" style="border-left:3px solid var(--red)">
-    <div class="card-title">② Cross-brand benchmark — Topics are universal, Plugs are brand-specific</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
-      When a customer reports the same food quality issue at Behrouz, OvenStory and Wendy's —
-      the Topic system calls it <strong>Food Quality</strong> everywhere.
-      The Plug system gives it a different name depending on which brand they ordered from — making cross-brand comparison impossible.
-    </p>
-    <div id="cross-brand-table"></div>
-  </div>
-
-  <!-- Argument 3: Consistency -->
-  <div class="card" style="border-left:3px solid var(--red)">
-    <div class="card-title">③ Consistency — 500 identical issues → 1 Topic label vs 28 Plug labels</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">
-      We took 500 reviews all classified as <strong>Food Quality</strong> and counted
-      how many unique labels each system assigned them.
-    </p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div style="background:var(--faint);border-radius:var(--radius-sm);padding:16px;text-align:center">
-        <div style="font-size:48px;font-weight:800;color:var(--green)">1</div>
-        <div style="font-size:12px;font-weight:600">unique Topic label</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Food Quality — every single time</div>
-        <div style="font-size:10px;color:var(--green);margin-top:8px;font-weight:600">✓ Consistent. Comparable. Trustworthy.</div>
-      </div>
-      <div style="background:var(--faint);border-radius:var(--radius-sm);padding:16px;text-align:center">
-        <div style="font-size:48px;font-weight:800;color:var(--red)">28</div>
-        <div style="font-size:12px;font-weight:600">different Plug labels</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">for the exact same issue type</div>
-        <div style="font-size:10px;color:var(--red);margin-top:8px;font-weight:600">✗ Fragmented. Incomparable. Misleading.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Argument 4: Actionability -->
-  <div class="card" style="border-left:3px solid var(--red)">
-    <div class="card-title">④ Actionability — Sub-topics tell you exactly what to fix, Plugs leave you guessing</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
-      Every sub-topic maps to a specific operational action. The Plug "Taste" covers
-      10,025 reviews — but <em>which</em> taste issue? Undercooked? Cold? Stale? Foreign object?
-      Without a sub-topic you can't act.
-    </p>
-    <div class="g2">
-      <div>
-        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:8px">✓ Sub-topic → Clear action</div>
-        <div id="action-subtopics"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:8px">✗ Plug "Taste" = no actionable information</div>
-        <div id="vague-plugs"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Argument 5: Context required -->
-  <div class="card" style="border-left:3px solid var(--red)">
-    <div class="card-title">⑤ Brand-context dependency — Topics work anywhere, Plugs need brand lookup</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
-      Classify a review without knowing the brand. The Topic system still gives you a clean answer.
-      The Plug system cannot — it uses a different taxonomy for OvenStory vs Behrouz vs Faasos vs Wendy's.
-    </p>
-    <div id="context-example"></div>
-  </div>
-
-  <!-- Bottom line -->
-  <div class="card" style="background:var(--faint)">
-    <div class="card-title">Bottom line</div>
-    <div style="font-size:13px;line-height:1.8;color:var(--text)">
-      Topic / Sub-topic wins on every dimension that matters for analytics:
-      <strong>consistency, comparability, actionability, and clarity</strong>.
-      The Plug system was designed for kitchen operations — routing issues to the right team within a brand.
-      It was never designed for cross-brand benchmarking or trend analysis, and it shows.
-      <br><br>
-      <strong>Use Topics for the dashboard and all management reporting.</strong>
-      Plugs remain useful for kitchen-level SOPs and daily QC logs within individual brands —
-      but the moment you want to compare Behrouz against Faasos against OvenStory on equal footing,
-      only the Topic system can do that.
-    </div>
+  <!-- Brand-level plug overview -->
+  <div class="card">
+    <div class="card-title">Top plug per brand</div>
+    <div id="plug-tax-brands"></div>
   </div>
 
 </div>
@@ -476,103 +526,6 @@ button.btn-primary:hover{opacity:.85}
   </div>
 </div>
 
-<!-- ── PAGE: INSIGHTS ── -->
-<div id="pg-insights" class="page">
-
-  <!-- Existing 4 insight cards -->
-  <div class="g2">
-    <div class="card">
-      <div class="card-title" style="color:var(--redt)">🔴 Critical — requires immediate action</div>
-      <div id="insights-critical"></div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="color:var(--ambrt)">🟡 Watch list — emerging patterns</div>
-      <div id="insights-watch"></div>
-    </div>
-  </div>
-  <div class="g2">
-    <div class="card">
-      <div class="card-title" style="color:var(--greent)">🟢 Positive signals to build on</div>
-      <div id="insights-positive"></div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="color:var(--bluet)">🔵 Recommended actions</div>
-      <div id="insights-actions"></div>
-    </div>
-  </div>
-
-  <!-- Regional snapshot + India map -->
-  <div class="card">
-    <div class="card-title">🗺 Regional snapshot — order penetration across India</div>
-    <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start">
-      <div>
-        <div id="region-snapshot-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
-        <div class="card-title" style="margin-bottom:8px">City-level breakdown</div>
-        <div id="city-snapshot-table"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-align:center">Bubble size = order volume · Colour = region</div>
-        <svg id="india-map-svg" viewBox="0 0 320 380" width="100%" style="display:block"></svg>
-        <div id="map-legend" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;justify-content:center"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Regional trend -->
-  <div class="card">
-    <div class="card-title">📉 Regional rating trend — W1 → W3</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="region-trend-cards"></div>
-  </div>
-
-  <!-- GMV insights -->
-  <div class="card">
-    <div class="card-title">💰 GMV insights</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
-      <div>
-        <div style="font-size:11px;font-weight:600;margin-bottom:8px">Weekly GMV trend</div>
-        <div id="gmv-weekly-bars"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;font-weight:600;margin-bottom:8px">GMV share by region</div>
-        <div id="gmv-region-bars"></div>
-      </div>
-      <div>
-        <div style="font-size:11px;font-weight:600;margin-bottom:8px">Top 5 brands by GMV</div>
-        <div id="gmv-brand-bars"></div>
-      </div>
-    </div>
-    <div id="gmv-insight-pills" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
-  </div>
-
-  <!-- Vendor insights -->
-  <div class="card">
-    <div class="card-title">🚚 Vendor insights</div>
-    <div id="vendor-insight-table"></div>
-    <div id="vendor-insight-pills" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
-  </div>
-
-</div>
-
-<!-- ── PAGE: REVIEW EXPLORER ── -->
-<div id="pg-reviews" class="page">
-  <div class="filter-row">
-    <select id="f-brand"><option value="">All brands</option></select>
-    <select id="f-topic"><option value="">All topics</option></select>
-    <select id="f-rating">
-      <option value="">All ratings</option>
-      <option value="1">1 ★</option>
-      <option value="2">2 ★</option>
-      <option value="3">3 ★</option>
-      <option value="4">4 ★</option>
-      <option value="5">5 ★</option>
-    </select>
-    <button class="btn btn-primary" onclick="fetchReviews(1)">Apply</button>
-    <button class="btn" onclick="clearFilters()">Clear</button>
-  </div>
-  <div id="review-count" style="font-size:11px;color:var(--muted);margin-bottom:4px"></div>
-  <div id="review-list"></div>
-  <div class="pager" id="review-pager"></div>
-</div>
 
 <!-- ── PAGE: CITY & REGION ── -->
 <div id="pg-city" class="page">
@@ -665,66 +618,28 @@ button.btn-primary:hover{opacity:.85}
   </div>
 </div>
 
-<!-- ── PAGE: PLUG vs TOPIC ANALYSIS ── -->
-<div id="pg-pluganalysis" class="page">
 
-  <!-- Scorecard comparison -->
-  <div class="g2">
-    <div class="card">
-      <div class="card-title" style="color:var(--blue)">Topic / Sub-topic system</div>
-      <div id="topic-scorecard"></div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="color:var(--purple)">Plug / Sub-plug system</div>
-      <div id="plug-scorecard"></div>
-    </div>
-  </div>
 
-  <!-- Winner verdict -->
-  <div class="card" id="verdict-card"></div>
-
-  <!-- Global distributions side by side -->
-  <div class="g2">
-    <div class="card">
-      <div class="card-title">Topic distribution (top 10)</div>
-      <div id="topic-dist-bars"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Plug distribution (top 10)</div>
-      <div id="plug-dist-bars"></div>
-    </div>
-  </div>
-
-  <!-- Cross-mapping: how topics map to plugs -->
+<!-- ── PAGE: REVIEW EXPLORER ── -->
+<div id="pg-reviews" class="page">
   <div class="card">
-    <div class="card-title">How each Topic maps to Plugs — alignment & overlap analysis</div>
-    <p style="font-size:11px;color:var(--muted);margin-bottom:12px">
-      For each Topic, shows which Plugs received the same reviews. Thick overlap = high agreement. Spread = plug is more granular.
-    </p>
-    <div id="cross-mapping"></div>
-  </div>
-
-  <!-- Brand-level comparison -->
-  <div class="card">
-    <div class="card-title">Brand-level: top Topic vs top Plug — select brand</div>
-    <div class="filter-row" style="margin-bottom:12px">
-      <select id="plug-brand-sel" onchange="renderBrandPlugComparison()"></select>
+    <div class="card-title">Review explorer — filter and browse all text reviews</div>
+    <div class="filter-row" id="review-filters" style="flex-wrap:wrap;gap:8px;margin-bottom:14px">
+      <select id="rev-brand-sel"><option value="">All brands</option></select>
+      <select id="rev-topic-sel"><option value="">All topics</option></select>
+      <select id="rev-plug-sel"><option value="">All plugs</option></select>
+      <select id="rev-rating-sel">
+        <option value="">All ratings</option>
+        <option value="1">1★</option><option value="2">2★</option>
+        <option value="3">3★</option><option value="4">4★</option><option value="5">5★</option>
+      </select>
+      <button class="btn" onclick="fetchReviews(1)">Search</button>
+      <button class="btn" onclick="clearFilters()">Clear</button>
     </div>
-    <div id="brand-plug-comparison"></div>
+    <div id="review-count" style="font-size:11px;color:var(--muted);margin-bottom:10px"></div>
+    <div id="review-list"></div>
+    <div id="review-pagination" style="display:flex;gap:8px;margin-top:12px;justify-content:center"></div>
   </div>
-
-  <!-- Sub-level detail -->
-  <div class="g2">
-    <div class="card">
-      <div class="card-title">Sub-topic distribution (top 12)</div>
-      <div id="subtopic-dist-bars"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Sub-plug distribution (top 12)</div>
-      <div id="subplug-dist-bars"></div>
-    </div>
-  </div>
-
 </div>
 
 </div><!-- /main -->
@@ -744,6 +659,8 @@ let reviewPage = 1;
 const CMP = {"coverage": {"topic": 89.6, "plug": 89.9}, "fragmentation": {"subtopics": {"Taste - Bad": 9509, "Taste - Good": 2300, "Freshness - Stale/Bad Smell": 592, "Cooking - Undercooked": 461, "Temperature - Cold Food": 200, "Cooking - Overcooked/Hard": 218, "Texture - Soggy": 206, "Foreign Object": 86}, "plugs": {"Taste": 8271, "Bad Taste": 931, "Quality": 909, "Experience": 484, "Quantity": 374, "Food Safety": 278, "Delivery": 257, "Comments Not Clear": 252, "Good Taste": 209, "Cold": 199, "Packaging": 176, "Dry": 138}, "plug_count": 66, "subtopic_count": 8}, "cross_brand": {"topic_label": "Food Quality", "brands": {"Behrouz Biryani": {"topic": "Food Quality", "plug": "Taste"}, "Oven Story Pizza": {"topic": "Food Quality", "plug": "Bad Taste"}, "Wendy's Burgers": {"topic": "Food Quality", "plug": "Taste"}, "Faasos - Wraps, Rolls & Shawarma": {"topic": "Food Quality", "plug": "Taste"}, "Lunchbox - Meals & Thalis": {"topic": "Food Quality", "plug": "Taste"}, "Sweet Truth - Cake and Desserts": {"topic": "Food Quality", "plug": "Taste"}}}, "actionability": {"actionable_topic_pct": 56.7, "vague_plug_pct": 67.2, "subtopic_actions": [{"subtopic": "Taste - Bad", "count": 9509, "action": "Recipe / seasoning audit"}, {"subtopic": "Cooking - Undercooked", "count": 461, "action": "Cooking time SOP"}, {"subtopic": "Temperature - Cold Food", "count": 200, "action": "Thermal bag SLA"}, {"subtopic": "Freshness - Stale/Bad Smell", "count": 592, "action": "Ingredient freshness audit"}, {"subtopic": "Foreign Object", "count": 86, "action": "Hygiene inspection \u2014 URGENT"}, {"subtopic": "Veg/Non-Veg Mix-up", "count": 71, "action": "Labelling audit \u2014 URGENT"}, {"subtopic": "Missing Items", "count": 617, "action": "Pre-dispatch checklist"}, {"subtopic": "Packaging Damaged", "count": 231, "action": "Packaging quality check"}], "vague_plugs": [{"plug": "Taste", "count": 10025, "problem": "Which taste issue? Bad? Cold? Stale?"}, {"plug": "Quality", "count": 1292, "problem": "Which quality dimension?"}, {"plug": "Experience", "count": 2479, "problem": "Positive or negative? What happened?"}, {"plug": "Comments Not Clear", "count": 1573, "problem": "No insight at all"}]}, "context_required": {"topic_needs_brand": false, "plug_needs_brand": true, "example": {"comment": "rice was cold and quantity was less", "without_brand": {"topic": "Food Quality / Temperature - Cold Food", "plug": "???"}, "behrouz": {"topic": "Food Quality / Temperature - Cold Food", "plug": "Taste / Bland"}, "lunchbox": {"topic": "Food Quality / Temperature - Cold Food", "plug": "Taste / Bad Taste"}, "ovenstory": {"topic": "Food Quality / Temperature - Cold Food", "plug": "Cold / Cold"}}}, "consistency": {"topic_spread": 1, "plug_spread": 28, "note": "500 Food Quality reviews classified: 1 unique Topic vs 28 unique Plugs"}, "scorecard": [{"dimension": "Coverage", "topic": "89.6%", "plug": "89.9%", "winner": "draw", "note": "Near-identical \u2014 plug wins nothing on coverage"}, {"dimension": "Unique categories", "topic": "11", "plug": "68", "winner": "topic", "note": "68 plugs = fragmentation, not granularity"}, {"dimension": "Cross-brand benchmark", "topic": "\u2713 Yes", "plug": "\u2717 No", "winner": "topic", "note": "Same 11 topics for all 23 brands"}, {"dimension": "Fragmentation", "topic": "8 subtopics", "plug": "66 plugs", "winner": "topic", "note": "Food Quality \u2192 66 plugs vs 8 clean subtopics"}, {"dimension": "Actionable reviews", "topic": "56.7%", "plug": "32.8%", "winner": "topic", "note": "56.7% have a clear action, vs 32.8% for plugs"}, {"dimension": "Works without brand", "topic": "\u2713 Yes", "plug": "\u2717 No", "winner": "topic", "note": "Plugs require brand context to be meaningful"}, {"dimension": "Consistency", "topic": "1 label", "plug": "28 labels", "winner": "topic", "note": "Same issue \u2192 1 topic vs 28 plug variants"}]};
 
 const REGIONAL = {"cities": {"Mumbai": {"lat": 19.076, "lon": 72.877, "orders": 36732, "gmv": 10486085, "rating": 3.75, "issue": 72.5, "region": "West", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 22.4}, "Bangalore": {"lat": 12.972, "lon": 77.594, "orders": 30902, "gmv": 9095165, "rating": 3.74, "issue": 74.2, "region": "South", "top_brand": "Wendy's", "top_vendor": "Zomato", "pct": 18.8}, "Delhi": {"lat": 28.704, "lon": 77.102, "orders": 24361, "gmv": 7171220, "rating": 3.76, "issue": 74.6, "region": "North", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 14.8}, "Pune": {"lat": 18.52, "lon": 73.856, "orders": 16088, "gmv": 4757135, "rating": 3.75, "issue": 73.2, "region": "West", "top_brand": "Behrouz", "top_vendor": "Zomato", "pct": 9.8}, "Hyderabad": {"lat": 17.385, "lon": 78.487, "orders": 14715, "gmv": 4161165, "rating": 3.71, "issue": 75.9, "region": "South", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 9.0}, "Gurgaon": {"lat": 28.459, "lon": 77.026, "orders": 13905, "gmv": 4013560, "rating": 3.72, "issue": 73.6, "region": "North", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 8.5}, "Kolkata": {"lat": 22.572, "lon": 88.363, "orders": 11385, "gmv": 3280230, "rating": 3.74, "issue": 73.4, "region": "East", "top_brand": "Wendy's", "top_vendor": "Zomato", "pct": 6.9}, "Ahmedabad": {"lat": 23.023, "lon": 72.572, "orders": 9351, "gmv": 2731560, "rating": 3.71, "issue": 73.8, "region": "West", "top_brand": "Wendy's", "top_vendor": "Zomato", "pct": 5.7}, "Chennai": {"lat": 13.083, "lon": 80.27, "orders": 6665, "gmv": 1894930, "rating": 3.8, "issue": 74.3, "region": "South", "top_brand": "Faasos", "top_vendor": "Zomato", "pct": 4.1}}, "regions": {"West": {"orders": 62171, "gmv": 17974780, "rating": 3.74, "issue_rate": 72.9, "cities": ["Mumbai", "Pune", "Ahmedabad"], "top_brand": "Faasos", "pct": 37.8, "trend": -0.07, "w1": 3.77, "w2": 3.74, "w3": 3.7}, "South": {"orders": 52282, "gmv": 15151260, "rating": 3.74, "issue_rate": 74.7, "cities": ["Bangalore", "Chennai", "Hyderabad"], "top_brand": "Behrouz", "pct": 31.8, "trend": -0.09, "w1": 3.78, "w2": 3.73, "w3": 3.69}, "North": {"orders": 38266, "gmv": 11184780, "rating": 3.74, "issue_rate": 74.2, "cities": ["Delhi", "Gurgaon"], "top_brand": "Faasos", "pct": 23.5, "trend": -0.1, "w1": 3.78, "w2": 3.74, "w3": 3.68}, "East": {"orders": 11385, "gmv": 3280230, "rating": 3.74, "issue_rate": 73.4, "cities": ["Kolkata"], "top_brand": "Wendy's", "pct": 6.9, "trend": -0.16, "w1": 3.8, "w2": 3.73, "w3": 3.64}}, "vendors": {"Zomato": {"orders": 81878, "gmv": 23749905, "pct": 49.9, "rating": 3.74, "issue_rate": 74.0, "aov": 290, "w1": 3.77, "w2": 3.74, "w3": 3.69}, "Swiggy": {"orders": 63232, "gmv": 18302690, "pct": 38.5, "rating": 3.74, "issue_rate": 73.8, "aov": 289, "w1": 3.78, "w2": 3.73, "w3": 3.68}, "Direct": {"orders": 18994, "gmv": 5538455, "pct": 11.6, "rating": 3.75, "issue_rate": 72.9, "aov": 292, "w1": 3.79, "w2": 3.74, "w3": 3.69}}, "gmv": {"total": 47591050, "avg_aov": 290, "weekly": {"W1": {"gmv": 19631760, "orders": 66987, "aov": 293}, "W2": {"gmv": 17855015, "orders": 61403, "aov": 291}, "W3": {"gmv": 10104275, "orders": 35714, "aov": 283}}, "by_region": {"West": 17974780, "South": 15151260, "North": 11184780, "East": 3280230}, "top_brands": [{"brand": "Behrouz Biryani", "gmv": 7836245, "pct": 16.5}, {"brand": "Oven Story Pizza", "gmv": 6290710, "pct": 13.2}, {"brand": "Wendy's Burgers", "gmv": 5462945, "pct": 11.5}, {"brand": "Faasos - Wraps, Rolls & Shawarma", "gmv": 4586500, "pct": 9.6}, {"brand": "Lunchbox - Meals & Thalis", "gmv": 4351010, "pct": 9.1}], "rating_vs_aov": {"1.0": 292, "2.0": 288, "3.0": 286, "4.0": 286, "5.0": 291}}};
+
+const PLUG_TAX = {"total": 24147, "classified_pct": 89.9, "unique_plugs": 65, "unique_subplugs": 118, "top_plug": "Taste", "top_plug_count": 10025, "top_plug_pct": 41.5, "global_plugs": [{"plug": "Taste", "count": 10025, "pct": 41.5}, {"plug": "Experience", "count": 2479, "pct": 10.3}, {"plug": "Quantity", "count": 1778, "pct": 7.4}, {"plug": "Quality", "count": 1292, "pct": 5.4}, {"plug": "Bad Taste", "count": 1045, "pct": 4.3}, {"plug": "Delivery", "count": 648, "pct": 2.7}, {"plug": "Good Taste", "count": 591, "pct": 2.4}, {"plug": "Packaging", "count": 510, "pct": 2.1}, {"plug": "VFM", "count": 389, "pct": 1.6}, {"plug": "Missing", "count": 386, "pct": 1.6}, {"plug": "Food Safety", "count": 302, "pct": 1.3}, {"plug": "Good taste", "count": 289, "pct": 1.2}, {"plug": "Dry", "count": 260, "pct": 1.1}, {"plug": "Wrong Order", "count": 235, "pct": 1.0}, {"plug": "Cold", "count": 199, "pct": 0.8}], "global_subplugs": [{"subplug": "Bad Taste", "count": 5257, "pct": 21.8}, {"subplug": "Taste", "count": 3687, "pct": 15.3}, {"subplug": "Good Experience- Food", "count": 2233, "pct": 9.2}, {"subplug": "Quantity", "count": 832, "pct": 3.4}, {"subplug": "Quality", "count": 785, "pct": 3.3}, {"subplug": "Less Qty", "count": 741, "pct": 3.1}, {"subplug": "Worst", "count": 655, "pct": 2.7}, {"subplug": "Not Good", "count": 624, "pct": 2.6}, {"subplug": "Good Taste", "count": 591, "pct": 2.4}, {"subplug": "Delivery", "count": 447, "pct": 1.9}, {"subplug": "Packaging", "count": 394, "pct": 1.6}, {"subplug": "Missing", "count": 378, "pct": 1.6}, {"subplug": "Dry", "count": 335, "pct": 1.4}, {"subplug": "Not Worth", "count": 301, "pct": 1.2}, {"subplug": "Cold", "count": 291, "pct": 1.2}], "group_colors": {"Taste / Quality": "#E24B4A", "Quantity": "#BA7517", "Missing Items": "#534AB7", "Delivery": "#0F6E56", "Packaging": "#D4537E", "Wrong Order": "#185FA5", "Food Safety": "#8B0000", "Experience / Value": "#3B6D11", "Temperature": "#378ADD", "Texture / Appearance": "#888780", "Pizza Specific": "#F09595", "Cooking": "#C05800", "Service / Platform": "#6b6a66"}, "group_stats": {"Taste / Quality": {"count": 13242, "pct": 54.8, "color": "#E24B4A", "plugs": [{"plug": "Taste", "count": 10025, "pct": 41.5, "subplugs": [{"name": "Bad Taste", "count": 4212}, {"name": "Taste", "count": 3687}, {"name": "Worst", "count": 655}, {"name": "Not Good", "count": 624}, {"name": "Pathetic", "count": 120}, {"name": "Stale", "count": 114}, {"name": "Not Fresh", "count": 104}, {"name": "Rotten", "count": 98}]}, {"plug": "Quality", "count": 1292, "pct": 5.4, "subplugs": [{"name": "Quality", "count": 785}, {"name": "Hard", "count": 141}, {"name": "Stale", "count": 113}, {"name": "Uncooked", "count": 77}, {"name": "Soggy", "count": 57}, {"name": "Smell", "count": 41}, {"name": "Veg/Non Veg", "count": 24}, {"name": "Melt", "count": 24}]}, {"plug": "Bad Taste", "count": 1045, "pct": 4.3, "subplugs": [{"name": "Bad Taste", "count": 1045}]}, {"plug": "Good Taste", "count": 591, "pct": 2.4, "subplugs": [{"name": "Good Taste", "count": 591}]}, {"plug": "Good taste", "count": 289, "pct": 1.2, "subplugs": [{"name": "Good taste", "count": 289}]}]}, "Experience / Value": {"count": 2984, "pct": 12.4, "color": "#3B6D11", "plugs": [{"plug": "Experience", "count": 2479, "pct": 10.3, "subplugs": [{"name": "Good Experience- Food", "count": 2233}, {"name": "Bad Experience", "count": 121}, {"name": "Expectation Not Met", "count": 59}, {"name": "Experience", "count": 46}, {"name": "Good Experience- Delivery", "count": 20}]}, {"plug": "VFM", "count": 389, "pct": 1.6, "subplugs": [{"name": "Not Worth", "count": 301}, {"name": "VFM", "count": 88}]}, {"plug": "Value for Money", "count": 96, "pct": 0.4, "subplugs": [{"name": "Value for Money", "count": 96}]}, {"plug": "Dissatisfaction", "count": 20, "pct": 0.1, "subplugs": [{"name": "Dissatisfaction", "count": 20}]}]}, "Quantity": {"count": 1778, "pct": 7.4, "color": "#BA7517", "plugs": [{"plug": "Quantity", "count": 1778, "pct": 7.4, "subplugs": [{"name": "Quantity", "count": 832}, {"name": "Less Qty", "count": 741}, {"name": "No Chicken", "count": 98}, {"name": "Rice Quantity", "count": 78}, {"name": "Less Cheese", "count": 17}, {"name": "Sauce Quantity", "count": 6}, {"name": "Fillings Quantity", "count": 4}, {"name": "Excess Cheese", "count": 1}]}]}, "Delivery": {"count": 739, "pct": 3.1, "color": "#0F6E56", "plugs": [{"plug": "Delivery", "count": 648, "pct": 2.7, "subplugs": [{"name": "Delivery", "count": 447}, {"name": "Late Delivery", "count": 108}, {"name": "Not Delivered", "count": 82}, {"name": "Damage product", "count": 11}]}, {"plug": "Late", "count": 72, "pct": 0.3, "subplugs": [{"name": "Late", "count": 72}]}, {"plug": "Good Delivery", "count": 19, "pct": 0.1, "subplugs": [{"name": "Good Delivery", "count": 19}]}]}, "Packaging": {"count": 587, "pct": 2.4, "color": "#D4537E", "plugs": [{"plug": "Packaging", "count": 510, "pct": 2.1, "subplugs": [{"name": "Packaging", "count": 394}, {"name": "Spillage", "count": 95}, {"name": "Bad Packaging", "count": 21}]}, {"plug": "Spillage", "count": 77, "pct": 0.3, "subplugs": [{"name": "Spillage", "count": 62}, {"name": "Spillage - Food", "count": 15}]}]}, "Texture / Appearance": {"count": 497, "pct": 2.1, "color": "#888780", "plugs": [{"plug": "Dry", "count": 260, "pct": 1.1, "subplugs": [{"name": "Dry", "count": 260}]}, {"plug": "Burnt", "count": 68, "pct": 0.3, "subplugs": [{"name": "Burnt", "count": 68}]}, {"plug": "Stale", "count": 48, "pct": 0.2, "subplugs": [{"name": "Stale", "count": 48}]}, {"plug": "Hard", "count": 46, "pct": 0.2, "subplugs": [{"name": "Hard", "count": 46}]}, {"plug": "Soggy", "count": 43, "pct": 0.2, "subplugs": [{"name": "Soggy", "count": 43}]}, {"plug": "Salty", "count": 20, "pct": 0.1, "subplugs": [{"name": "Salty", "count": 20}]}, {"plug": "Oily", "count": 12, "pct": 0.0, "subplugs": [{"name": "Oily", "count": 12}]}]}, "Missing Items": {"count": 386, "pct": 1.6, "color": "#534AB7", "plugs": [{"plug": "Missing", "count": 386, "pct": 1.6, "subplugs": [{"name": "Missing", "count": 378}, {"name": "Dip Missing", "count": 4}, {"name": "Product Missing", "count": 3}, {"name": "Condiments Missing", "count": 1}]}]}, "Food Safety": {"count": 305, "pct": 1.3, "color": "#8B0000", "plugs": [{"plug": "Food Safety", "count": 302, "pct": 1.3, "subplugs": [{"name": "Cold", "count": 92}, {"name": "Foreign Particle", "count": 71}, {"name": "Frozen", "count": 48}, {"name": "Food Poisoning", "count": 32}, {"name": "Bad Smell", "count": 29}, {"name": "Spoiled", "count": 16}, {"name": "Vomit", "count": 8}, {"name": "Stomach Ache", "count": 5}]}, {"plug": "FP", "count": 3, "pct": 0.0, "subplugs": [{"name": "FP", "count": 3}]}]}, "Wrong Order": {"count": 235, "pct": 1.0, "color": "#185FA5", "plugs": [{"plug": "Wrong Order", "count": 235, "pct": 1.0, "subplugs": [{"name": "Wrong item", "count": 182}, {"name": "Wrong Order", "count": 44}, {"name": "Wrong Product", "count": 6}, {"name": "Thick gravy", "count": 2}, {"name": "Non Veg Tape On Veg order", "count": 1}]}]}, "Temperature": {"count": 203, "pct": 0.8, "color": "#378ADD", "plugs": [{"plug": "Cold", "count": 199, "pct": 0.8, "subplugs": [{"name": "Cold", "count": 199}]}, {"plug": "Warm", "count": 4, "pct": 0.0, "subplugs": [{"name": "Warm", "count": 4}]}]}, "Cooking": {"count": 91, "pct": 0.4, "color": "#C05800", "plugs": [{"plug": "Uncooked", "count": 81, "pct": 0.3, "subplugs": [{"name": "Uncooked", "count": 81}]}, {"plug": "Overcooked", "count": 5, "pct": 0.0, "subplugs": [{"name": "Overcooked", "count": 5}]}, {"plug": "Smell", "count": 5, "pct": 0.0, "subplugs": [{"name": "Smell", "count": 5}]}]}, "Pizza Specific": {"count": 58, "pct": 0.2, "color": "#F09595", "plugs": [{"plug": "Base Quality", "count": 29, "pct": 0.1, "subplugs": [{"name": "Base Quality", "count": 29}]}, {"plug": "Thin Crust Issue", "count": 27, "pct": 0.1, "subplugs": [{"name": "Thin Crust Issue", "count": 27}]}, {"plug": "Cheese Quality", "count": 1, "pct": 0.0, "subplugs": [{"name": "Cheese Quality", "count": 1}]}, {"plug": "Topping Quality", "count": 1, "pct": 0.0, "subplugs": [{"name": "Topping Quality", "count": 1}]}]}, "Service / Platform": {"count": 54, "pct": 0.2, "color": "#6b6a66", "plugs": [{"plug": "Refund", "count": 34, "pct": 0.1, "subplugs": [{"name": "Refund", "count": 34}]}, {"plug": "Instructions", "count": 20, "pct": 0.1, "subplugs": [{"name": "Instruction not Followed", "count": 10}, {"name": "Instructions", "count": 10}]}]}}, "brand_overview": {"99 Square Pizza": {"top_plug": "Good Taste", "top_plug_pct": 33.3, "top_3": [{"plug": "Good Taste", "count": 34, "pct": 33.3}, {"plug": "Bad Taste", "count": 26, "pct": 25.5}, {"plug": "Burnt", "count": 8, "pct": 7.8}]}, "Behrouz Biryani": {"top_plug": "Taste", "top_plug_pct": 46.6, "top_3": [{"plug": "Taste", "count": 1555, "pct": 46.6}, {"plug": "Experience", "count": 407, "pct": 12.2}, {"plug": "Quantity", "count": 330, "pct": 9.9}]}, "Dabba & Co": {"top_plug": "Taste", "top_plug_pct": 45.5, "top_3": [{"plug": "Taste", "count": 700, "pct": 45.5}, {"plug": "Quantity", "count": 202, "pct": 13.1}, {"plug": "Experience", "count": 193, "pct": 12.5}]}, "Faasos - Wraps, Rolls & Shawarma": {"top_plug": "Taste", "top_plug_pct": 49.3, "top_3": [{"plug": "Taste", "count": 1352, "pct": 49.3}, {"plug": "Experience", "count": 325, "pct": 11.9}, {"plug": "Quality", "count": 253, "pct": 9.2}]}, "Firangi Bake": {"top_plug": "Taste", "top_plug_pct": 43.5, "top_3": [{"plug": "Taste", "count": 114, "pct": 43.5}, {"plug": "Experience", "count": 36, "pct": 13.7}, {"plug": "Quality", "count": 29, "pct": 11.1}]}, "Fricken Chicken": {"top_plug": "Taste", "top_plug_pct": 36.4, "top_3": [{"plug": "Taste", "count": 4, "pct": 36.4}, {"plug": "Quantity", "count": 3, "pct": 27.3}, {"plug": "Value for Money", "count": 2, "pct": 18.2}]}, "Honest bowl": {"top_plug": "Taste", "top_plug_pct": 44.3, "top_3": [{"plug": "Taste", "count": 421, "pct": 44.3}, {"plug": "Experience", "count": 137, "pct": 14.4}, {"plug": "Quantity", "count": 116, "pct": 12.2}]}, "Lunchbox - Meals & Thalis": {"top_plug": "Taste", "top_plug_pct": 47.8, "top_3": [{"plug": "Taste", "count": 1338, "pct": 47.8}, {"plug": "Experience", "count": 349, "pct": 12.5}, {"plug": "Quantity", "count": 244, "pct": 8.7}]}, "Makhani Darbar": {"top_plug": "Taste", "top_plug_pct": 51.7, "top_3": [{"plug": "Taste", "count": 296, "pct": 51.7}, {"plug": "Experience", "count": 86, "pct": 15.0}, {"plug": "Quantity", "count": 51, "pct": 8.9}]}, "Oven Story Pizza": {"top_plug": "Bad Taste", "top_plug_pct": 38.8, "top_3": [{"plug": "Bad Taste", "count": 825, "pct": 38.8}, {"plug": "Good Taste", "count": 408, "pct": 19.2}, {"plug": "Cold", "count": 104, "pct": 4.9}]}, "Rowdy Reddy Biryani": {"top_plug": "Taste", "top_plug_pct": 56.1, "top_3": [{"plug": "Taste", "count": 83, "pct": 56.1}, {"plug": "Quantity", "count": 16, "pct": 10.8}, {"plug": "VFM", "count": 10, "pct": 6.8}]}, "Shawarmajaan": {"top_plug": "Taste", "top_plug_pct": 51.0, "top_3": [{"plug": "Taste", "count": 171, "pct": 51.0}, {"plug": "Experience", "count": 51, "pct": 15.2}, {"plug": "Quality", "count": 25, "pct": 7.5}]}, "Sweet Truth - Cake and Desserts": {"top_plug": "Taste", "top_plug_pct": 46.8, "top_3": [{"plug": "Taste", "count": 364, "pct": 46.8}, {"plug": "Experience", "count": 108, "pct": 13.9}, {"plug": "Quality", "count": 90, "pct": 11.6}]}, "Thalaiva Biryani": {"top_plug": "Taste", "top_plug_pct": 47.6, "top_3": [{"plug": "Taste", "count": 954, "pct": 47.6}, {"plug": "Experience", "count": 311, "pct": 15.5}, {"plug": "Quantity", "count": 216, "pct": 10.8}]}, "The Biryani Life": {"top_plug": "Taste", "top_plug_pct": 50.0, "top_3": [{"plug": "Taste", "count": 775, "pct": 50.0}, {"plug": "Experience", "count": 227, "pct": 14.6}, {"plug": "Quantity", "count": 149, "pct": 9.6}]}, "The Good Bowl": {"top_plug": "Taste", "top_plug_pct": 45.3, "top_3": [{"plug": "Taste", "count": 621, "pct": 45.3}, {"plug": "Quantity", "count": 181, "pct": 13.2}, {"plug": "Experience", "count": 172, "pct": 12.5}]}, "The Pizza Project by Oven Story": {"top_plug": "Bad Taste", "top_plug_pct": 32.0, "top_3": [{"plug": "Bad Taste", "count": 190, "pct": 32.0}, {"plug": "Good Taste", "count": 146, "pct": 24.6}, {"plug": "Cold", "count": 27, "pct": 4.5}]}, "Thinsane Pizza by Oven Story": {"top_plug": "Bad Taste", "top_plug_pct": 26.7, "top_3": [{"plug": "Bad Taste", "count": 4, "pct": 26.7}, {"plug": "Good Taste", "count": 3, "pct": 20.0}, {"plug": "Food stale", "count": 2, "pct": 13.3}]}, "Veg Darbar by Behrouz Biryani": {"top_plug": "Taste", "top_plug_pct": 47.0, "top_3": [{"plug": "Taste", "count": 134, "pct": 47.0}, {"plug": "Quantity", "count": 26, "pct": 9.1}, {"plug": "Experience", "count": 24, "pct": 8.4}]}, "Veg Meals by Lunchbox": {"top_plug": "Taste", "top_plug_pct": 49.6, "top_3": [{"plug": "Taste", "count": 128, "pct": 49.6}, {"plug": "Experience", "count": 42, "pct": 16.3}, {"plug": "Quality", "count": 19, "pct": 7.4}]}, "Wendy's Burgers": {"top_plug": "Taste", "top_plug_pct": 42.8, "top_3": [{"plug": "Taste", "count": 1015, "pct": 42.8}, {"plug": "Good taste", "count": 289, "pct": 12.2}, {"plug": "Quality", "count": 113, "pct": 4.8}]}}};
 
 const PLUG_DATA = {"total_with_comments": 24147, "coverage": {"topic_pct": 87.0, "plug_pct": 89.9, "unique_topics": 11, "unique_subtopics": 29, "unique_plugs": 68, "unique_subplugs": 121, "agreement_rate": 91.0}, "global_plugs": [{"plug": "Taste", "count": 10025, "pct": 41.5}, {"plug": "Experience", "count": 2479, "pct": 10.3}, {"plug": "Quantity", "count": 1778, "pct": 7.4}, {"plug": "Comments Not Clear", "count": 1573, "pct": 6.5}, {"plug": "Quality", "count": 1292, "pct": 5.4}, {"plug": "Bad Taste", "count": 1045, "pct": 4.3}, {"plug": "Comment not clear", "count": 676, "pct": 2.8}, {"plug": "Delivery", "count": 648, "pct": 2.7}, {"plug": "Good Taste", "count": 591, "pct": 2.4}, {"plug": "Packaging", "count": 510, "pct": 2.1}, {"plug": "VFM", "count": 389, "pct": 1.6}, {"plug": "Missing", "count": 386, "pct": 1.6}, {"plug": "Food Safety", "count": 302, "pct": 1.3}, {"plug": "Good taste", "count": 289, "pct": 1.2}, {"plug": "Dry", "count": 260, "pct": 1.1}], "global_subplugs": [{"subplug": "Bad Taste", "count": 5257, "pct": 21.8}, {"subplug": "Taste", "count": 3687, "pct": 15.3}, {"subplug": "Good Experience- Food", "count": 2233, "pct": 9.2}, {"subplug": "Comments Not Clear", "count": 1573, "pct": 6.5}, {"subplug": "Quantity", "count": 832, "pct": 3.4}, {"subplug": "Quality", "count": 785, "pct": 3.3}, {"subplug": "Less Qty", "count": 741, "pct": 3.1}, {"subplug": "Comment not clear", "count": 676, "pct": 2.8}, {"subplug": "Worst", "count": 655, "pct": 2.7}, {"subplug": "Not Good", "count": 624, "pct": 2.6}, {"subplug": "Good Taste", "count": 591, "pct": 2.4}, {"subplug": "Delivery", "count": 447, "pct": 1.9}], "topic_to_plug": {"Food Quality": [{"plug": "Taste", "count": 8217}, {"plug": "Bad Taste", "count": 938}, {"plug": "Quality", "count": 872}, {"plug": "Quantity", "count": 336}], "Positive Overall": [{"plug": "Experience", "count": 2115}, {"plug": "Good Taste", "count": 398}, {"plug": "Taste", "count": 389}, {"plug": "Good taste", "count": 263}], "Other Feedback": [{"plug": "Comments Not Clear", "count": 1151}, {"plug": "Taste", "count": 639}, {"plug": "Comment not clear", "count": 477}, {"plug": "Quantity", "count": 204}], "Quantity": [{"plug": "Quantity", "count": 1165}, {"plug": "Missing", "count": 370}, {"plug": "Taste", "count": 359}, {"plug": "Comments Not Clear", "count": 75}], "Wrong Order": [{"plug": "Wrong Order", "count": 203}, {"plug": "Taste", "count": 172}, {"plug": "Quality", "count": 38}, {"plug": "Veg - non veg", "count": 27}], "Value for Money": [{"plug": "VFM", "count": 311}, {"plug": "Taste", "count": 98}, {"plug": "Value for Money", "count": 75}, {"plug": "Quality", "count": 28}], "Delivery": [{"plug": "Delivery", "count": 227}, {"plug": "Taste", "count": 84}, {"plug": "Late", "count": 61}, {"plug": "Bad Taste", "count": 44}], "Packaging": [{"plug": "Packaging", "count": 105}, {"plug": "Spillage", "count": 61}, {"plug": "Taste", "count": 36}, {"plug": "Comment not clear", "count": 17}], "No Comment": [{"plug": "Comment Blank", "count": 188}], "App/Platform": [{"plug": "Experience", "count": 29}, {"plug": "Taste", "count": 20}, {"plug": "Good Taste", "count": 9}, {"plug": "Quality", "count": 7}], "Hygiene": [{"plug": "Taste", "count": 11}, {"plug": "Packaging", "count": 2}, {"plug": "Delivery", "count": 2}, {"plug": "Dry", "count": 1}]}, "plug_to_topic": {"Taste": [{"topic": "Food Quality", "count": 8217}, {"topic": "Other Feedback", "count": 639}, {"topic": "Positive Overall", "count": 389}, {"topic": "Quantity", "count": 359}], "Experience": [{"topic": "Positive Overall", "count": 2115}, {"topic": "Food Quality", "count": 251}, {"topic": "Quantity", "count": 36}, {"topic": "App/Platform", "count": 29}], "Quantity": [{"topic": "Quantity", "count": 1165}, {"topic": "Food Quality", "count": 336}, {"topic": "Other Feedback", "count": 204}, {"topic": "Positive Overall", "count": 49}], "Comments Not Clear": [{"topic": "Other Feedback", "count": 1151}, {"topic": "Food Quality", "count": 144}, {"topic": "Positive Overall", "count": 138}, {"topic": "Quantity", "count": 75}], "Quality": [{"topic": "Food Quality", "count": 872}, {"topic": "Other Feedback", "count": 147}, {"topic": "Positive Overall", "count": 131}, {"topic": "Quantity", "count": 55}], "Bad Taste": [{"topic": "Food Quality", "count": 938}, {"topic": "Delivery", "count": 44}, {"topic": "Quantity", "count": 32}, {"topic": "Wrong Order", "count": 21}], "Comment not clear": [{"topic": "Other Feedback", "count": 477}, {"topic": "Positive Overall", "count": 69}, {"topic": "Food Quality", "count": 56}, {"topic": "Quantity", "count": 34}], "Delivery": [{"topic": "Food Quality", "count": 240}, {"topic": "Delivery", "count": 227}, {"topic": "Positive Overall", "count": 66}, {"topic": "Other Feedback", "count": 43}], "Good Taste": [{"topic": "Positive Overall", "count": 398}, {"topic": "Food Quality", "count": 179}, {"topic": "App/Platform", "count": 9}, {"topic": "Value for Money", "count": 3}], "Packaging": [{"topic": "Food Quality", "count": 178}, {"topic": "Positive Overall", "count": 132}, {"topic": "Packaging", "count": 105}, {"topic": "Other Feedback", "count": 61}], "VFM": [{"topic": "Value for Money", "count": 311}, {"topic": "Food Quality", "count": 50}, {"topic": "Quantity", "count": 21}, {"topic": "Wrong Order", "count": 3}], "Missing": [{"topic": "Quantity", "count": 370}, {"topic": "Food Quality", "count": 15}, {"topic": "Other Feedback", "count": 1}], "Food Safety": [{"topic": "Food Quality", "count": 273}, {"topic": "Other Feedback", "count": 15}, {"topic": "Positive Overall", "count": 4}, {"topic": "Quantity", "count": 3}], "Good taste": [{"topic": "Positive Overall", "count": 263}, {"topic": "Food Quality", "count": 14}, {"topic": "App/Platform", "count": 6}, {"topic": "Packaging", "count": 3}], "Dry": [{"topic": "Food Quality", "count": 121}, {"topic": "Other Feedback", "count": 82}, {"topic": "Quantity", "count": 44}, {"topic": "Value for Money", "count": 3}]}, "brand_comparison": {"Behrouz Biryani": {"total_comments": 3337, "top_topics": [{"name": "Food Quality", "count": 1777, "pct": 53.3}, {"name": "Positive Overall", "count": 467, "pct": 14.0}, {"name": "Other Feedback", "count": 394, "pct": 11.8}], "top_plugs": [{"name": "Taste", "count": 1555, "pct": 46.6}, {"name": "Experience", "count": 407, "pct": 12.2}, {"name": "Quantity", "count": 330, "pct": 9.9}]}, "Faasos - Wraps, Rolls & Shawarma": {"total_comments": 2741, "top_topics": [{"name": "Food Quality", "count": 1484, "pct": 54.1}, {"name": "Positive Overall", "count": 381, "pct": 13.9}, {"name": "Other Feedback", "count": 353, "pct": 12.9}], "top_plugs": [{"name": "Taste", "count": 1352, "pct": 49.3}, {"name": "Comments Not Clear", "count": 347, "pct": 12.7}, {"name": "Experience", "count": 325, "pct": 11.9}]}, "Wendy's Burgers": {"total_comments": 2369, "top_topics": [{"name": "Food Quality", "count": 1258, "pct": 53.1}, {"name": "Positive Overall", "count": 369, "pct": 15.6}, {"name": "Other Feedback", "count": 294, "pct": 12.4}], "top_plugs": [{"name": "Taste", "count": 1015, "pct": 42.8}, {"name": "Comment not clear", "count": 342, "pct": 14.4}, {"name": "Good taste", "count": 289, "pct": 12.2}]}, "Lunchbox - Meals & Thalis": {"total_comments": 2797, "top_topics": [{"name": "Food Quality", "count": 1481, "pct": 52.9}, {"name": "Positive Overall", "count": 434, "pct": 15.5}, {"name": "Other Feedback", "count": 339, "pct": 12.1}], "top_plugs": [{"name": "Taste", "count": 1338, "pct": 47.8}, {"name": "Experience", "count": 349, "pct": 12.5}, {"name": "Quantity", "count": 244, "pct": 8.7}]}, "Oven Story Pizza": {"total_comments": 2125, "top_topics": [{"name": "Food Quality", "count": 1243, "pct": 58.5}, {"name": "Positive Overall", "count": 307, "pct": 14.4}, {"name": "Other Feedback", "count": 242, "pct": 11.4}], "top_plugs": [{"name": "Bad Taste", "count": 825, "pct": 38.8}, {"name": "Good Taste", "count": 408, "pct": 19.2}, {"name": "Comment not clear", "count": 243, "pct": 11.4}]}, "Thalaiva Biryani": {"total_comments": 2006, "top_topics": [{"name": "Food Quality", "count": 958, "pct": 47.8}, {"name": "Positive Overall", "count": 401, "pct": 20.0}, {"name": "Other Feedback", "count": 273, "pct": 13.6}], "top_plugs": [{"name": "Taste", "count": 954, "pct": 47.6}, {"name": "Experience", "count": 311, "pct": 15.5}, {"name": "Quantity", "count": 216, "pct": 10.8}]}, "The Biryani Life": {"total_comments": 1551, "top_topics": [{"name": "Food Quality", "count": 811, "pct": 52.3}, {"name": "Positive Overall", "count": 263, "pct": 17.0}, {"name": "Other Feedback", "count": 201, "pct": 13.0}], "top_plugs": [{"name": "Taste", "count": 775, "pct": 50.0}, {"name": "Experience", "count": 227, "pct": 14.6}, {"name": "Quantity", "count": 149, "pct": 9.6}]}, "Dabba & Co": {"total_comments": 1538, "top_topics": [{"name": "Food Quality", "count": 777, "pct": 50.5}, {"name": "Positive Overall", "count": 264, "pct": 17.2}, {"name": "Quantity", "count": 185, "pct": 12.0}], "top_plugs": [{"name": "Taste", "count": 700, "pct": 45.5}, {"name": "Quantity", "count": 202, "pct": 13.1}, {"name": "Experience", "count": 193, "pct": 12.5}]}, "The Good Bowl": {"total_comments": 1372, "top_topics": [{"name": "Food Quality", "count": 664, "pct": 48.4}, {"name": "Quantity", "count": 208, "pct": 15.2}, {"name": "Positive Overall", "count": 207, "pct": 15.1}], "top_plugs": [{"name": "Taste", "count": 621, "pct": 45.3}, {"name": "Quantity", "count": 181, "pct": 13.2}, {"name": "Experience", "count": 172, "pct": 12.5}]}, "Honest bowl": {"total_comments": 950, "top_topics": [{"name": "Food Quality", "count": 449, "pct": 47.3}, {"name": "Positive Overall", "count": 180, "pct": 18.9}, {"name": "Quantity", "count": 129, "pct": 13.6}], "top_plugs": [{"name": "Taste", "count": 421, "pct": 44.3}, {"name": "Experience", "count": 137, "pct": 14.4}, {"name": "Quantity", "count": 116, "pct": 12.2}]}, "Sweet Truth - Cake and Desserts": {"total_comments": 778, "top_topics": [{"name": "Food Quality", "count": 468, "pct": 60.2}, {"name": "Positive Overall", "count": 115, "pct": 14.8}, {"name": "Other Feedback", "count": 78, "pct": 10.0}], "top_plugs": [{"name": "Taste", "count": 364, "pct": 46.8}, {"name": "Experience", "count": 108, "pct": 13.9}, {"name": "Quality", "count": 90, "pct": 11.6}]}, "Makhani Darbar": {"total_comments": 573, "top_topics": [{"name": "Food Quality", "count": 327, "pct": 57.1}, {"name": "Positive Overall", "count": 96, "pct": 16.8}, {"name": "Other Feedback", "count": 58, "pct": 10.1}], "top_plugs": [{"name": "Taste", "count": 296, "pct": 51.7}, {"name": "Experience", "count": 86, "pct": 15.0}, {"name": "Quantity", "count": 51, "pct": 8.9}]}}, "brand_plug_stats": {"Behrouz Biryani": {"plug_breakdown": [{"plug": "Taste", "count": 1555, "pct": 46.6}, {"plug": "Experience", "count": 407, "pct": 12.2}, {"plug": "Quantity", "count": 330, "pct": 9.9}, {"plug": "Comments Not Clear", "count": 237, "pct": 7.1}, {"plug": "Quality", "count": 192, "pct": 5.8}, {"plug": "Delivery", "count": 123, "pct": 3.7}, {"plug": "Packaging", "count": 110, "pct": 3.3}, {"plug": "VFM", "count": 84, "pct": 2.5}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 717, "pct": 21.5}, {"subplug": "Taste", "count": 427, "pct": 12.8}, {"subplug": "Good Experience- Food", "count": 368, "pct": 11.0}, {"subplug": "Comments Not Clear", "count": 237, "pct": 7.1}, {"subplug": "Less Qty", "count": 168, "pct": 5.0}, {"subplug": "Quality", "count": 145, "pct": 4.3}, {"subplug": "Worst", "count": 131, "pct": 3.9}, {"subplug": "Quantity", "count": 126, "pct": 3.8}]}, "Faasos - Wraps, Rolls & Shawarma": {"plug_breakdown": [{"plug": "Taste", "count": 1352, "pct": 49.3}, {"plug": "Comments Not Clear", "count": 347, "pct": 12.7}, {"plug": "Experience", "count": 325, "pct": 11.9}, {"plug": "Quality", "count": 253, "pct": 9.2}, {"plug": "Quantity", "count": 137, "pct": 5.0}, {"plug": "Delivery", "count": 112, "pct": 4.1}, {"plug": "Value for Money", "count": 68, "pct": 2.5}, {"plug": "Missing", "count": 34, "pct": 1.2}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 768, "pct": 28.0}, {"subplug": "Taste", "count": 465, "pct": 17.0}, {"subplug": "Comments Not Clear", "count": 347, "pct": 12.7}, {"subplug": "Good Experience- Food", "count": 264, "pct": 9.6}, {"subplug": "Quantity", "count": 107, "pct": 3.9}, {"subplug": "Delivery", "count": 94, "pct": 3.4}, {"subplug": "Value for Money", "count": 68, "pct": 2.5}, {"subplug": "Stale", "count": 60, "pct": 2.2}]}, "Wendy's Burgers": {"plug_breakdown": [{"plug": "Taste", "count": 1015, "pct": 42.8}, {"plug": "Comment not clear", "count": 342, "pct": 14.4}, {"plug": "Good taste", "count": 289, "pct": 12.2}, {"plug": "Quality", "count": 113, "pct": 4.8}, {"plug": "Missing", "count": 97, "pct": 4.1}, {"plug": "Spillage", "count": 62, "pct": 2.6}, {"plug": "Dry", "count": 51, "pct": 2.2}, {"plug": "Cold", "count": 51, "pct": 2.2}], "subplug_breakdown": [{"subplug": "Taste", "count": 1015, "pct": 42.8}, {"subplug": "Comment not clear", "count": 342, "pct": 14.4}, {"subplug": "Good taste", "count": 289, "pct": 12.2}, {"subplug": "Quality", "count": 113, "pct": 4.8}, {"subplug": "Missing", "count": 97, "pct": 4.1}, {"subplug": "Spillage", "count": 62, "pct": 2.6}, {"subplug": "Dry", "count": 51, "pct": 2.2}, {"subplug": "Cold", "count": 51, "pct": 2.2}]}, "Lunchbox - Meals & Thalis": {"plug_breakdown": [{"plug": "Taste", "count": 1338, "pct": 47.8}, {"plug": "Experience", "count": 349, "pct": 12.5}, {"plug": "Quantity", "count": 244, "pct": 8.7}, {"plug": "Comments Not Clear", "count": 197, "pct": 7.0}, {"plug": "Quality", "count": 166, "pct": 5.9}, {"plug": "Packaging", "count": 107, "pct": 3.8}, {"plug": "Delivery", "count": 105, "pct": 3.8}, {"plug": "Food Safety", "count": 69, "pct": 2.5}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 593, "pct": 21.2}, {"subplug": "Taste", "count": 324, "pct": 11.6}, {"subplug": "Good Experience- Food", "count": 317, "pct": 11.3}, {"subplug": "Comments Not Clear", "count": 197, "pct": 7.0}, {"subplug": "Less Qty", "count": 128, "pct": 4.6}, {"subplug": "Not Good", "count": 126, "pct": 4.5}, {"subplug": "Quality", "count": 119, "pct": 4.3}, {"subplug": "Worst", "count": 112, "pct": 4.0}]}, "Oven Story Pizza": {"plug_breakdown": [{"plug": "Bad Taste", "count": 825, "pct": 38.8}, {"plug": "Good Taste", "count": 408, "pct": 19.2}, {"plug": "Comment not clear", "count": 243, "pct": 11.4}, {"plug": "Cold", "count": 104, "pct": 4.9}, {"plug": "Late", "count": 63, "pct": 3.0}, {"plug": "Food stale", "count": 56, "pct": 2.6}, {"plug": "Less cheese", "count": 51, "pct": 2.4}, {"plug": "Uncooked", "count": 36, "pct": 1.7}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 825, "pct": 38.8}, {"subplug": "Good Taste", "count": 408, "pct": 19.2}, {"subplug": "Comment not clear", "count": 243, "pct": 11.4}, {"subplug": "Cold", "count": 104, "pct": 4.9}, {"subplug": "Late", "count": 63, "pct": 3.0}, {"subplug": "Food stale", "count": 56, "pct": 2.6}, {"subplug": "Less cheese", "count": 51, "pct": 2.4}, {"subplug": "Uncooked", "count": 36, "pct": 1.7}]}, "Thalaiva Biryani": {"plug_breakdown": [{"plug": "Taste", "count": 954, "pct": 47.6}, {"plug": "Experience", "count": 311, "pct": 15.5}, {"plug": "Quantity", "count": 216, "pct": 10.8}, {"plug": "Comments Not Clear", "count": 166, "pct": 8.3}, {"plug": "Quality", "count": 82, "pct": 4.1}, {"plug": "VFM", "count": 55, "pct": 2.7}, {"plug": "Packaging", "count": 47, "pct": 2.3}, {"plug": "Delivery", "count": 45, "pct": 2.2}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 351, "pct": 17.5}, {"subplug": "Taste", "count": 339, "pct": 16.9}, {"subplug": "Good Experience- Food", "count": 295, "pct": 14.7}, {"subplug": "Comments Not Clear", "count": 166, "pct": 8.3}, {"subplug": "Worst", "count": 108, "pct": 5.4}, {"subplug": "Less Qty", "count": 93, "pct": 4.6}, {"subplug": "Not Good", "count": 88, "pct": 4.4}, {"subplug": "Quantity", "count": 88, "pct": 4.4}]}, "The Biryani Life": {"plug_breakdown": [{"plug": "Taste", "count": 775, "pct": 50.0}, {"plug": "Experience", "count": 227, "pct": 14.6}, {"plug": "Quantity", "count": 149, "pct": 9.6}, {"plug": "Comments Not Clear", "count": 124, "pct": 8.0}, {"plug": "Quality", "count": 58, "pct": 3.7}, {"plug": "Delivery", "count": 41, "pct": 2.6}, {"plug": "Packaging", "count": 33, "pct": 2.1}, {"plug": "VFM", "count": 30, "pct": 1.9}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 339, "pct": 21.9}, {"subplug": "Good Experience- Food", "count": 210, "pct": 13.5}, {"subplug": "Taste", "count": 207, "pct": 13.3}, {"subplug": "Comments Not Clear", "count": 124, "pct": 8.0}, {"subplug": "Not Good", "count": 93, "pct": 6.0}, {"subplug": "Worst", "count": 90, "pct": 5.8}, {"subplug": "Quantity", "count": 62, "pct": 4.0}, {"subplug": "Less Qty", "count": 59, "pct": 3.8}]}, "Dabba & Co": {"plug_breakdown": [{"plug": "Taste", "count": 700, "pct": 45.5}, {"plug": "Quantity", "count": 202, "pct": 13.1}, {"plug": "Experience", "count": 193, "pct": 12.5}, {"plug": "Quality", "count": 107, "pct": 7.0}, {"plug": "Comments Not Clear", "count": 104, "pct": 6.8}, {"plug": "Packaging", "count": 50, "pct": 3.3}, {"plug": "VFM", "count": 44, "pct": 2.9}, {"plug": "Delivery", "count": 37, "pct": 2.4}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 325, "pct": 21.1}, {"subplug": "Taste", "count": 199, "pct": 12.9}, {"subplug": "Good Experience- Food", "count": 183, "pct": 11.9}, {"subplug": "Comments Not Clear", "count": 104, "pct": 6.8}, {"subplug": "Less Qty", "count": 92, "pct": 6.0}, {"subplug": "Quantity", "count": 92, "pct": 6.0}, {"subplug": "Quality", "count": 78, "pct": 5.1}, {"subplug": "Worst", "count": 67, "pct": 4.4}]}, "The Good Bowl": {"plug_breakdown": [{"plug": "Taste", "count": 621, "pct": 45.3}, {"plug": "Quantity", "count": 181, "pct": 13.2}, {"plug": "Experience", "count": 172, "pct": 12.5}, {"plug": "Comments Not Clear", "count": 101, "pct": 7.4}, {"plug": "Quality", "count": 66, "pct": 4.8}, {"plug": "Delivery", "count": 56, "pct": 4.1}, {"plug": "Packaging", "count": 42, "pct": 3.1}, {"plug": "Dry", "count": 33, "pct": 2.4}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 273, "pct": 19.9}, {"subplug": "Taste", "count": 187, "pct": 13.6}, {"subplug": "Good Experience- Food", "count": 161, "pct": 11.7}, {"subplug": "Comments Not Clear", "count": 101, "pct": 7.4}, {"subplug": "Less Qty", "count": 85, "pct": 6.2}, {"subplug": "Quantity", "count": 81, "pct": 5.9}, {"subplug": "Quality", "count": 52, "pct": 3.8}, {"subplug": "Not Good", "count": 48, "pct": 3.5}]}, "Honest bowl": {"plug_breakdown": [{"plug": "Taste", "count": 421, "pct": 44.3}, {"plug": "Experience", "count": 137, "pct": 14.4}, {"plug": "Quantity", "count": 116, "pct": 12.2}, {"plug": "Comments Not Clear", "count": 69, "pct": 7.3}, {"plug": "Quality", "count": 51, "pct": 5.4}, {"plug": "Packaging", "count": 26, "pct": 2.7}, {"plug": "Dry", "count": 25, "pct": 2.6}, {"plug": "Delivery", "count": 23, "pct": 2.4}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 181, "pct": 19.1}, {"subplug": "Taste", "count": 148, "pct": 15.6}, {"subplug": "Good Experience- Food", "count": 135, "pct": 14.2}, {"subplug": "Comments Not Clear", "count": 69, "pct": 7.3}, {"subplug": "Less Qty", "count": 52, "pct": 5.5}, {"subplug": "Quantity", "count": 50, "pct": 5.3}, {"subplug": "Quality", "count": 44, "pct": 4.6}, {"subplug": "Worst", "count": 32, "pct": 3.4}]}, "Sweet Truth - Cake and Desserts": {"plug_breakdown": [{"plug": "Taste", "count": 364, "pct": 46.8}, {"plug": "Experience", "count": 108, "pct": 13.9}, {"plug": "Quality", "count": 90, "pct": 11.6}, {"plug": "Comments Not Clear", "count": 87, "pct": 11.2}, {"plug": "Delivery", "count": 35, "pct": 4.5}, {"plug": "Quantity", "count": 18, "pct": 2.3}, {"plug": "Value for Money", "count": 16, "pct": 2.1}, {"plug": "Wrong Order", "count": 15, "pct": 1.9}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 205, "pct": 26.3}, {"subplug": "Taste", "count": 119, "pct": 15.3}, {"subplug": "Comments Not Clear", "count": 87, "pct": 11.2}, {"subplug": "Good Experience- Food", "count": 83, "pct": 10.7}, {"subplug": "Stale", "count": 41, "pct": 5.3}, {"subplug": "Delivery", "count": 30, "pct": 3.9}, {"subplug": "Rotten", "count": 19, "pct": 2.4}, {"subplug": "Quantity", "count": 16, "pct": 2.1}]}, "Makhani Darbar": {"plug_breakdown": [{"plug": "Taste", "count": 296, "pct": 51.7}, {"plug": "Experience", "count": 86, "pct": 15.0}, {"plug": "Quantity", "count": 51, "pct": 8.9}, {"plug": "Comments Not Clear", "count": 31, "pct": 5.4}, {"plug": "Quality", "count": 24, "pct": 4.2}, {"plug": "Packaging", "count": 19, "pct": 3.3}, {"plug": "Delivery", "count": 15, "pct": 2.6}, {"plug": "Food Safety", "count": 11, "pct": 1.9}], "subplug_breakdown": [{"subplug": "Bad Taste", "count": 137, "pct": 23.9}, {"subplug": "Good Experience- Food", "count": 78, "pct": 13.6}, {"subplug": "Taste", "count": 71, "pct": 12.4}, {"subplug": "Worst", "count": 39, "pct": 6.8}, {"subplug": "Comments Not Clear", "count": 31, "pct": 5.4}, {"subplug": "Less Qty", "count": 30, "pct": 5.2}, {"subplug": "Not Good", "count": 25, "pct": 4.4}, {"subplug": "Quality", "count": 21, "pct": 3.7}]}}};
 
@@ -800,20 +717,50 @@ function shortBrand(b){
 function showPage(id){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('pg-'+id).classList.add('active');
+  const pg = document.getElementById('pg-'+id);
+  if(!pg) return;
+  pg.classList.add('active');
   const navItems = document.querySelectorAll('.nav-item');
-  const ids = ['overview','whytopic','taxonomy','brands','city','vendor','gmv','heatmap','insights','pluganalysis','reviews'];
+  const ids = ['overviewplug','overviewtopic','plugtaxonomy','taxonomy','brands','city','vendor','gmv','heatmap','insightsplug','insightstopic','reviews'];
   navItems[ids.indexOf(id)]?.classList.add('active');
-  if(id === 'brands')   renderBrandsPage();
-  if(id === 'heatmap')  renderHeatmapPage();
-  if(id === 'reviews')  { populateReviewFilters(); fetchReviews(1); }
-  if(id === 'taxonomy') renderTaxonomyPage();
-  if(id === 'insights') renderInsightsPage();
-  if(id === 'city')     renderCityPage();
-  if(id === 'whytopic') renderWhyTopicPage();
-  if(id === 'pluganalysis') renderPlugAnalysisPage();
-  if(id === 'vendor')   renderVendorPage();
-  if(id === 'gmv')      renderGmvPage();
+  if(id === 'overviewplug')   renderOverviewPlugPage();
+  if(id === 'overviewtopic')  renderOverviewTopicPage();
+  if(id === 'plugtaxonomy')   renderPlugTaxonomyPage();
+  if(id === 'taxonomy')       renderTaxonomyPage();
+  if(id === 'brands')         renderBrandsPage();
+  if(id === 'heatmap')        renderHeatmapPage();
+  if(id === 'reviews')        { populateReviewFilters(); fetchReviews(1); }
+  if(id === 'insightsplug')   renderInsightsPlugPage();
+  if(id === 'insightstopic')  renderInsightsTopicPage();
+  if(id === 'city')           renderCityPage();
+  if(id === 'vendor')         renderVendorPage();
+  if(id === 'gmv')            renderGmvPage();
+}
+
+// ─────────────────────────────────────────────
+// Boot — fetch data
+// ─────────────────────────────────────────────
+async function boot(){
+  try {
+    const ts = Date.now();
+    const [sumRes, brandRes, blRes] = await Promise.all([
+      fetch('/api/summary?_=' + ts),
+      fetch('/api/brands?_=' + ts),
+      fetch('/api/brands_list?_=' + ts),
+    ]);
+    SUMMARY    = await sumRes.json();
+    BRANDS     = await brandRes.json();
+    BRAND_LIST = await blRes.json();
+    selBrands  = BRAND_LIST.length ? [BRAND_LIST[0]] : [];
+
+    document.getElementById('status-bar').textContent =
+      `${SUMMARY.total.toLocaleString()} orders · ${SUMMARY.with_comments.toLocaleString()} text reviews · ${BRAND_LIST.length} brands`;
+
+    renderOverviewPlugPage();
+  } catch(e){
+    document.getElementById('status-bar').textContent = 'Error loading data — check console';
+    console.error(e);
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -835,7 +782,7 @@ async function boot(){
     document.getElementById('status-bar').textContent =
       `${SUMMARY.total.toLocaleString()} orders · ${SUMMARY.with_comments.toLocaleString()} text reviews · ${BRAND_LIST.length} brands`;
 
-    renderOverviewPage();
+    renderOverviewPlugPage();
   } catch(e){
     document.getElementById('status-bar').textContent = 'Error loading data — check console';
     console.error(e);
@@ -977,23 +924,87 @@ function drawBrandTrend(d){
 // ─────────────────────────────────────────────
 // OVERVIEW
 // ─────────────────────────────────────────────
-function renderOverviewPage(){
-  renderOverviewKPIs();
-  renderGlobalTopicBars();
-  renderBrandRatingBars();
-  drawDonut();
-  drawTrendChart();
+function renderOverviewPlugPage(){
+  if(!SUMMARY || !BRANDS) return;
+  const PT = PLUG_TAX;
+
+  // KPIs
+  document.getElementById('ovplug-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-lbl">Total orders</div>
+      <div class="kpi-val">${SUMMARY.total.toLocaleString()}</div>
+      <div class="kpi-sub">All brands combined</div></div>
+    <div class="kpi"><div class="kpi-lbl">Classified by plug</div>
+      <div class="kpi-val">${PT.classified_pct}%</div>
+      <div class="kpi-sub">${PT.total.toLocaleString()} text reviews</div></div>
+    <div class="kpi"><div class="kpi-lbl">Unique plugs</div>
+      <div class="kpi-val">${PT.unique_plugs}</div>
+      <div class="kpi-sub">${PT.unique_subplugs} sub-plugs</div></div>
+    <div class="kpi"><div class="kpi-lbl">Top plug</div>
+      <div class="kpi-val" style="font-size:14px;color:var(--red)">${PT.top_plug}</div>
+      <div class="kpi-sub">${PT.top_plug_count.toLocaleString()} · ${PT.top_plug_pct}%</div></div>`;
+
+  // Donut — plug groups
+  const groups = Object.entries(PT.group_stats);
+  const donutData = groups.map(([name, d])=>({label:name, value:d.count, color:d.color}));
+  drawGenericDonut('ovplug-donut', 'ovplug-donut-legend', donutData, 120);
+
+  // Top plugs bar
+  const maxP = PT.global_plugs[0]?.count || 1;
+  document.getElementById('ovplug-bars').innerHTML = PT.global_plugs.slice(0,12).map(p=>{
+    const grp = groups.find(([,g])=>g.plugs.some(pl=>pl.plug===p.plug));
+    const col = grp ? grp[1].color : '#888';
+    return `<div class="bar-row" style="margin-bottom:5px">
+      <div class="blbl" style="font-size:11px">${p.plug}</div>
+      <div class="btrk" style="height:7px"><div class="bfil" style="width:${p.count/maxP*100}%;background:${col};height:7px"></div></div>
+      <div class="bval">${p.count.toLocaleString()} <span style="font-size:9px;color:var(--muted)">(${p.pct}%)</span></div>
+    </div>`;
+  }).join('');
+
+  // Top sub-plugs bar
+  const maxSP = PT.global_subplugs[0]?.count || 1;
+  document.getElementById('ovplug-subplug-bars').innerHTML = PT.global_subplugs.slice(0,12).map(s=>`
+    <div class="bar-row" style="margin-bottom:5px">
+      <div class="blbl" style="font-size:11px">${s.subplug}</div>
+      <div class="btrk" style="height:7px"><div class="bfil" style="width:${s.count/maxSP*100}%;background:#534AB7;opacity:.7;height:7px"></div></div>
+      <div class="bval">${s.count.toLocaleString()} <span style="font-size:9px;color:var(--muted)">(${s.pct}%)</span></div>
+    </div>`).join('');
+
+  // Plug groups bar
+  const maxG = groups[0]?.[1].count || 1;
+  document.getElementById('ovplug-group-bars').innerHTML = groups.map(([name, d])=>`
+    <div class="bar-row" style="margin-bottom:6px">
+      <div class="blbl" style="display:flex;align-items:center;gap:4px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${d.color};flex-shrink:0;display:inline-block"></span>
+        <span style="font-size:11px">${name}</span>
+      </div>
+      <div class="btrk" style="height:8px"><div class="bfil" style="width:${d.count/maxG*100}%;background:${d.color};height:8px"></div></div>
+      <div class="bval">${d.count.toLocaleString()} (${d.pct}%)</div>
+    </div>`).join('');
+
+  // Brand avg rating (shared)
+  renderBrandRatingBarsTo('ovplug-brand-rating');
+
+  // Top plug per brand
+  const brandPairs = Object.entries(PT.brand_overview).sort((a,b)=>b[1].top_plug_pct-a[1].top_plug_pct);
+  document.getElementById('ovplug-brand-plugs').innerHTML = brandPairs.map(([brand, d])=>{
+    const grp = groups.find(([,g])=>g.plugs.some(p=>p.plug===d.top_plug));
+    const col = grp ? grp[1].color : '#888';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:0.5px solid var(--border)">
+      <span style="font-size:11px;font-weight:600">${shortBrand(brand)}</span>
+      <span style="font-size:11px;background:${col}22;color:${col};padding:1px 8px;border-radius:10px">${d.top_plug}</span>
+      <span style="font-size:11px;color:var(--muted)">${d.top_plug_pct}%</span>
+    </div>`;
+  }).join('');
 }
 
-function renderOverviewKPIs(){
-  if(!SUMMARY || !SUMMARY.topics) return;
-  const neg = SUMMARY.topics.filter(t =>
-    !["Positive Overall","Other Feedback","No Comment","App/Platform"].includes(t.topic)
-  );
-  const issueCount = neg.reduce((s,t) => s+t.count, 0);
-  const posCount   = (SUMMARY.topics.find(t=>t.topic==="Positive Overall")||{count:0}).count;
+function renderOverviewTopicPage(){
+  if(!SUMMARY || !BRANDS) return;
 
-  document.getElementById('overview-kpis').innerHTML = `
+  // KPIs
+  const neg = SUMMARY.topics.filter(t=>!["Positive Overall","Other Feedback","No Comment","App/Platform"].includes(t.topic));
+  const issueCount = neg.reduce((s,t)=>s+t.count,0);
+  const posCount   = (SUMMARY.topics.find(t=>t.topic==="Positive Overall")||{count:0}).count;
+  document.getElementById('ovtopic-kpis').innerHTML = `
     <div class="kpi"><div class="kpi-lbl">Total orders</div>
       <div class="kpi-val">${SUMMARY.total.toLocaleString()}</div>
       <div class="kpi-sub">All brands combined</div></div>
@@ -1005,9 +1016,116 @@ function renderOverviewKPIs(){
       <div class="kpi-sub">${(issueCount/SUMMARY.with_comments*100).toFixed(1)}% of text reviews</div></div>
     <div class="kpi"><div class="kpi-lbl">Positive reviews</div>
       <div class="kpi-val" style="color:var(--green)">${posCount.toLocaleString()}</div>
-      <div class="kpi-sub">${(posCount/SUMMARY.with_comments*100).toFixed(1)}% of text reviews</div></div>
-  `;
+      <div class="kpi-sub">${(posCount/SUMMARY.with_comments*100).toFixed(1)}% of text reviews</div></div>`;
+
+  // Donut — topics
+  const donutData = SUMMARY.topics.filter(t=>t.topic!=='No Comment').map(t=>({label:t.topic, value:t.count, color:TOPIC_COLORS[t.topic]||'#888'}));
+  drawGenericDonut('ovtopic-donut','ovtopic-donut-legend', donutData, 120);
+
+  // Topic bars
+  const maxT = SUMMARY.topics[0]?.count || 1;
+  document.getElementById('ovtopic-bars').innerHTML = SUMMARY.topics.filter(t=>t.topic!=='No Comment').map(t=>`
+    <div class="bar-row" style="margin-bottom:5px">
+      <div class="blbl">${t.topic}</div>
+      <div class="btrk" style="height:7px"><div class="bfil" style="width:${t.count/maxT*100}%;background:${TOPIC_COLORS[t.topic]||'#888'};height:7px"></div></div>
+      <div class="bval">${t.count.toLocaleString()} (${t.pct}%)</div>
+    </div>`).join('');
+
+  // Brand avg rating
+  renderBrandRatingBarsTo('ovtopic-brand-rating');
+
+  // Trend chart
+  drawTrendChartTo('ovtopic-trend','ovtopic-trend-legend');
+
+  // Sub-topics
+  const allSubs = SUMMARY.topics.flatMap(t=>(t.subtopics||[]).map(s=>({...s,topic:t.topic}))).sort((a,b)=>b.count-a.count);
+  const maxST = allSubs[0]?.count || 1;
+  document.getElementById('ovtopic-subtopic-bars').innerHTML = allSubs.slice(0,14).map(s=>`
+    <div class="bar-row" style="margin-bottom:4px">
+      <div class="blbl" style="font-size:11px">${s.name}</div>
+      <div class="btrk" style="height:6px"><div class="bfil" style="width:${s.count/maxST*100}%;background:${TOPIC_COLORS[s.topic]||'#888'};height:6px"></div></div>
+      <div class="bval" style="font-size:10px">${s.count.toLocaleString()}</div>
+    </div>`).join('');
+
+  // Top topic per brand
+  const brandTopics = BRAND_LIST.map(b=>{
+    const d = BRANDS[b]; if(!d) return null;
+    const top = (d.topics||[]).filter(t=>!["Positive Overall","Other Feedback","App/Platform"].includes(t.topic))[0];
+    return {brand:b, topic:top?.topic||'N/A', pct:top?.pct||0};
+  }).filter(Boolean).sort((a,b)=>b.pct-a.pct);
+  document.getElementById('ovtopic-brand-topics').innerHTML = brandTopics.map(d=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:0.5px solid var(--border)">
+      <span style="font-size:11px;font-weight:600">${shortBrand(d.brand)}</span>
+      <span class="tag ${topicTagClass(d.topic)}" style="font-size:10px">${d.topic}</span>
+      <span style="font-size:11px;color:var(--muted)">${d.pct}%</span>
+    </div>`).join('');
 }
+
+// Generic: render brand rating bars into any container id
+function renderBrandRatingBarsTo(containerId){
+  const el = document.getElementById(containerId); if(!el) return;
+  const sorted = BRAND_LIST.map(b=>({b, r:BRANDS[b]?.avg_rating||0})).sort((a,b)=>b.r-a.r);
+  const max = 5;
+  el.innerHTML = sorted.map(({b,r})=>{
+    const col = r>=4?'var(--green)':r>=3.7?'var(--amber)':'var(--red)';
+    return `<div class="bar-row" style="margin-bottom:4px">
+      <div class="blbl" style="font-size:10px">${shortBrand(b)}</div>
+      <div class="btrk" style="height:6px"><div class="bfil" style="width:${r/max*100}%;background:${col};height:6px"></div></div>
+      <div class="bval" style="color:${col};font-weight:600;font-size:10px">${r?.toFixed(2)||'—'}★</div>
+    </div>`;
+  }).join('');
+}
+
+// Generic: draw trend chart into any container + legend id
+function drawTrendChartTo(chartId, legendId){
+  const el = document.getElementById(chartId); if(!el) return;
+  const top4 = Object.entries(BRANDS).sort((a,b)=>b[1].count-a[1].count).slice(0,4).map(([b])=>b);
+  const colors = ['#E24B4A','#534AB7','#0F6E56','#BA7517'];
+  const weeks = ['W1','W2','W3'];
+  const W=400,H=160,padL=36,padR=16,padT=16,padB=28;
+  const minV=3.0,maxV=4.5,xStep=(W-padL-padR)/2;
+  function vy(v){return padT+(maxV-v)/(maxV-minV)*(H-padT-padB);}
+  function vx(i){return padL+i*xStep;}
+  let grid='';
+  [3.0,3.5,4.0,4.5].forEach(v=>{
+    const y=vy(v);
+    grid+=`<line x1="${padL}" y1="${y.toFixed(0)}" x2="${W-padR}" y2="${y.toFixed(0)}" stroke="#e5e3de" stroke-width="1"/>
+           <text x="${padL-4}" y="${(y+4).toFixed(0)}" text-anchor="end" font-size="9" fill="#6b6a66">${v}</text>`;
+  });
+  const xlbls=weeks.map((w,i)=>`<text x="${vx(i).toFixed(0)}" y="${H-6}" text-anchor="middle" font-size="9" fill="#6b6a66">${w}</text>`).join('');
+  let lines='';
+  top4.forEach((b,i)=>{
+    const d=BRANDS[b];const col=colors[i];
+    const pts=weeks.map((w,j)=>{const v=d?.weekly_avgs?.[w];return v!=null?{x:vx(j),y:vy(v),v}:null;}).filter(Boolean);
+    if(pts.length<2)return;
+    lines+=`<path d="M${pts.map(p=>`${p.x.toFixed(0)},${p.y.toFixed(0)}`).join(' L')}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>`;
+    pts.forEach(p=>{lines+=`<circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="4" fill="${col}" stroke="#fff" stroke-width="1.5"><title>${shortBrand(b)}: ${p.v}★</title></circle>`;});
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${grid}${xlbls}${lines}</svg>`;
+  const leg=document.getElementById(legendId);
+  if(leg) leg.innerHTML=top4.map((b,i)=>`<div class="leg"><span class="dot" style="background:${colors[i]}"></span>${shortBrand(b)}</div>`).join('');
+}
+
+// Generic donut
+function drawGenericDonut(chartId, legendId, data, r){
+  const el=document.getElementById(chartId); if(!el) return;
+  const total=data.reduce((s,d)=>s+d.value,0); if(!total) return;
+  let angle=-Math.PI/2; const cx=r+10,cy=r+10,W=(r+10)*2;
+  let paths='',legItems='';
+  data.forEach(d=>{
+    const slice=d.value/total*Math.PI*2;
+    const x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle);
+    angle+=slice;
+    const x2=cx+r*Math.cos(angle),y2=cy+r*Math.sin(angle);
+    const large=slice>Math.PI?1:0;
+    paths+=`<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${large},1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${d.color}" stroke="#fff" stroke-width="1.5"><title>${d.label}: ${d.value.toLocaleString()} (${(d.value/total*100).toFixed(1)}%)</title></path>`;
+    legItems+=`<div class="leg"><span class="dot" style="background:${d.color}"></span>${d.label} (${(d.value/total*100).toFixed(1)}%)</div>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${W}" width="${W}" height="${W}" style="display:block">${paths}</svg>`;
+  const leg=document.getElementById(legendId);
+  if(leg){leg.innerHTML=legItems;}
+}
+
 
 function renderGlobalTopicBars(){
   const neg = SUMMARY.topics.filter(t =>
@@ -1545,112 +1663,229 @@ function renderCrossCompare(){
 // ─────────────────────────────────────────────
 // INSIGHTS — auto-generated from data
 // ─────────────────────────────────────────────
-function renderInsightsPage(){
+// ─────────────────────────────────────────────
+// INSIGHTS (PLUG / SUBPLUG)
+// ─────────────────────────────────────────────
+function renderInsightsPlugPage(){
   if(!SUMMARY || !BRANDS || !BRAND_LIST.length) return;
-  const declining = BRAND_LIST
-    .filter(b=>{
-      const w = BRANDS[b]?.weekly_avgs;
-      return w && w.W1 && w.W3 && w.W3 < w.W1 - 0.05;
-    })
-    .map(b=>({brand:b, drop: BRANDS[b].weekly_avgs.W1 - BRANDS[b].weekly_avgs.W3, ...BRANDS[b]}))
-    .sort((a,b)=>b.drop-a.drop);
+  const PT = PLUG_TAX;
+  const groups = Object.entries(PT.group_stats);
 
-  const wrongOrder = SUMMARY.topics.find(t=>t.topic==="Wrong Order");
-  const vegMixup   = wrongOrder?.subtopics?.find(s=>s.name==="Veg/Non-Veg Mix-up");
-  const tasteBad   = SUMMARY.topics.find(t=>t.topic==="Food Quality")?.subtopics?.find(s=>s.name==="Taste - Bad");
-  const qtyIssue   = SUMMARY.topics.find(t=>t.topic==="Quantity");
-  const delivery   = SUMMARY.topics.find(t=>t.topic==="Delivery");
+  // Top negative plug groups
+  const negGroups = ['Taste / Quality','Quantity','Wrong Order','Delivery','Packaging','Food Safety','Temperature','Cooking'];
+  const topNegGroup = negGroups.map(g=>({g, d:PT.group_stats[g]})).filter(x=>x.d).sort((a,b)=>b.d.count-a.d.count);
+  const topPlug   = PT.global_plugs[0];
+  const tastePlugs = PT.group_stats['Taste / Quality'];
+  const wrongOrder = PT.group_stats['Wrong Order'];
+  const foodSafety = PT.group_stats['Food Safety'];
+  const missing    = PT.group_stats['Missing Items'];
 
-  // Worst delivery brand
-  const worstDelivery = BRAND_LIST
-    .map(b=>({brand:b, pct: (() => { const t=(BRANDS[b]?.topics||[]).find(x=>x.topic==="Delivery"); return t?(t.count/BRANDS[b].commented*100):0; })() }))
-    .sort((a,b)=>b.pct-a.pct)[0];
+  // Find brand with highest Taste plug %
+  const brandTaste = Object.entries(PT.brand_overview)
+    .map(([b,d])=>({brand:b, ...d}))
+    .filter(d=>d.top_plug==='Taste'||d.top_plug==='Bad Taste')
+    .sort((a,b)=>b.top_plug_pct-a.top_plug_pct)[0];
 
   const criticals = [
     {icon:"!",bg:"var(--redl)",col:"var(--redt)",
-     title:`Taste complaints dominate — ${tasteBad?.count.toLocaleString()||'—'} reviews cite bad taste`,
-     desc:`This is ${SUMMARY.topics.find(t=>t.topic==="Food Quality")?.pct||'—'}% of all text reviews. Bad taste is the single biggest driver of 1-star ratings across all brands. Root cause: inconsistent seasoning, chef turnover, and recipe drift.`},
-    declining[0] ? {icon:"!",bg:"var(--redl)",col:"var(--redt)",
-     title:`${shortBrand(declining[0].brand)} declining ${declining[0].weekly_avgs.W1}★ → ${declining[0].weekly_avgs.W3}★`,
-     desc:`Drop of ${declining[0].drop.toFixed(2)} points over 3 weeks. With ${declining[0].count.toLocaleString()} orders this is high-impact. Cross-check operational changes: shift timings, ingredient sourcing, or new staff.`} :
-    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"All brands need taste improvement",desc:`${tasteBad?.count.toLocaleString()||'—'} bad taste reviews require kitchen-level action.`},
-    vegMixup ? {icon:"!",bg:"var(--redl)",col:"var(--redt)",
-     title:`${vegMixup.count} veg/non-veg mix-ups detected across all brands`,
-     desc:`Dietary errors with religious and medical implications. Requires immediate kitchen labelling: coloured stickers or tapes on containers before dispatch. Track this sub-topic weekly.`} :
-    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"Monitor wrong orders",desc:`${wrongOrder?.count||0} wrong order complaints — review dispatch QC.`},
-    {icon:"!",bg:"var(--redl)",col:"var(--redt)",
-     title:`${qtyIssue?.count.toLocaleString()||'—'} portion/quantity complaints (${qtyIssue?.pct||'—'}% of text reviews)`,
-     desc:`Portion Too Small accounts for ${qtyIssue?.subtopics?.find(s=>s.name==="Portion Too Small")?.count.toLocaleString()||'—'} reviews. Standardise gram weights per SKU and photograph sampled orders weekly.`},
+     title:`"${topPlug?.plug}" is the #1 plug — ${topPlug?.count.toLocaleString()} reviews (${topPlug?.pct}%)`,
+     desc:`Taste / Quality complaints dominate the plug system. The plug "Taste" alone covers ${tastePlugs?.count.toLocaleString()} reviews (${tastePlugs?.pct}% of all classified reviews). This is the single biggest kitchen-level issue.`},
+    foodSafety ? {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`Food Safety plugs: ${foodSafety.count} reviews — foreign particle, food poisoning, spoiled`,
+     desc:`Food safety issues (Foreign Particle, FP/Food Poisoning, Rotten, Spoiled) require immediate kitchen hygiene inspections. These carry the highest legal and reputational risk of any plug category.`} :
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"Monitor food safety plugs",desc:"Track FP, Foreign Particle and Spoiled plugs weekly."},
+    wrongOrder ? {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`Wrong Order plugs: ${wrongOrder.count} reviews — includes Veg/Non-Veg mix-ups`,
+     desc:`Goof-up, Wrong Item, and Veg-NonVeg plugs total ${wrongOrder.count} reviews. Dietary errors have religious and medical implications. Implement coloured dispatch labels immediately.`} :
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"Wrong order plugs flagged",desc:"Investigate wrong order dispatch."},
+    missing ? {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`Missing item plugs: ${missing.count} reviews — items not received`,
+     desc:`Product Missing, Coke Missing, Dip Missing, Condiments Missing — all point to pre-dispatch checklist gaps. A mandatory item-check before sealing the bag would eliminate most of these.`} :
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"Missing items",desc:"Review pre-dispatch checklist."},
   ];
 
   const watches = [
-    worstDelivery ? {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
-     title:`${shortBrand(worstDelivery.brand)} has highest delivery complaint rate (${worstDelivery.pct.toFixed(1)}%)`,
-     desc:`${delivery?.subtopics?.find(s=>s.name==="Late Delivery")?.count||0} late delivery + ${delivery?.subtopics?.find(s=>s.name==="Not Delivered")?.count||0} not delivered across all brands. Check if a specific delivery slot or partner cluster is causing this.`} :
-    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",title:"Delivery complaints growing",desc:`${delivery?.count||0} total delivery reviews. Monitor weekly.`},
-    declining[1] ? {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
-     title:`${shortBrand(declining[1].brand)}: ${declining[1].weekly_avgs.W1}★ → ${declining[1].weekly_avgs.W3}★`,
-     desc:`Second-steepest decline. High order volume amplifies impact. Monitor closely and investigate ops changes in week 3.`} :
-    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",title:"Monitor emerging declines",desc:"Track all brands weekly for rating deterioration."},
     {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
-     title:`${SUMMARY.topics.find(t=>t.topic==="Packaging")?.count||0} packaging damage complaints`,
-     desc:`${SUMMARY.topics.find(t=>t.topic==="Packaging")?.subtopics?.find(s=>s.name==="Beverage Issue")?.count||0} beverage spill issues specifically. Check seal quality on drink lids and bag insulation across kitchens.`},
+     title:`"Experience" plug: ${PT.group_stats['Experience / Value']?.count.toLocaleString()} reviews — vague but large`,
+     desc:`"Experience" and "Bad Experience" are catch-all plugs covering ${PT.group_stats['Experience / Value']?.pct}% of reviews. Vague by nature — but the volume signals something systemic is wrong beyond just food quality.`},
     {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
-     title:`${SUMMARY.topics.find(t=>t.topic==="Value for Money")?.subtopics?.find(s=>s.name==="Overpriced / Not Worth")?.count||0} "not worth the money" reviews`,
-     desc:`Price-value perception is an issue. Either portion sizes need to increase or communication around premium ingredients needs improvement.`},
+     title:`Packaging plug group: ${PT.group_stats['Packaging']?.count} reviews`,
+     desc:`Spillage, packaging damage, and bad packaging remain recurring issues across brands. Packaging quality check should be added to every kitchen's daily checklist.`},
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`Temperature plugs (Cold/Warm/Frozen): ${PT.group_stats['Temperature']?.count} reviews`,
+     desc:`Cold food is a thermal bag / delivery time issue. These plugs map directly to delivery partner SLAs. Track by city and vendor to identify which routes have the worst cold-food rates.`},
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`"Comments Not Clear" plugs: ${(PT.global_plugs.find(p=>p.plug==='Comments Not Clear')||{count:0}).count} reviews unclassified`,
+     desc:`Reviews that couldn't be matched to any plug. These represent classification gaps. Review them monthly to identify emerging issues not yet in the taxonomy.`},
   ];
 
-  // Improving brands
-  const improving = BRAND_LIST
-    .filter(b=>{ const w=BRANDS[b]?.weekly_avgs; return w&&w.W1&&w.W3&&w.W3>w.W1+0.01; })
-    .map(b=>({brand:b, gain:BRANDS[b].weekly_avgs.W3-BRANDS[b].weekly_avgs.W1, ...BRANDS[b]}))
-    .sort((a,b)=>b.gain-a.gain);
+  // Best-performing brands by plug (fewest Taste/Bad Taste plugs)
+  const bestBrands = Object.entries(PT.brand_overview)
+    .filter(([,d])=>d.top_plug!=='Taste'&&d.top_plug!=='Bad Taste'&&d.top_plug!=='Experience')
+    .slice(0,2);
 
-  const positives = improving.length ?
-    improving.slice(0,2).map(d=>({icon:"+",bg:"var(--greenl)",col:"var(--greent)",
-      title:`${shortBrand(d.brand)} improving: ${BRANDS[d.brand].weekly_avgs.W1}★ → ${BRANDS[d.brand].weekly_avgs.W3}★`,
-      desc:`Up ${d.gain.toFixed(2)} points in 3 weeks. Study what changed — training, recipe tweak, or staff — and replicate to other brands.`})) :
-    [{icon:"+",bg:"var(--greenl)",col:"var(--greent)",
-      title:`${SUMMARY.topics.find(t=>t.topic==="Positive Overall")?.count.toLocaleString()||'—'} unprompted positive reviews`,
-      desc:"Customers who leave positive reviews without being prompted are your strongest advocates. Identify their orders for pattern analysis."}];
-  positives.push({icon:"+",bg:"var(--greenl)",col:"var(--greent)",
-    title:`${SUMMARY.topics.find(t=>t.topic==="Positive Overall")?.pct||'—'}% positive comment rate`,
-    desc:"Customers who write positive reviews represent a reorder-likely segment. Target them with loyalty offers or referral prompts."});
+  const positives = [
+    {icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+     title:`Good Taste & Good Experience plugs: ${(PT.global_plugs.find(p=>p.plug==='Good Taste')||{count:0}).count + (PT.global_plugs.find(p=>p.plug==='Good Experience- Food')||{count:0}).count} positive plug classifications`,
+     desc:`Good Taste (${(PT.global_plugs.find(p=>p.plug==='Good Taste')||{count:0}).count}) and Good Experience- Food (${(PT.global_plugs.find(p=>p.plug==='Good Experience- Food')||{count:0}).count}) represent genuine customer delight. Study these orders for patterns — staff on shift, ingredient batches, prep time.`},
+    bestBrands.length ? {icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+     title:`${shortBrand(bestBrands[0][0])}: top plug is "${bestBrands[0][1].top_plug}" at ${bestBrands[0][1].top_plug_pct}%`,
+     desc:`Unlike most brands where Taste/Bad Taste dominates, this brand's most common plug is a non-taste issue — suggesting better food consistency. Study their kitchen processes.`} :
+    {icon:"+",bg:"var(--greenl)",col:"var(--greent)",title:"Some brands showing better plug profiles",desc:"Brands with fewer Taste/Quality plugs represent best-in-class kitchen performance."},
+    {icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+     title:`Good Delivery plug: ${(PT.global_plugs.find(p=>p.plug==='Good Delivery')||{count:0}).count} reviews praising delivery`,
+     desc:`Customers who specifically call out good delivery are high-loyalty indicators. These orders represent the gold standard for SLA and packaging — benchmark them.`},
+  ];
 
   const actions = [
     {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
-     title:"Immediate: kitchen audit for veg/non-veg dispatch errors",
-     desc:`${vegMixup?.count||0} dietary mix-ups. Introduce coloured labelling on containers before dispatch. Make this a mandatory pre-dispatch checklist item across all kitchens.`},
+     title:"Immediate: coloured dispatch labels for veg/non-veg orders",
+     desc:`${wrongOrder?.count||0} wrong-order plugs including Veg-NonVeg mix-ups. Green label = veg, red label = non-veg. Make this a mandatory pre-dispatch step across all kitchens today.`},
     {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
-     title:"Operational: define gram-weight standards per SKU",
-     desc:`${qtyIssue?.count.toLocaleString()||'—'} portion complaints. Weigh-check 10% of orders randomly each shift. Post standard portion photos in each kitchen.`},
+     title:"This week: pre-dispatch checklist to eliminate Missing Item plugs",
+     desc:`${missing?.count||0} missing item reviews. A laminated 5-point checklist per order type (burger, biryani, pizza, wraps) — items, condiments, drinks, cutlery, napkins — would reduce this to near zero.`},
     {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
-     title:"Product: weekly blind taste QC for bottom-rated brands",
-     desc:`${tasteBad?.count.toLocaleString()||'—'} bad taste reviews. Run blind tastings vs. recipe spec 3× per week for any brand with avg rating below 3.8★.`},
+     title:"This month: thermal bag SLA review for Cold plug reduction",
+     desc:`${PT.group_stats['Temperature']?.count||0} temperature plugs. Audit thermal bag condition and delivery time by route. Replace bags that are over 6 months old. Set a max delivery time of 35 minutes before escalation.`},
     {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
-     title:"Packaging: insulated bag audit for temperature-sensitive items",
-     desc:`${SUMMARY.topics.find(t=>t.topic==="Food Quality")?.subtopics?.find(s=>s.name==="Temperature - Cold Food")?.count||0} cold food complaints. Set max dispatch-to-delivery window SLA. Verify thermal bag usage at all partner kitchens.`},
+     title:"Ongoing: monthly review of 'Comments Not Clear' plug — expand taxonomy",
+     desc:`Unclassified plugs represent emerging issues. Read them monthly, identify patterns, and add new plug entries to the taxonomy. This keeps classification coverage above 90%.`},
   ];
 
-  function renderBlock(id, arr){
-    document.getElementById(id).innerHTML = arr.filter(Boolean).map(a=>`
-      <div class="insight-row">
-        <div class="ibadge" style="background:${a.bg};color:${a.col}">${a.icon}</div>
+  function renderBlock(id, items){
+    document.getElementById(id).innerHTML = items.map(a=>`
+      <div class="icard">
+        <div class="iicon" style="background:${a.bg};color:${a.col}">${a.icon}</div>
         <div class="itxt">
           <div class="ititle">${a.title}</div>
           <div class="idesc">${a.desc}</div>
         </div>
       </div>`).join('');
   }
-  renderBlock('insights-critical', criticals);
-  renderBlock('insights-watch',    watches);
-  renderBlock('insights-positive', positives);
-  renderBlock('insights-actions',  actions);
+  renderBlock('insplug-critical', criticals);
+  renderBlock('insplug-watch',    watches);
+  renderBlock('insplug-positive', positives);
+  renderBlock('insplug-actions',  actions);
+
+  // Brand hotspot table
+  const brandRows = BRAND_LIST.map(b=>{
+    const bo = PT.brand_overview[b]; if(!bo) return null;
+    const grp = Object.entries(PT.group_stats).find(([,g])=>g.plugs.some(p=>p.plug===bo.top_plug));
+    const col = grp ? grp[1].color : '#888';
+    return {brand:b, ...bo, col};
+  }).filter(Boolean).sort((a,b)=>b.top_plug_pct-a.top_plug_pct);
+  document.getElementById('insplug-brand-table').innerHTML = `
+    <table class="tbl">
+      <thead><tr><th>Brand</th><th>Top plug</th><th>%</th><th>2nd plug</th><th>3rd plug</th></tr></thead>
+      <tbody>${brandRows.map(d=>`<tr>
+        <td style="font-size:12px;font-weight:600">${shortBrand(d.brand)}</td>
+        <td><span style="font-size:11px;background:${d.col}22;color:${d.col};padding:1px 8px;border-radius:10px;font-weight:600">${d.top_plug}</span></td>
+        <td style="font-size:12px">${d.top_plug_pct}%</td>
+        <td style="font-size:11px;color:var(--muted)">${d.top_3[1]?.plug||'—'} ${d.top_3[1]?'('+d.top_3[1].pct+'%)':''}</td>
+        <td style="font-size:11px;color:var(--muted)">${d.top_3[2]?.plug||'—'} ${d.top_3[2]?'('+d.top_3[2].pct+'%)':''}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+// ─────────────────────────────────────────────
+// INSIGHTS (TOPIC / SUBTOPIC)
+// ─────────────────────────────────────────────
+function renderInsightsTopicPage(){
+  if(!SUMMARY || !BRANDS || !BRAND_LIST.length) return;
+  const declining = BRAND_LIST
+    .filter(b=>{ const w=BRANDS[b]?.weekly_avgs; return w&&w.W1&&w.W3&&w.W3<w.W1-0.05; })
+    .map(b=>({brand:b, drop:BRANDS[b].weekly_avgs.W1-BRANDS[b].weekly_avgs.W3, ...BRANDS[b]}))
+    .sort((a,b)=>b.drop-a.drop);
+  const wrongOrder = SUMMARY.topics.find(t=>t.topic==="Wrong Order");
+  const vegMixup   = wrongOrder?.subtopics?.find(s=>s.name==="Veg/Non-Veg Mix-up");
+  const tasteBad   = SUMMARY.topics.find(t=>t.topic==="Food Quality")?.subtopics?.find(s=>s.name==="Taste - Bad");
+  const qtyIssue   = SUMMARY.topics.find(t=>t.topic==="Quantity");
+  const delivery   = SUMMARY.topics.find(t=>t.topic==="Delivery");
+  const worstDelivery = BRAND_LIST
+    .map(b=>({brand:b, pct:(()=>{const t=(BRANDS[b]?.topics||[]).find(x=>x.topic==="Delivery");return t?(t.count/BRANDS[b].commented*100):0;})()}))
+    .sort((a,b)=>b.pct-a.pct)[0];
+  const improving = BRAND_LIST
+    .filter(b=>{const w=BRANDS[b]?.weekly_avgs;return w&&w.W1&&w.W3&&w.W3>w.W1+0.01;})
+    .map(b=>({brand:b,gain:BRANDS[b].weekly_avgs.W3-BRANDS[b].weekly_avgs.W1,...BRANDS[b]}))
+    .sort((a,b)=>b.gain-a.gain);
+
+  const criticals = [
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`Taste complaints dominate — ${tasteBad?.count.toLocaleString()||'—'} reviews cite bad taste`,
+     desc:`This is ${SUMMARY.topics.find(t=>t.topic==="Food Quality")?.pct||'—'}% of all text reviews. Bad taste is the single biggest driver of 1-star ratings across all brands. Root cause: inconsistent seasoning, chef turnover, and recipe drift.`},
+    declining[0]?{icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`${shortBrand(declining[0].brand)} declining ${declining[0].weekly_avgs.W1}★ → ${declining[0].weekly_avgs.W3}★`,
+     desc:`Drop of ${declining[0].drop.toFixed(2)} points over 3 weeks. With ${declining[0].count.toLocaleString()} orders this is high-impact. Cross-check operational changes: shift timings, ingredient sourcing, or new staff.`}:
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"All brands need taste improvement",desc:`${tasteBad?.count.toLocaleString()||'—'} bad taste reviews require kitchen-level action.`},
+    vegMixup?{icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`${vegMixup.count} veg/non-veg mix-ups detected`,
+     desc:`Dietary errors with religious and medical implications. Requires immediate kitchen labelling: coloured stickers or tapes on containers before dispatch. Track this sub-topic weekly.`}:
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",title:"Monitor wrong orders",desc:`${wrongOrder?.count||0} wrong order complaints — review dispatch QC.`},
+    {icon:"!",bg:"var(--redl)",col:"var(--redt)",
+     title:`${qtyIssue?.count.toLocaleString()||'—'} portion/quantity complaints (${qtyIssue?.pct||'—'}% of text reviews)`,
+     desc:`Portion Too Small accounts for ${qtyIssue?.subtopics?.find(s=>s.name==="Portion Too Small")?.count.toLocaleString()||'—'} reviews. Standardise gram weights per SKU and photograph sampled orders weekly.`},
+  ];
+  const watches = [
+    worstDelivery?{icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`${shortBrand(worstDelivery.brand)} has highest delivery complaint rate (${worstDelivery.pct.toFixed(1)}%)`,
+     desc:`${delivery?.subtopics?.find(s=>s.name==="Late Delivery")?.count||0} late delivery + ${delivery?.subtopics?.find(s=>s.name==="Not Delivered")?.count||0} not delivered. Check delivery slot/partner cluster.`}:
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",title:"Delivery complaints growing",desc:`${delivery?.count||0} total delivery reviews.`},
+    declining[1]?{icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`${shortBrand(declining[1].brand)}: ${declining[1].weekly_avgs.W1}★ → ${declining[1].weekly_avgs.W3}★`,
+     desc:`Second-steepest decline. Monitor closely and investigate ops changes in W3.`}:
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",title:"Monitor emerging declines",desc:"Track all brands weekly for rating deterioration."},
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`${SUMMARY.topics.find(t=>t.topic==="Packaging")?.count||0} packaging damage complaints`,
+     desc:`${SUMMARY.topics.find(t=>t.topic==="Packaging")?.subtopics?.find(s=>s.name==="Beverage Issue")?.count||0} beverage spill issues. Check seal quality on drink lids across kitchens.`},
+    {icon:"~",bg:"var(--amberl)",col:"var(--ambrt)",
+     title:`${SUMMARY.topics.find(t=>t.topic==="Value for Money")?.subtopics?.find(s=>s.name==="Overpriced / Not Worth")?.count||0} "not worth the money" reviews`,
+     desc:`Price-value perception issue. Either portion sizes need to increase or communication around premium ingredients needs to improve.`},
+  ];
+  const positives = improving.length ?
+    improving.slice(0,2).map(d=>({icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+      title:`${shortBrand(d.brand)} improving: ${BRANDS[d.brand].weekly_avgs.W1}★ → ${BRANDS[d.brand].weekly_avgs.W3}★`,
+      desc:`Up ${d.gain.toFixed(2)} points in 3 weeks. Study what changed — training, recipe tweak, or staff — and replicate.`})):
+    [{icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+      title:`${SUMMARY.topics.find(t=>t.topic==="Positive Overall")?.count.toLocaleString()||'—'} unprompted positive reviews`,
+      desc:"Customers who leave positive reviews without prompting are your strongest advocates."}];
+  positives.push({icon:"+",bg:"var(--greenl)",col:"var(--greent)",
+    title:`${SUMMARY.topics.find(t=>t.topic==="Positive Overall")?.pct||'—'}% positive comment rate`,
+    desc:"Target these customers with loyalty offers or referral prompts."});
+  const actions = [
+    {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
+     title:"Immediate: kitchen audit for veg/non-veg dispatch errors",
+     desc:`${vegMixup?.count||0} dietary mix-ups. Introduce coloured labelling on containers. Make this a mandatory pre-dispatch checklist item across all kitchens.`},
+    {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
+     title:"Operational: define gram-weight standards per SKU",
+     desc:`${qtyIssue?.count.toLocaleString()||'—'} portion complaints. Weigh-check 10% of orders randomly each shift. Post standard portion photos in each kitchen.`},
+    {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
+     title:"Weekly: monitor declining brands — set ±0.1 alert threshold",
+     desc:`${declining.length} brands currently declining. Set up a weekly automated alert when any brand drops more than 0.1 pts week-on-week.`},
+    {icon:"→",bg:"var(--bluel)",col:"var(--bluet)",
+     title:"Monthly: deep-dive on Foreign Object subtopic",
+     desc:`${SUMMARY.topics.find(t=>t.topic==="Food Quality")?.subtopics?.find(s=>s.name==="Foreign Object")?.count||0} foreign object reports. Each one requires a root-cause investigation and hygiene protocol review at that kitchen.`},
+  ];
+
+  function renderBlock(id, items){
+    document.getElementById(id).innerHTML = items.map(a=>`
+      <div class="icard">
+        <div class="iicon" style="background:${a.bg};color:${a.col}">${a.icon}</div>
+        <div class="itxt">
+          <div class="ititle">${a.title}</div>
+          <div class="idesc">${a.desc}</div>
+        </div>
+      </div>`).join('');
+  }
+  renderBlock('instopic-critical', criticals);
+  renderBlock('instopic-watch',    watches);
+  renderBlock('instopic-positive', positives);
+  renderBlock('instopic-actions',  actions);
 
   renderRegionalSnapshot();
   renderGmvInsights();
   renderVendorInsights();
 }
+
 
 // ─────────────────────────────────────────────
 // REGIONAL SNAPSHOT + INDIA MAP
@@ -1882,36 +2117,55 @@ function renderVendorInsights(){
 // ─────────────────────────────────────────────
 function populateReviewFilters(){
   if(!SUMMARY || !BRAND_LIST.length) return;
-  const bSel = document.getElementById('f-brand');
+  const bSel = document.getElementById('rev-brand-sel');
   if(bSel.options.length === 1){
     BRAND_LIST.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=shortBrand(b);bSel.appendChild(o);});
   }
-  const tSel = document.getElementById('f-topic');
+  const tSel = document.getElementById('rev-topic-sel');
   if(tSel.options.length === 1){
     SUMMARY.topics.filter(t=>t.topic!=="No Comment").forEach(t=>{
       const o=document.createElement('option');o.value=t.topic;o.textContent=t.topic;tSel.appendChild(o);
     });
   }
+  const pSel = document.getElementById('rev-plug-sel');
+  if(pSel.options.length === 1 && PLUG_TAX?.global_plugs){
+    // List all plugs grouped, sorted by count
+    const allPlugs = [];
+    Object.values(PLUG_TAX.group_stats).forEach(g=>{
+      g.plugs.forEach(p=>allPlugs.push(p.plug));
+    });
+    allPlugs.sort((a,b)=>{
+      const ca = PLUG_TAX.global_plugs.find(x=>x.plug===a)?.count || 0;
+      const cb = PLUG_TAX.global_plugs.find(x=>x.plug===b)?.count || 0;
+      return cb-ca;
+    });
+    [...new Set(allPlugs)].forEach(p=>{
+      const o=document.createElement('option');o.value=p;o.textContent=p;pSel.appendChild(o);
+    });
+  }
 }
 
 function clearFilters(){
-  document.getElementById('f-brand').value  = '';
-  document.getElementById('f-topic').value  = '';
-  document.getElementById('f-rating').value = '';
+  document.getElementById('rev-brand-sel').value  = '';
+  document.getElementById('rev-topic-sel').value  = '';
+  document.getElementById('rev-plug-sel').value   = '';
+  document.getElementById('rev-rating-sel').value = '';
   fetchReviews(1);
 }
 
 async function fetchReviews(page){
   reviewPage = page;
-  const brand  = document.getElementById('f-brand').value;
-  const topic  = document.getElementById('f-topic').value;
-  const rating = document.getElementById('f-rating').value;
+  const brand  = document.getElementById('rev-brand-sel').value;
+  const topic  = document.getElementById('rev-topic-sel').value;
+  const plug   = document.getElementById('rev-plug-sel').value;
+  const rating = document.getElementById('rev-rating-sel').value;
   const list   = document.getElementById('review-list');
   list.innerHTML = '<div class="loading-msg"><span class="spinner"></span> Loading reviews…</div>';
 
   const params = new URLSearchParams({page});
   if(brand)  params.set('brand',  brand);
   if(topic)  params.set('topic',  topic);
+  if(plug)   params.set('plug',   plug);
   if(rating) params.set('rating', rating);
 
   try {
@@ -1938,12 +2192,14 @@ async function fetchReviews(page){
         <div class="rc-tags">
           <span class="tag ${topicTagClass(r.topic)}">${r.topic}</span>
           <span class="tag t-teal">${r.subtopic}</span>
+          ${r.plug ? `<span class="tag" style="background:#534AB722;color:#534AB7">${r.plug}</span>` : ''}
+          ${r.subplug && r.subplug !== r.plug ? `<span class="tag" style="background:#534AB711;color:#534AB7">${r.subplug}</span>` : ''}
         </div>
       </div>`;
     }).join('');
 
     const totalPages = Math.ceil(total/per);
-    const pager = document.getElementById('review-pager');
+    const pager = document.getElementById('review-pagination');
     pager.innerHTML = '';
     if(totalPages > 1){
       if(page > 1){
@@ -2678,6 +2934,180 @@ function renderWhyTopicPage(){
       <strong>The same complaint</strong> — cold rice, less quantity — gets 3 different Plug labels
       depending on which brand ordered. Topics give the same label every time.
     </div>`;
+}
+
+function renderOverviewPlugBars(){
+  const pb = document.getElementById('overview-plug-bars');
+  const gb = document.getElementById('overview-plug-groups');
+  if(!pb || !gb) return;
+
+  const maxP = PLUG_TAX.global_plugs[0]?.count || 1;
+  pb.innerHTML = PLUG_TAX.global_plugs.slice(0,10).map(p=>{
+    const grp = Object.entries(PLUG_TAX.group_stats).find(([,g])=>g.plugs.some(pl=>pl.plug===p.plug));
+    const col = grp ? grp[1].color : '#888';
+    return `<div class="bar-row" style="margin-bottom:4px">
+      <div class="blbl" style="font-size:11px">${p.plug}</div>
+      <div class="btrk" style="height:6px">
+        <div class="bfil" style="width:${p.count/maxP*100}%;background:${col};height:6px"></div>
+      </div>
+      <div class="bval" style="font-size:10px">${p.count.toLocaleString()} (${p.pct}%)</div>
+    </div>`;
+  }).join('');
+
+  const maxG = Object.values(PLUG_TAX.group_stats)[0]?.count || 1;
+  gb.innerHTML = Object.entries(PLUG_TAX.group_stats).slice(0,8).map(([group, d])=>`
+    <div class="bar-row" style="margin-bottom:4px">
+      <div class="blbl" style="display:flex;align-items:center;gap:4px;font-size:11px">
+        <span style="width:7px;height:7px;border-radius:50%;background:${d.color};flex-shrink:0;display:inline-block"></span>
+        ${group}
+      </div>
+      <div class="btrk" style="height:6px">
+        <div class="bfil" style="width:${d.count/maxG*100}%;background:${d.color};height:6px"></div>
+      </div>
+      <div class="bval" style="font-size:10px">${d.count.toLocaleString()} (${d.pct}%)</div>
+    </div>`).join('');
+}
+// ─────────────────────────────────────────────
+function renderPlugTaxonomyPage(){
+  const PT = PLUG_TAX;
+
+  // ── KPIs ──────────────────────────────────────
+  document.getElementById('plug-tax-kpis').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-lbl">Reviews classified</div>
+      <div class="kpi-val">${PT.classified_pct}%</div>
+      <div class="kpi-sub">${PT.total.toLocaleString()} text reviews total</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Unique plugs</div>
+      <div class="kpi-val">${PT.unique_plugs}</div>
+      <div class="kpi-sub">top-level classifications</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Unique sub-plugs</div>
+      <div class="kpi-val">${PT.unique_subplugs}</div>
+      <div class="kpi-sub">granular issue labels</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Top plug</div>
+      <div class="kpi-val" style="font-size:14px;color:var(--red)">${PT.top_plug}</div>
+      <div class="kpi-sub">${PT.top_plug_count.toLocaleString()} reviews · ${PT.top_plug_pct}%</div>
+    </div>`;
+
+  // ── Global plug bars ───────────────────────────
+  const maxP = PT.global_plugs[0]?.count || 1;
+  document.getElementById('plug-tax-global-bars').innerHTML =
+    PT.global_plugs.map(p=>{
+      const grp = Object.entries(PT.group_stats).find(([,g])=>g.plugs.some(pl=>pl.plug===p.plug));
+      const col = grp ? grp[1].color : '#888';
+      return `<div class="bar-row" style="margin-bottom:5px">
+        <div class="blbl" style="font-size:11px">${p.plug}</div>
+        <div class="btrk" style="height:7px">
+          <div class="bfil" style="width:${p.count/maxP*100}%;background:${col};height:7px"></div>
+        </div>
+        <div class="bval">${p.count.toLocaleString()} <span style="color:var(--muted);font-size:9px">(${p.pct}%)</span></div>
+      </div>`;
+    }).join('');
+
+  // ── Global sub-plug bars ───────────────────────
+  const maxSP = PT.global_subplugs[0]?.count || 1;
+  document.getElementById('plug-tax-subplug-bars').innerHTML =
+    PT.global_subplugs.map(s=>`
+      <div class="bar-row" style="margin-bottom:5px">
+        <div class="blbl" style="font-size:11px">${s.subplug}</div>
+        <div class="btrk" style="height:7px">
+          <div class="bfil" style="width:${s.count/maxSP*100}%;background:#534AB7;opacity:.7;height:7px"></div>
+        </div>
+        <div class="bval">${s.count.toLocaleString()} <span style="color:var(--muted);font-size:9px">(${s.pct}%)</span></div>
+      </div>`).join('');
+
+  // ── Group bars ─────────────────────────────────
+  const maxG = Object.values(PT.group_stats)[0]?.count || 1;
+  document.getElementById('plug-tax-group-bars').innerHTML =
+    Object.entries(PT.group_stats).map(([group, d])=>`
+      <div class="bar-row" style="margin-bottom:7px">
+        <div class="blbl" style="display:flex;align-items:center;gap:5px">
+          <span style="width:9px;height:9px;border-radius:50%;background:${d.color};flex-shrink:0;display:inline-block"></span>
+          <span style="font-size:11px;font-weight:600">${group}</span>
+        </div>
+        <div class="btrk" style="height:9px">
+          <div class="bfil" style="width:${d.count/maxG*100}%;background:${d.color};height:9px"></div>
+        </div>
+        <div class="bval">${d.count.toLocaleString()} <span style="color:var(--muted);font-size:9px">(${d.pct}%)</span></div>
+      </div>`).join('');
+
+  // ── Full taxonomy tree ─────────────────────────
+  // Expandable groups like topic taxonomy
+  const treeEl = document.getElementById('plug-tax-tree');
+  treeEl.innerHTML = Object.entries(PT.group_stats).map(([group, gd])=>{
+    const maxPG = gd.plugs[0]?.count || 1;
+    const plugRows = gd.plugs.map(p=>{
+      const maxSub = p.subplugs[0]?.count || 1;
+      const subRows = p.subplugs.map(s=>`
+        <div style="display:flex;align-items:center;gap:6px;padding:3px 0 3px 16px;border-bottom:0.5px solid var(--border)">
+          <span style="width:5px;height:5px;border-radius:50%;background:${gd.color};opacity:.5;flex-shrink:0;display:inline-block"></span>
+          <span style="flex:1;font-size:11px;color:var(--muted)">${s.name}</span>
+          <div style="width:80px;background:var(--faint);border-radius:2px;height:5px;margin-right:6px">
+            <div style="width:${s.count/maxSub*100}%;background:${gd.color};opacity:.6;height:5px;border-radius:2px"></div>
+          </div>
+          <span style="font-size:10px;color:var(--muted);min-width:36px;text-align:right">${s.count.toLocaleString()}</span>
+        </div>`).join('');
+      return `<div style="padding:6px 0 6px 12px;border-bottom:0.5px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <div style="flex:1;font-size:12px;font-weight:600;color:${gd.color}">${p.plug}</div>
+          <div style="width:100px;background:var(--faint);border-radius:3px;height:7px">
+            <div style="width:${p.count/maxPG*100}%;background:${gd.color};opacity:.7;height:7px;border-radius:3px"></div>
+          </div>
+          <span style="font-size:11px;font-weight:600;min-width:50px;text-align:right">${p.count.toLocaleString()}</span>
+          <span style="font-size:10px;color:var(--muted)">(${p.pct}%)</span>
+        </div>
+        ${subRows}
+      </div>`;
+    }).join('');
+    return `<div style="margin-bottom:10px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+      <div style="background:${gd.color}18;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer"
+           onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <span style="width:10px;height:10px;border-radius:50%;background:${gd.color};flex-shrink:0;display:inline-block"></span>
+        <span style="font-size:12px;font-weight:700;color:${gd.color};flex:1">${group}</span>
+        <span style="font-size:12px;font-weight:600">${gd.count.toLocaleString()}</span>
+        <span style="font-size:11px;color:var(--muted)">(${gd.pct}%)</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:4px">▼ expand</span>
+      </div>
+      <div style="display:none">${plugRows}</div>
+    </div>`;
+  }).join('');
+
+  // ── Brand overview table ───────────────────────
+  const brands = Object.entries(PT.brand_overview)
+    .sort((a,b)=>b[1].top_plug_pct-a[1].top_plug_pct);
+  const bo = document.getElementById('plug-tax-brands');
+  bo.innerHTML = `
+    <table class="tbl">
+      <thead><tr>
+        <th>Brand</th>
+        <th>Top plug</th>
+        <th style="text-align:right">% of reviews</th>
+        <th>2nd plug</th>
+        <th>3rd plug</th>
+      </tr></thead>
+      <tbody>${brands.map(([brand, d])=>{
+        const col = ()=>{
+          const grp = Object.entries(PT.group_stats).find(([,g])=>g.plugs.some(p=>p.plug===d.top_3[0]?.plug));
+          return grp ? grp[1].color : '#888';
+        };
+        return `<tr>
+          <td style="font-size:12px;font-weight:600">${shortBrand(brand)}</td>
+          <td>
+            <span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col()}22;color:${col()};font-weight:600">
+              ${d.top_plug}
+            </span>
+          </td>
+          <td style="text-align:right;font-size:12px;font-weight:600">${d.top_plug_pct}%</td>
+          <td style="font-size:11px;color:var(--muted)">${d.top_3[1]?.plug || '—'} ${d.top_3[1] ? '('+d.top_3[1].pct+'%)' : ''}</td>
+          <td style="font-size:11px;color:var(--muted)">${d.top_3[2]?.plug || '—'} ${d.top_3[2] ? '('+d.top_3[2].pct+'%)' : ''}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
 }
 
 // ─────────────────────────────────────────────
