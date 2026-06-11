@@ -227,12 +227,14 @@ def brands():
 def reviews():
     brand  = request.args.get("brand","")
     topic  = request.args.get("topic","")
+    plug   = request.args.get("plug","")
     rating = request.args.get("rating","")
     page   = int(request.args.get("page",1))
     per    = 50
     q = DF[DF["Comments"]!=""].copy()
     if brand:  q = q[q["Res_name"]==brand]
     if topic:  q = q[q["Topic"]==topic]
+    if plug:   q = q[q["Plug"]==plug]
     if rating:
         try: q = q[q["Food_Rating"]==float(rating)]
         except: pass
@@ -248,6 +250,8 @@ def reviews():
             "comment":  str(row.get("Comments",""))[:300],
             "topic":    str(row.get("Topic","")),
             "subtopic": str(row.get("Subtopic","")),
+            "plug":     str(row.get("Plug","")),
+            "subplug":  str(row.get("SubPlug","")),
             "source":   str(row.get("Source","zomato")),
         })
     return jsonify({"total":total,"page":page,"per":per,"reviews":records})
@@ -259,6 +263,13 @@ def brands_list():
 @app.route("/api/topics_list")
 def topics_list():
     return jsonify(TOPIC_ORDER)
+
+@app.route("/api/plugs_list")
+def plugs_list():
+    noise = {"Comment Blank","Comments Not Clear","Comment not clear","Comments not clear"}
+    has = DF[DF["Comments"]!=""]
+    plugs = has[~has["Plug"].isin(noise)]["Plug"].value_counts()
+    return jsonify([p for p in plugs.index.tolist()])
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
