@@ -1,6 +1,6 @@
 import re
 
-# ── Primary taxonomy (phrase-level patterns, checked first) ─────────────────
+# ── Primary taxonomy ─────────────────────────────────────────────────────────
 TAXONOMY = {
     "Food Quality": {
         "Taste - Bad":
@@ -14,30 +14,54 @@ TAXONOMY = {
             r"|fraud|not authentic|not up to mark|not upto mark|below average|poor quality"
             r"|not recommended|too cold|very cold|food.*(is|was) cold|cold.*(food|pizza|biryani|burger|rice)"
             r"|delivered cold|pizza not hot|not at all hot"
-            r"|bad in taste|taste very bad|taste is bad|test not good|no test|very bad test",
+            r"|bad in taste|taste very bad|taste is bad|test not good|no test|very bad test"
+            r"|nt good|nor good|not tasted well|taste.*not.*good|not.*good.*taste"
+            r"|not as expected|not as per expectation|not up to standard|not up to the mark"
+            r"|not great|not that good|not so good|could be better|needs improvement"
+            r"|very disappointed|totally disappointed|worst experience|bad experience.*food"
+            r"|no flavou?r|no spice|no masala|very plain|too plain|very bland",
         "Taste - Good":
             r"delicious|yummy|yum|tasty|great taste|good taste|loved the taste|amazing taste"
             r"|fantastic|wonderful taste|nice taste|excellent taste|loved it|awesome taste"
-            r"|perfect taste|best taste|superb taste|osm|soo tasty|so tasty|testy|testy food"
+            r"|perfect taste|best taste|superb taste|osm|soo tasty|so tasty|testy|testi"
             r"|super tasty|taste is super|ultimate taste|authentic taste|soo good"
-            r"|it.?s (too )?good|too good|must.?try|goog food|supper food|woow|wooow",
+            r"|it.?s (too )?good|too good|must.?try|goog food|supper food|woow|wooow"
+            r"|finger.?licking|lip.?smacking|mouth.?watering|heavenly|divine taste"
+            r"|loved the food|food was great|food was amazing|food was awesome|food was good"
+            r"|great food|nice food|amazing food|awesome food|excellent food|wonderful food"
+            r"|very tasty|very delicious|super delicious|really good|absolutely delicious"
+            r"|food is perfect|food was perfect|taste was perfect|really loved|thoroughly enjoyed",
         "Temperature - Cold Food":
             r"cold food|food was cold|food is cold|cold burger|cold pizza|cold rice"
-            r"|cold curry|cold chicken|lukewarm|not hot|not warm|food cold",
+            r"|cold curry|cold chicken|lukewarm|not hot|not warm|food cold|thanda|thandi"
+            r"|thanda tha|thanda aa|ठंडा|totally cold|completely cold|ice cold|stone cold"
+            r"|arrived cold|reached cold|delivered cold|came cold|biryani cold|cold biryani"
+            r"|cold wrap|cold paratha|cold roti|cold dal|cold sabzi|cold gravy"
+            r"|dal.*cold|cold.*dal|sabzi.*cold|gravy.*cold|rajma.*thanda|thanda.*rajma"
+            r"|freeze|frozen food|food was freezing|food like fridge"
+            r"|pizza cold as|cold as water|cold as ice|like water|cold as",
         "Freshness - Stale/Bad Smell":
             r"stale|bad smell|smell bad|foul smell|rotten|not fresh|old food|smelly"
-            r"|expired|gone bad|odour|odor|spoiled food|rotten food|food was stale",
+            r"|expired|gone bad|odour|odor|spoiled food|rotten food|food was stale"
+            r"|burps|burping|bad burps|after.*eat.*sick|felt sick after|food poisoning"
+            r"|bun.*bad|bread.*bad|bun.*not fresh|bread.*not fresh|stale bun|stale bread"
+            r"|wasn.?t fresh|not fresh enough|chicken.*wasn.?t fresh|fresh.*not|burger.*not fresh",
         "Cooking - Undercooked":
             r"undercooked|not cooked|half cooked|raw|unboiled|not properly cooked"
             r"|not fully cooked|poorly cooked|patty not cooked|less cooked|not done"
-            r"|uncooked food|uncooked rice|rice not boiled|not well cooked",
+            r"|uncooked food|uncooked rice|rice not boiled|not well cooked"
+            r"|half.?baked|doughy|mushy rice|clumped.*rice|sticky.*rice|rice.*clump"
+            r"|gummy rice|chewy.*chicken|rubber.*chicken|not done properly",
         "Cooking - Overcooked/Hard":
             r"overcooked|burnt|hard food|too hard|very hard cake|hard cake|not soft"
-            r"|its burned|burnt food|burnt pizza|over.?cooked",
+            r"|its burned|burnt food|burnt pizza|over.?cooked|slightly burnt|a bit burnt"
+            r"|charred|crispy.*burnt|bread.*hard|roti.*hard|hard.*bread|hard.*roti",
         "Foreign Object":
-            r"hair|stone|insect|fly|cockroach|worm|foreign object|found.*in food|plastic in",
+            r"hair|stone|insect|fly|cockroach|worm|foreign object|found.*in food|plastic in"
+            r"|glass.*food|nail.*food|bug in food",
         "Texture - Soggy":
-            r"soggy|soft fries|limp|not crispy|fries.*cold|watery",
+            r"soggy|soft fries|limp|not crispy|fries.*cold|watery|pizza.*soggy"
+            r"|base.*soggy|crust.*soggy|soggy.*base|soggy.*crust|soggy.*pizza",
     },
     "Quantity": {
         "Portion Too Small":
@@ -45,27 +69,44 @@ TAXONOMY = {
             r"|quantity is less|very small|too small|less food|very less food|less amount"
             r"|amount.*less|small serving|serving.*less|less serving|miniature|barely anything"
             r"|not enough food|low quantity|poor quantity|quantity low|quantity is low"
-            r"|worst quantity|less quality|very small",
+            r"|worst quantity|less quality|very small|too less|quite less|so less"
+            r"|curry.*less|less.*curry|dal.*less|less.*dal|rice.*less|less.*rice"
+            r"|rajma.*less|less.*rajma|sabzi.*less|less.*sabzi|less.*pieces|pieces.*less"
+            r"|only.*piece|single piece|just one|only one piece|very few pieces"
+            r"|less chicken|chicken.*less|less paneer|paneer.*less|less meat"
+            r"|small size|half.*portion|less portion|very light|very tiny"
+            r"|portion was less|portion is less|less portion|package half empty"
+            r"|packet half empty|half empty|half the quantity",
         "Missing Items":
             r"missing|not received|didn.t get|did not get|not get|item.*missing|where is my"
             r"|incomplete order|absent|not included|no sauce|no ketchup|no fries|no drink"
             r"|no spoon|no cutlery|no tissue|add on.*not|addon.*not|no masala|no rajma"
-            r"|no salad|coke is missing|egg was missing|items missing|order missing",
+            r"|no salad|coke is missing|egg was missing|items missing|order missing"
+            r"|forgot to send|forgot to give|forgot to include|forgot to add"
+            r"|did not send|not given|not provided|not packed|not added"
+            r"|chips.*not|seasoning.*not|chutney.*not|mint.*not|dip.*not"
+            r"|only.*delivered|delivered.*only|received.*only|only.*received",
         "Less Gravy/Sauce":
             r"less gravy|no gravy|gravy.*less|less curry|curry.*less|dry.*curry"
-            r"|sauce.*less|less sauce|dal.*less|less dal|rajma.*less",
+            r"|sauce.*less|less sauce|dal.*less|less dal|rajma.*less|less masala"
+            r"|no masala.*biryani|biryani.*no masala|dry biryani|biryani.*dry",
         "Fewer Pieces":
             r"fewer pieces|less pieces|chicken.*less|pieces.*less|less chicken|no chicken"
-            r"|chicken pieces.*less|not enough pieces|one piece only|single piece|less pieces",
+            r"|chicken pieces.*less|not enough pieces|one piece only|single piece|less pieces"
+            r"|only 2 pieces|only one|very few|2 pieces.*only",
     },
     "Wrong Order": {
         "Wrong Item Sent":
             r"wrong item|wrong order|different item|instead of|in place of|got.*instead"
             r"|received.*instead|sent.*wrong|wrong food|not what i ordered"
-            r"|ordered.*but.*got|ordered.*but.*received|different food|wrong item sent",
+            r"|ordered.*but.*got|ordered.*but.*received|different food|wrong item sent"
+            r"|gave.*wrong|they gave.*different|sent.*different|delivered.*wrong"
+            r"|potato wedges instead|regular.*instead.*peri|wheat.*gave.*maida|maida.*instead.*wheat"
+            r"|blueberry.*chocolate|chocolate.*instead.*blueberry",
         "Veg/Non-Veg Mix-up":
             r"ordered veg.*chicken|ordered chicken.*veg|veg.*non.?veg|non.?veg.*veg"
-            r"|chicken.*instead.*veg|veg.*instead.*chicken|vegetarian.*chicken|chicken.*vegetarian",
+            r"|chicken.*instead.*veg|veg.*instead.*chicken|vegetarian.*chicken|chicken.*vegetarian"
+            r"|meat.*in.*veg|veg.*got.*meat|got.*chicken.*veg order",
         "Wrong Variant/Size":
             r"wrong variant|wrong size|wrong flavour|wrong flavor|different flavour"
             r"|peri peri.*regular|regular.*peri peri",
@@ -74,19 +115,30 @@ TAXONOMY = {
         "Packaging Damaged":
             r"packaging.*bad|bad packaging|pack.*torn|torn.*pack|spill|spilt|leaked|leaking"
             r"|broken.*pack|damaged.*pack|not sealed|open.*pack|pack.*open|box.*broken"
-            r"|container.*broken|worst pack(aging|ing|age)?|poor pack(aging|ing)?|bad pack(aging|ing)?",
+            r"|container.*broken|worst pack(aging|ing|age)?|poor pack(aging|ing)?|bad pack(aging|ing)?"
+            r"|box.*damage|damage.*box|crushed|squished|box.*open|open.*box"
+            r"|box.*not.*proper|improper.*packing|packing.*not.*good|packing.*poor"
+            r"|pizza.*stuck.*box|stuck.*to.*box|cheese.*stuck|toppings.*stuck"
+            r"|cap.*tight|bottle.*tight|difficult.*open|hard to open.*bottle"
+            r"|box.*wet|wet.*box|soggy.*box|leaky.*container",
         "Beverage Issue":
             r"coke.*spill|drink.*spill|coke.*tight|bottle.*open|coke.*flat|flat coke"
-            r"|no gas|cold drink.*bad|soda.*missing|lemon soda|coke.*diluted",
+            r"|no gas|cold drink.*bad|soda.*missing|lemon soda|coke.*diluted"
+            r"|cap.*tight.*bottle|bottle.*cap.*tight|cola.*bad|pepsi.*bad",
     },
     "Delivery": {
         "Late Delivery":
             r"late delivery|delivery late|delayed|very late|too late|long time"
             r"|waited.*long|taking.*long|slow delivery|delay|order delayed|order delay"
-            r"|very delayed|delivery.*late|slow delivery|worst delivery|bad delivery",
+            r"|very delayed|delivery.*late|slow delivery|worst delivery|bad delivery"
+            r"|late.*preparation|preparation.*late|waited.*hour|hour.*wait"
+            r"|too long.*deliver|took.*long|took.*time|too much time|lot of time"
+            r"|1\.5 hour|2 hour.*wait|waited 45|waited 1 hour"
+            r"|not on time|commitment.*timeline|delivery timeline|not keeping.*time"
+            r"|order time.*late|bit late.*delivery|delivery time.*long|order.*bit.*late",
         "Not Delivered":
             r"not delivered|order not deliver|delivery not done|no delivery"
-            r"|didn.t deliver|never received|not yet delivered",
+            r"|didn.t deliver|never received|not yet delivered|delivered.*only [0-9]",
         "Delivery Person":
             r"delivery.*rude|rude delivery|delivery guy.*bad|delivery boy.*bad|delivery person.*bad",
     },
@@ -95,7 +147,9 @@ TAXONOMY = {
             r"not worth|overpriced|too expensive|costly|waste of money|money waste"
             r"|very costly|price.*high|high price|not worth the price|not worth the money"
             r"|expensive|waste money|worthless|worth less|not worthy|west of money"
-            r"|over.?priced|shit food",
+            r"|over.?priced|wasted money|felt.*wasted|wasting money|waste.*price"
+            r"|not value|no value|poor value|bad value|overcharge|charged more"
+            r"|price.*not.*justified|not justify.*price|too costly.*for",
         "Good Value":
             r"worth it|value for money|affordable|reasonable price|good price|great value"
             r"|cheap and good|best value|money worth",
@@ -112,11 +166,15 @@ TAXONOMY = {
             r"|nice food|excellent food|osm|awesome food|fabulous|perfect food|lovely"
             r"|good service|fast delivery|on time|good delivery|nice service|good experience"
             r"|satisfied|satisfactory|worth it|must try|always best|good job|great job"
-            r"|thank you|thanks|keep it up|good one|good person|good boy|loved it",
+            r"|thank you|thanks|keep it up|good one|loved it"
+            r"|absolutely loved|thoroughly enjoyed|really enjoyed|loved every bite"
+            r"|finger.?licking|will order again|ordering again|would recommend"
+            r"|highly recommend|definitely order|best.*biryani|best.*pizza|best.*burger"
+            r"|one of the best|best in the area|never disappoints"
+            r"|nyc food|nyc.*packag|nice.*packag|good.*packag|packaging.*good|nice packaging",
         "Specific Praise":
             r"best burger|best cake|best biryani|best pizza|best wrap|loved the burger"
-            r"|pizza.*amazing|biryani.*great|cake.*delicious|cheesecake.*delicious"
-            r"|best biryani|best shawarma|yummy biryani|good biryani",
+            r"|pizza.*amazing|biryani.*great|cake.*delicious|cheesecake.*delicious",
     },
     "App/Platform": {
         "Platform Issue":    r"nisha|rating.*story|story.*rating|college student|selena|zomato.*issue|app.*issue",
@@ -124,17 +182,24 @@ TAXONOMY = {
     },
 }
 
-# ── Short/slang exact-match patterns (checked BEFORE main taxonomy for 1-3 word reviews) ──
-# Each entry: (topic, subtopic, compiled_regex)
+# ── Slang / short patterns (checked first for reviews ≤40 chars) ─────────────
 SLANG_PATTERNS = [
-    # Neutral/ambiguous FIRST so avarage/average don't hit Taste-Bad
+    # Neutral FIRST — so avg/avarage/ok don't bleed into negative
     ("Other Feedback", "General Comment", re.compile(
-        r"^(ok+|okay+|okish|ok\s+ok|okay\s+okay|just\s+ok|average|avg|avarage"
-        r"|not\s+so\s+good|not\s+that\s+good|better|na|hi|let|very|a|\.+|…+"
-        r"|thank\w*|thanks)\s*[!.]*\s*$",
+        r"^(ok+|okay+|okish|ok\s+ok|just\s+ok|average|avg|avarage|av[ge]+|not\s+so\s+good"
+        r"|not\s+that\s+good|better|na|hi|let|very|a|\.+|…+|thank\w*|thanks"
+        r"|sahi\s+hai|theek\s+hai|normal|decent|so\s+so|meh|fine\b)\s*[!.]*\s*$",
         re.IGNORECASE
     )),
-    # ── POSITIVE ──────────────────────────────────────────────────────────────
+    # Positive emoji only
+    ("Positive Overall", "Overall Positive", re.compile(
+        r"^\s*[👍👌🤌🥰😋😁☺😊🙂🫶🤩❤️❤🧡💛💚💙💜🖤🤍🤎💯🌟⭐✨🔥💫👏🎉]+\s*$"
+    )),
+    # Negative emoji only
+    ("Food Quality", "Taste - Bad", re.compile(
+        r"^\s*[👎😡😣🤮💩😔😞😒🤦🙅]+\s*$"
+    )),
+    # Positive single/short words
     ("Positive Overall", "Overall Positive", re.compile(
         r"^(good|goo+d|gu+d|gd|v\s*good|nice|nyc|wow|osm|awesome|super|superb"
         r"|fabulous|fab|amazing|fantastic|perfect|must.?try|yum+|testy|testi"
@@ -144,26 +209,30 @@ SLANG_PATTERNS = [
         r"|great\s+job|good\s+service|nice\s+service|fast\s+delivery|on\s+time"
         r"|good\s+delivery|good\s+experience|nice\s+delivery|good\s+person"
         r"|good\s+boy|thank\s*you|thanks|thankyou|thank|loved\s+it|love\s+it"
-        r"|i\s+love\s+it|must\s+try|always\s+best)\s*[!.😊👍🙂🤌🥰]*\s*$",
+        r"|i\s+love\s+it|must\s+try|always\s+best|very\s+nice|very\s+good"
+        r"|very\s+tasty|very\s+delicious|so\s+tasty|soo\s+tasty|really\s+good"
+        r"|absolutely\s+delicious|great|excellent|wonderful|splendid|marvelous"
+        r"|outstanding|exceptional|delightful|heavenly|divine|scrumptious"
+        r"|finger.?licking|lip.?smacking|mouth.?watering)\s*[!.😊👍🙂🤌🥰]*\s*$",
         re.IGNORECASE
     )),
-    ("Positive Overall", "Overall Positive", re.compile(
-        r"^\s*[👍👌🤌🥰😋😁☺😊🙂🫶🤩]+\s*$"  # positive emoji only
-    )),
+    # Good taste — explicit food quality positive
     ("Food Quality", "Taste - Good", re.compile(
         r"^(good\s+taste|nice\s+taste|great\s+taste|taste\s+is\s+(good|super|great)"
-        r"|taste\s+good|taste\s+was\s+good|it.?s\s+good|food\s+is\s+(good|awesome)"
+        r"|taste\s+good|taste\s+was\s+good|food\s+is\s+(good|awesome|great|nice)"
         r"|good\s+food|nice\s+food|excellent\s+food|amazing\s+food|delicious\s+food"
         r"|tasty\s+food|yummy\s+food|super\s+food|awesome\s+food|best\s+food"
-        r"|good\s+pizza|nice\s+pizza|very\s+nice|very\s+good|very\s+tasty"
-        r"|very\s+delicious|so\s+tasty|soo\s+tasty|food\s+was\s+(good|tasty|awesome)"
-        r"|really\s+awesome|just\s+amazing|super\s+👍|good\s+👍|nice\s+👍|good\s+😊"
-        r"|loved\s+the\s+taste|loved\s+the\s+food|food\s+is\s+awesome"
-        r"|taste\s+so\s+good|it.?s\s+too\s+good)\s*[!.😋👍]*\s*$",
+        r"|good\s+pizza|nice\s+pizza|very\s+nice|very\s+tasty|very\s+delicious"
+        r"|so\s+tasty|soo\s+tasty|food\s+was\s+(good|tasty|awesome|great|amazing)"
+        r"|really\s+awesome|just\s+amazing|loved\s+the\s+taste|loved\s+the\s+food"
+        r"|food\s+is\s+awesome|taste\s+so\s+good|it.?s\s+too\s+good"
+        r"|great\s+biryani|nice\s+biryani|tasty\s+biryani|good\s+biryani"
+        r"|great\s+burger|nice\s+burger|tasty\s+burger|good\s+burger"
+        r"|great\s+pizza|tasty\s+pizza|good\s+pizza|amazing\s+pizza"
+        r"|great\s+wrap|good\s+wrap|tasty\s+wrap)\s*[!.😋👍]*\s*$",
         re.IGNORECASE
     )),
-
-    # ── NEGATIVE — Taste ──────────────────────────────────────────────────────
+    # Bad — negative short
     ("Food Quality", "Taste - Bad", re.compile(
         r"^(bad|very\s+bad|so\s+bad|too\s+bad|no\s+good|not\s+good|not\s+nice"
         r"|not\s+good\s+at\s+all|not\s+at\s+all\s+good|it.?s\s+not\s+good"
@@ -181,149 +250,163 @@ SLANG_PATTERNS = [
         r"|not\s+worth\s+it|waste|waste\s+food|shame|bad\s+in\s+taste"
         r"|taste\s+very\s+bad|taste\s+is\s+bad|very\s+bad\s+test"
         r"|not\s+testy|taste\s+less|tasteless\s+food|taste\s+less\s+food"
-        r"|ghatiya|bakwas\s+taste|so\s+sweet|too\s+sweet|avarage|avarage\s+food"
-        r"|baad|not\s+so\s+(tasty|good)|not\s+nice|it\s+was\s+not\s+good)\s*[!.😡👎😣🤮💩]*\s*$",
+        r"|baad|not\s+so\s+(tasty|good)|not\s+nice|it\s+was\s+not\s+good"
+        r"|nt\s+good|nor\s+good|not\s+tasted\s+well|let\s+down"
+        r"|worst|smarr|wost|vry\s+bad|nt\s+gd)\s*[!.😡👎😣🤮💩]*\s*$",
         re.IGNORECASE
     )),
-    ("Food Quality", "Taste - Bad", re.compile(
-        r"^\s*[👎😡😣🤮💩😔]+\s*$"  # negative emoji only
-    )),
-
-    # ── NEGATIVE — Temperature ────────────────────────────────────────────────
+    # Cold — temperature
     ("Food Quality", "Temperature - Cold Food", re.compile(
-        r"^(cold|(it.?s|was|food\s+(is|was))\s+cold|(too|very)\s+cold"
-        r"|(pizza|biryani|burger|rice|food)\s+(is|was)\s+cold"
-        r"|delivered\s+cold|cold\s+(pizza|biryani|food|burger|order)"
+        r"^(cold|(it.?s|was|food\s+(is|was))\s+cold|(too|very|totally|completely)\s+cold"
+        r"|(pizza|biryani|burger|rice|food|dal|sabzi|roti|wrap|paratha)\s+(is|was|arrived)?\s*cold"
+        r"|delivered\s+cold|cold\s+(pizza|biryani|food|burger|order|roti|paratha|dal)"
         r"|(not\s+(hot|at\s+all\s+hot)|pizza\s+not\s+hot)"
         r"|it\s+was\s+not\s+hot|order\s+was\s+cold|very\s+cold\s+food"
-        r"|pizza\s+was\s+cold|it.?s\s+cold)\s*[!.]*\s*$",
+        r"|thanda|thandi|thanda\s+tha|thanda\s+aa|came\s+cold|reached\s+cold"
+        r"|stone\s+cold|ice\s+cold|like\s+fridge)\s*[!.]*\s*$",
         re.IGNORECASE
     )),
-
-    # ── NEGATIVE — specific single-word quality issues ─────────────────────
-    ("Food Quality", "Texture - Soggy", re.compile(
-        r"^(dry|very\s+dry|too\s+dry|oily|too\s+(much\s+)?oily|(very\s+)?salty"
-        r"|too\s+much\s+salt|too\s+much\s+masala|(too|very)\s+spicy|very\s+hard"
-        r"|spicy|hard|very\s+spicy)\s*[!.]*\s*$",
-        re.IGNORECASE
-    )),
-    ("Food Quality", "Cooking - Undercooked", re.compile(
-        r"^(uncooked|uncooked\s+(food|rice)|undercooked|rice\s+not\s+boiled"
-        r"|not\s+well\s+cooked)\s*[!.]*\s*$",
-        re.IGNORECASE
-    )),
-    ("Food Quality", "Cooking - Overcooked/Hard", re.compile(
-        r"^(overcooked|over\s+cooked|burnt\s+(food|pizza)?|its?\s+burned?)\s*[!.]*\s*$",
-        re.IGNORECASE
-    )),
-    ("Food Quality", "Freshness - Stale/Bad Smell", re.compile(
-        r"^(stale|stale\s+food|food\s+was\s+stale|rotten|rotten\s+food"
-        r"|spoiled\s+food|bad\s+smell)\s*[!.]*\s*$",
-        re.IGNORECASE
-    )),
-
-    # ── QUANTITY ──────────────────────────────────────────────────────────────
+    # Quantity
     ("Quantity", "Portion Too Small", re.compile(
-        r"^((low|poor|very\s+less|less|worst|very\s+small|very\s+poor)\s+quantity"
+        r"^((low|poor|very\s+less|less|worst|very\s+small|very\s+poor|quite\s+less|too\s+less)\s+quantity"
         r"|quantity\s+(is\s+)?(low|less|very\s+less)|quantity\s+low|not\s+enough"
-        r"|less\s+pieces|poor\s+quantity|low\s+quantity|very\s+small"
-        r"|quantity)\s*[!.]*\s*$",
+        r"|less\s+pieces|poor\s+quantity|low\s+quantity|very\s+small|quantity"
+        r"|too\s+less|so\s+less|very\s+tiny)\s*[!.]*\s*$",
         re.IGNORECASE
     )),
     ("Quantity", "Missing Items", re.compile(
-        r"^((item|items|order|egg|coke)\s+missing|missing\s+item(s)?"
-        r"|not\s+received|no\s+(sauce|cutlery)|coke\s+is\s+missing"
-        r"|no\s+masala|no\s+rajma|no\s+salad|items\s+missing|order\s+missing)\s*[!.]*\s*$",
+        r"^((item|items|order|egg|coke|chip|seasoning|chutney|dip|sauce)\s+missing"
+        r"|missing\s+item(s)?|not\s+received|no\s+(sauce|cutlery)|coke\s+is\s+missing"
+        r"|forgot\s+to\s+(send|give|add|include)|not\s+given|not\s+provided"
+        r"|items\s+missing|order\s+missing)\s*[!.]*\s*$",
         re.IGNORECASE
     )),
-
-    # ── DELIVERY ──────────────────────────────────────────────────────────────
+    # Delivery
     ("Delivery", "Late Delivery", re.compile(
-        r"^((very\s+)?late|(too\s+)?late|(slow|worst|bad)\s+delivery"
-        r"|delivery\s+late|(order\s+)?delayed?|very\s+delayed?|(order\s+)?delay"
-        r"|very\s+delay|slow\s+delivery|delivery\s+is\s+late|too\s+late)\s*[!.]*\s*$",
+        r"^((very|too|so)?\s*late|(too\s+)?late|(slow|worst|bad)\s+delivery"
+        r"|delivery\s+late|(order\s+)?delay(ed)?|very\s+delay(ed)?"
+        r"|slow\s+delivery|delivery\s+is\s+late|too\s+late"
+        r"|took\s+too\s+long|took\s+long|long\s+time|too\s+much\s+time"
+        r"|late\s+preparation|not\s+on\s+time|very\s+slow)\s*[!.]*\s*$",
         re.IGNORECASE
     )),
-
-    # ── PACKAGING ─────────────────────────────────────────────────────────────
+    # Packaging
     ("Packaging", "Packaging Damaged", re.compile(
         r"^(worst|poor|bad)\s+pack(aging|ing|age)?\s*[!.]*\s*$",
         re.IGNORECASE
     )),
-
-    # ── VALUE FOR MONEY ───────────────────────────────────────────────────────
+    # Value
     ("Value for Money", "Overpriced / Not Worth", re.compile(
         r"^(waste\s+of\s+money|west\s+of\s+money|waste\s+money|not\s+worth\s+it"
         r"|not\s+worthy|worthless|worth\s+less|expensive|over.?priced"
-        r"|not\s+worth[!.]*|waste[!.]*)\s*[!.]*\s*$",
+        r"|not\s+worth[!.]*|waste[!.]*|wasted\s+money|money\s+waste)\s*[!.]*\s*$",
         re.IGNORECASE
     )),
-
-    # ── NEUTRAL / AMBIGUOUS → Other Feedback ─────────────────────────────────
-    ("Other Feedback", "General Comment", re.compile(
-        r"^(ok+|okay+|okish|ok\s+ok|okay\s+okay|just\s+ok|average|avg|avarage"
-        r"|av[ge]+|not\s+so\s+good|not\s+that\s+good|better|satisf\w+"
-        r"|below\s+average|na|hi|let|very|a|\.+|…+|thank\w*|thanks)\s*[!.]*\s*$",
+    # Undercooked
+    ("Food Quality", "Cooking - Undercooked", re.compile(
+        r"^(uncooked|uncooked\s+(food|rice)|undercooked|rice\s+not\s+boiled"
+        r"|not\s+well\s+cooked|half.?baked|raw|sticky.*rice|clumped.*rice"
+        r"|rice.*sticky|rice.*clump)\s*[!.]*\s*$",
         re.IGNORECASE
+    )),
+    # Burnt / Overcooked
+    ("Food Quality", "Cooking - Overcooked/Hard", re.compile(
+        r"^(overcooked|over\s+cooked|burnt\s+(food|pizza)?|its?\s+burned?"
+        r"|slightly\s+burnt|a\s+bit\s+burnt|charred)\s*[!.]*\s*$",
+        re.IGNORECASE
+    )),
+    # Stale
+    ("Food Quality", "Freshness - Stale/Bad Smell", re.compile(
+        r"^(stale|stale\s+food|food\s+was\s+stale|rotten|rotten\s+food"
+        r"|spoiled\s+food|bad\s+smell|not\s+fresh|bun.*not\s+fresh"
+        r"|fresh.*not|burger.*not\s+fresh)\s*[!.]*\s*$",
+        re.IGNORECASE
+    )),
+    # Texture
+    ("Food Quality", "Texture - Soggy", re.compile(
+        r"^(dry|very\s+dry|too\s+dry|oily|too\s+(much\s+)?oily|(very\s+)?salty"
+        r"|too\s+much\s+salt|too\s+much\s+masala|(too|very)\s+spicy|very\s+hard"
+        r"|spicy|hard|soggy|very\s+soggy|pizza\s+soggy|soggy\s+pizza)\s*[!.]*\s*$",
+        re.IGNORECASE
+    )),
+    # Late — as single word
+    ("Delivery", "Late Delivery", re.compile(
+        r"^(late|delayed|slow)\s*$", re.IGNORECASE
     )),
 ]
 
-
 TOPIC_ORDER = [
-    "Food Quality", "Quantity", "Wrong Order", "Packaging",
-    "Delivery", "Value for Money", "Hygiene",
-    "Positive Overall", "App/Platform", "Other Feedback",
+    "Food Quality","Quantity","Wrong Order","Packaging",
+    "Delivery","Value for Money","Hygiene",
+    "Positive Overall","App/Platform","Other Feedback",
 ]
 
 TOPIC_COLORS = {
-    "Food Quality":     "#E24B4A",
-    "Positive Overall": "#3B6D11",
-    "Other Feedback":   "#888780",
-    "Quantity":         "#BA7517",
-    "Wrong Order":      "#534AB7",
-    "Value for Money":  "#185FA5",
-    "Delivery":         "#0F6E56",
-    "Packaging":        "#D4537E",
-    "App/Platform":     "#378ADD",
-    "Hygiene":          "#F09595",
+    "Food Quality":"#E24B4A","Positive Overall":"#3B6D11",
+    "Other Feedback":"#888780","Quantity":"#BA7517",
+    "Wrong Order":"#534AB7","Value for Money":"#185FA5",
+    "Delivery":"#0F6E56","Packaging":"#D4537E",
+    "App/Platform":"#378ADD","Hygiene":"#F09595",
 }
 
-
 def classify(comment, rating=None):
-    """
-    Return (topic, subtopic) for a review comment.
-    Strategy:
-    1. Short/slang exact patterns first (handles single-word and emoji reviews)
-    2. Full phrase patterns (TAXONOMY)
-    3. Rating-based fallback
-    """
     if not comment or len(str(comment).strip()) < 1:
         return "No Comment", "N/A"
-
     c = str(comment).strip()
 
-    # Step 1: short/slang exact patterns (best for 1-3 word reviews)
+    # Rating guard — reviews ≤2.5★ cannot be Positive Overall
+    is_low_rating = False
+    if rating is not None:
+        try:
+            if float(rating) <= 2.0:
+                is_low_rating = True
+        except: pass
+
+    # Negation detector — prevents "not good food" / "thanks for wasting money"
+    # / "best box but taste is bad" from triggering Positive Overall
+    NEGATION = re.compile(
+        r'\b(not|no\b|never|worst|bad\b|terrible|horrible|awful|poor\b|disappoint|'
+        r'waste|pathetic|disgusting|fraud|bekar|bakwas|ghatiya|never again|do not|'
+        r'don.t|can.t|won.t|wont|zero\b|fall in quality|never order|don.t order|'
+        r'do not order|refund|not satisfied|not happy|unhappy|worse than|'
+        r'nothing like|far from|unsatisf|not recommended|do not buy|don.t buy|'
+        r'average\b|only.*spoon|no.*cheese|no.*chicken|no.*rice|no.*gravy|'
+        r'missing|not fresh|stale|cold\b|not prepared|not on time|never ordering)\b',
+        re.IGNORECASE
+    )
+
+    # Step 1: slang/short patterns (≤40 chars)
     if len(c) <= 40:
         for topic, subtopic, regex in SLANG_PATTERNS:
-            if regex.search(c):
-                return topic, subtopic
+            try:
+                if regex.search(c):
+                    if is_low_rating and topic == "Positive Overall":
+                        if NEGATION.search(c):
+                            continue
+                    return topic, subtopic
+            except: pass
 
-    # Step 2: main phrase taxonomy
+    # Step 2: main taxonomy — skip Positive Overall for low-rated / negated comments
     cl = c.lower()
     for topic, subtopics in TAXONOMY.items():
         for subtopic, pattern in subtopics.items():
-            if re.search(pattern, cl):
-                return topic, subtopic
+            try:
+                if re.search(pattern, cl):
+                    if topic == "Positive Overall":
+                        if is_low_rating:
+                            continue  # low rating — skip, keep looking
+                        if NEGATION.search(c):
+                            continue  # negation found — not genuinely positive
+                    return topic, subtopic
+            except: pass
 
     # Step 3: rating fallback
     if rating is not None:
         try:
             r = float(rating)
-            if r >= 4.5:
-                return "Positive Overall", "Overall Positive"
-            elif r <= 1.5:
-                return "Food Quality", "Taste - Bad"
-        except (ValueError, TypeError):
-            pass
+            if r >= 4.5: return "Positive Overall", "Overall Positive"
+            elif r <= 1.5: return "Food Quality", "Taste - Bad"
+        except: pass
 
     return "Other Feedback", "General Comment"
+
